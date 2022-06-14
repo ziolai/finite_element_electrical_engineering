@@ -28,7 +28,19 @@ The course consists of two hours of lectures and four hours of computer lab sess
 2. [Comsol Multiphysics Finite Element Method](https://www.comsol.com/multiphysics/finite-element-method): more information and illustrations; 
 3. [Sphinx Finite Element Method](http://hplgit.github.io/INF5620/doc/pub/sphinx-fem/): reference for implementation;
 
-## Section 2:/ Planned Extensions 
+## Section 2:/ Lectures 
+Provide link to slides available at [shared drive](https://mega.nz/fm/CcsEnLxL), recordings and in-class notebooks. 
+
+## Section 3:/ Lab Sessions
+1. First lab session on FGMSH
+2. [second lab session](lab-sessions/second-lab-session.ipynb)
+3. [third lab session](lab-sessions/third-lab-session.ipynb)
+4. [fourth lab session](lab-sessions/fourth-lab-session.ipynb)
+5. [fifth lab session](lab-sessions/fifth-lab-session.ipynb)
+6. [sixth lab session](lab-sessions/sixth-lab-session.ipynb)
+7. [seventh lab session](lab-sessions/seventh-lab-session.ipynb)
+
+## Section 4:/ Planned Extensions 
 
 We hired the master student Gijs Lagerweij (100 hours) to extends the course material as described below. Previous work by Gijs in context of EE4375 is describe on [Github Gijs Lagerweij](https://github.com/gijswl/ee4375_fem). 
 
@@ -104,7 +116,7 @@ Provide options for students to choose from;
 5. Telsa Model 3 S Motor: https://www.youtube.com/watch?v=esUb7Zy5Oio
 
 
-## Section 3:/ Details three-phase distribution transformer 
+## Section 5:/ Details three-phase distribution transformer 
 In this section we described the three-phase distribution transformer considered in the [master thesis of Max van Dijk](https://repository.tudelft.nl/islandora/object/uuid%3A15b25b42-e04b-4ff2-a187-773bc170f061?collection=education). We plan to 
 1. define geometry and mesh using GMSH; provide labels for subdomains and subboundaries;
 2. discretize and solve using gridap.jl (or alternative);
