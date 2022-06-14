@@ -1,0 +1,120 @@
+# Finite Element Methods for Electrical Engineering Applications (EE4375)
+
+# Section 1:/ Introduction
+
+This course consists of three blocks. 
+
+### First Block 
+In the first block we discuss the finite difference method to solve the Poisson equation in one and two spatial dimensions. We restrict ourselves to the interval and the square discretized by a uniform mesh. The Poisson equation models a diffusion process and typically appears in the computation of electrostatic and magneto-static fields. Our motivation is to introduce initial problem formulations and simplified numerical solution methods. 
+
+### Second Block 
+In the second block we discuss the variational formulation of the Poisson equation in one spatial dimension. This variational formulation allows to subsequently solve the problem by a finite element method using non-uniform meshes. We show that the versatility of the finite element method in solving problems that are more complex than in the first block. 
+
+### Third Block 
+In the third and last block we discuss the finite element solution of the Poisson equation in two spatial dimension. We discuss the mesh generation using triangle and the construction of the discrete problem using a loop over all elements. We illustrate the method in the computation of magnetostatic fields in transformers and electrical machines.  
+
+### Assessment 
+Each block will be concluded with a graded homework assignment. The three homework assignments have to be defended during the oral exam. 
+
+### Learning Activities 
+The course consists of two hours of lectures and four hours of computer lab sessions each week. We will use the programing language julia (see julialang.org) and Jupiter notebooks to develop the assignments. We will use the gmsh mesh generation software. You are kindly requested to install Julia, the Jupiter notebook system and the Julia interface to gmsh (Gmsh.jl) on your laptop. You are most welcome to give a look at the references below. 
+
+### References for First Block
+1. [wiki on discrete Poisson matrix](https://en.wikipedia.org/wiki/Discrete_Poisson_equation)  
+2. [wiki on finite difference method](https://en.wikipedia.org/wiki/Finite_difference_method) 
+
+### References for Second Block
+1. [wiki Finite Element Method](https://en.wikipedia.org/wiki/Finite_element_method): Section 3 for the weak form and Section 4 for the finite element discretization;  
+2. [Comsol Multiphysics Finite Element Method](https://www.comsol.com/multiphysics/finite-element-method): more information and illustrations; 
+3. [Sphinx Finite Element Method](http://hplgit.github.io/INF5620/doc/pub/sphinx-fem/): reference for implementation;
+
+## Section 2:/ Planned Extensions 
+
+We hired the master student Gijs Lagerweij (100 hours) to extends the course material as described below. Previous work by Gijs in context of EE4375 is describe on [Github Gijs Lagerweij](https://github.com/gijswl/ee4375_fem). 
+
+### More pointers/exercises/support for Julia in general, Julia for FEM specifically and GMSH  
+
+#### Julia in General 
+Reconsider Julia specific assignments in EE4375-2022; 
+single vs. multiple dispatch, eager vs. lazy evaluation, callable struct, automatic differentiation;  
+Provide list of pointers in a Jupiter notebook;  
+
+#### Julia for FEM specifically 
+Refer to grid.jl, ferritefem.jl and zygote.jl; 
+Recommend WriteVTK.jl tyo visualize the results using Paraview or use Makie instead; 
+
+####  Extend documentation on GMSH; check what is available on the GMSH website; 
+1. install and running [GMSH](https://gmsh.info); 
+2. insert links to existing documentation; 
+3. generate geometry (points, lines, surfaces with consequitive labels);
+4. generate mesh;
+5. retrieve mesh points, edges and elements from GMSH data structure in loops in notebook
+6. post-process results; 
+
+#### Add as exercises on the use of GMSH  
+1. semi-circle from Victoria Hernandez (parametrize geometry with r and a, take r=0.133 m and a = 0.01 m, share figures with Gijs)
+2. transformer from Max van Dijk (need to inquire dimensions, ask Max after Gijs has placed notebook online)
+3. linear actuator (need to recover dimensions from papers)
+4. machine from Jianning Dong (see hard drive); 
+
+### Homework-2 - 1D FEM Model  
+
+#### Eddy Current Assignment:  analytical part 
+1. extend text of the assignment: specify geometry of air-coil-core; specify material coefficients on domain; 
+2. derive equation for the z-component of the vector potential; analytical reference solution; expression for skin depth; 
+3. extend documentation to cover mass matrix per element using linear elements; 
+4. extend documentation to cover stiffness and mass matrix per element and assembly using quadratic elements; see notebook in part developed using Sympy; 
+5. document assembly with triple loop, single loop and no loop using sparse command; 
+6. extend to stiffness to spatially variable diffusion coefficient - quadrature for integration per element; 
+7. provide list of pointers in a Jupiter notebook; 
+ 
+#### Eddy Current Assignment: numerical part:  
+1. generate mesh ensuring presence of nodes on subdomain boundaries; 
+2. solving using first and second order elements for various current values in the coil; 
+3. post-process for magnetic potential, flux B and field H;
+4. compare with analytical solution for various mesh sizes for first and second order elements; 
+5. sparse linear (Krylov and algebraic multigrid) solvers for large scale problems  
+
+#### Saturation Assignment: analytical part:
+
+1. add automatic differentiation in Julia to compute the sparse Jacobian;
+ 
+#### Saturation Assignment: numerical part: 
+
+1. solve non-linear problem without Jacobian using fixed-point iteration; linear computation as initial guess; post-process for normB; retrieve mur for non-linear material characteristic tabulated as mur vs. Mur; repeat until convergence; 
+
+2. solve non-linear problem with Jacobian using Newton iteration; provide function for non-linear residual and  its Jacobian to non-linear system solver such as solve() or find_zeros(); see HW2 by Anna in. 2022; computation of the Jacobian will required more attention; provide details for the linear case first; in linear case R(\vec{c}) = A \vec{c} - f and J(\vec{c}) = A; in case of the 1D finite difference method on a uniform mesh A =B^T D B independent of \vec{c} where D_j is the value of the diffusion coefficient on the j-th element; in non-linear case R(\vec{c}) = A(\vec{c}) \vec{c} - f and J(\vec{c}) = A + (dA/dc)*\vec{c}; in case of the 1D finite difference method on a uniform mesh dA/dc =B^T dD/dc B; need to provide more details on how D depends on \vec{c}
+
+3. look into packages such as zygote.jl and ChainRules; ask on discourse forum; maybe do finite differences first; provide references; 
+
+#### Combination of Two Above Assignments: Modeling Eddy Currents in the Presence of Saturation 
+
+### Homework-3 - 2D FEM Model
+
+Provide options for students to choose from; 
+
+1. three-phase distribution transformer STEDIN example (Max van Dijk master thesis): Description, mesh, assembly, solve, include field-circuit coupling; post-processing  
+
+2. modeling of rotating machine (GMSH input available): geometry definition including motion 
+
+3. linear actuator (GMSH inputy to be defined) with implementation of physics described in HW2. 
+
+4. Contactless energy transfer - Litz wire 
+
+5. Telsa Model 3 S Motor: https://www.youtube.com/watch?v=esUb7Zy5Oio
+
+
+## Section 3:/ Details three-phase distribution transformer 
+In this section we described the three-phase distribution transformer considered in the [master thesis of Max van Dijk](https://repository.tudelft.nl/islandora/object/uuid%3A15b25b42-e04b-4ff2-a187-773bc170f061?collection=education). We plan to 
+1. define geometry and mesh using GMSH; provide labels for subdomains and subboundaries;
+2. discretize and solve using gridap.jl (or alternative);
+3. discretize and solve using home-brewed using P1 and P2 elements; 
+4. post-process using Makie.jl or alternative; 
+
+<img src="./figures/max-dijk-trafo1.png" width=500 height=500 /> 
+<img src="./figures/max-dijk-trafo2.png" width=500 height=500 />
+<img src="./figures/max-dijk-trafo3.png" width=500 height=500 />
+
+
+
+
