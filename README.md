@@ -20,8 +20,13 @@ Each block will be concluded with a graded homework assignment. The three homewo
 The course consists of two hours of lectures and four hours of computer lab sessions each week. We will use the programing language julia (see julialang.org) and Jupiter notebooks to develop the assignments. We will use the gmsh mesh generation software. You are kindly requested to install Julia, the Jupiter notebook system and the Julia interface to gmsh (Gmsh.jl) on your laptop. You are most welcome to give a look at the references below. 
 
 ### References for First Block
-1. [wiki on discrete Poisson matrix](https://en.wikipedia.org/wiki/Discrete_Poisson_equation)  
-2. [wiki on finite difference method](https://en.wikipedia.org/wiki/Finite_difference_method) 
+1. [wiki on the Laplace equation](https://en.wikipedia.org/wiki/Laplace's_equation)
+2. [wiki on the Poisson equation](https://en.wikipedia.org/wiki/Poisson%27s_equation): including an example on electrostatics
+3. [wiki on boundary value problem](https://en.wikipedia.org/wiki/Boundary_value_problem)
+4. [wiki on electrostatics](https://en.wikipedia.org/wiki/Electrostatics)
+5. [wiki on magnetostatics](https://en.wikipedia.org/wiki/Magnetostatics)
+6. [wiki on discrete Poisson matrix](https://en.wikipedia.org/wiki/Discrete_Poisson_equation)  
+7. [wiki on finite difference method](https://en.wikipedia.org/wiki/Finite_difference_method) 
 
 ### References for Second Block
 1. [wiki Finite Element Method](https://en.wikipedia.org/wiki/Finite_element_method): Section 3 for the weak form and Section 4 for the finite element discretization;  
@@ -32,7 +37,7 @@ The course consists of two hours of lectures and four hours of computer lab sess
 Provide link to slides available at [shared drive](https://mega.nz/fm/CcsEnLxL), recordings and in-class notebooks. 
 
 ## Section 3:/ Lab Sessions
-1. First lab session on FGMSH
+1. [first lab session](lab-sessions/first-lab-session.ipynb)
 2. [second lab session](lab-sessions/second-lab-session.ipynb)
 3. [third lab session](lab-sessions/third-lab-session.ipynb)
 4. [fourth lab session](lab-sessions/fourth-lab-session.ipynb)
@@ -116,7 +121,15 @@ Provide options for students to choose from;
 5. Telsa Model 3 S Motor: https://www.youtube.com/watch?v=esUb7Zy5Oio
 
 
-## Section 5:/ Details three-phase distribution transformer 
+## Section 5:/ Examples on the use of GMSH 
+
+[Seven Examples from tutorials/julia](https://gitlab.onelab.info/gmsh/gmsh/-/tree/master/tutorials/julia)
+
+[Examples within JuliaFEM](https://github.com/JuliaFEM/Gmsh.jl): see test-directory for two examples; mesh on triangle; mesh on other examples
+
+[Examples on stackexchange](https://scicomp.stackexchange.com/questions/30169/connectivity-matrix-in-finite-element-method-in-triangular-elements): small mesh om square geometry; 
+
+## Section 6:/ Details three-phase distribution transformer 
 In this section we described the three-phase distribution transformer considered in the [master thesis of Max van Dijk](https://repository.tudelft.nl/islandora/object/uuid%3A15b25b42-e04b-4ff2-a187-773bc170f061?collection=education). We plan to 
 1. define geometry and mesh using GMSH; provide labels for subdomains and subboundaries;
 2. discretize and solve using gridap.jl (or alternative);
