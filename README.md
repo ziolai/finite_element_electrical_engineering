@@ -37,7 +37,7 @@ The course consists of two hours of lectures and four hours of computer lab sess
 Provide link to slides available at [shared drive](https://mega.nz/fm/CcsEnLxL), recordings and in-class notebooks. 
 
 ## Section 3:/ Lab Sessions
-1. [first lab session](lab-sessions/first-lab-session.ipynb)
+1. [first lab session](lab-sessions/first-lab-session.ipynb) and [small GMSH manual](lab-sessions/Mesh-Generation-using-Gmsh.html)
 2. [second lab session](lab-sessions/second-lab-session.ipynb)
 3. [third lab session](lab-sessions/third-lab-session.ipynb)
 4. [fourth lab session](lab-sessions/fourth-lab-session.ipynb)
