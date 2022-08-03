@@ -52,12 +52,27 @@ We hired the master student Gijs Lagerweij (100 hours) to extends the course mat
 ### More pointers/exercises/support for Julia in general, Julia for FEM specifically and GMSH  
 
 #### Julia in General 
-Reconsider Julia specific assignments in EE4375-2022; 
-single vs. multiple dispatch, eager vs. lazy evaluation, callable struct, automatic differentiation;  
-Provide list of pointers in a Jupiter notebook;  
+Provide list of pointers in a Jupiter notebook on the arguments that follow: 
+
+<b> single vs. multiple dispatch </b>
+
+See [section Methods in the Julia manual](https://docs.julialang.org/en/v1/manual/methods/); small example on [wiki on multiple dispath](https://en.wikipedia.org/wiki/Multiple_dispatch); video [The Unreasonable Effectedness of Multiple Dispatch” by Stefan Karpinski](https://www.youtube.com/watch?v=kc9HwsxE1OY); any other video, blog post can act as a refere; ask students to read through the documentation, give an example from documentartion and give own example; 
+
+<b> eager vs. lazy evaluation </b>
+
+A lazily-evaluated list is a list whose elements are not evaluated when it's constructed, but rather when it is accessed.
+The benefit of lazy operations is that they can be materialized in-place, possible using simplifications. For example, allows to implement BLAS-1 in place operations. Allows allocation free population of vectors using heat, vcat and copy! 
+Examples from https://github.com/MikeInnes/Lazy.jl or https://github.com/JuliaArrays/LazyArrays.jl 
+
+<b> function like objects and callable structs </b> 
+
+See heading Function like objects in [section Methods in the Julia manual](https://docs.julialang.org/en/v1/manual/methods/); struct (data) with a method (function) associated to it; example of polynomial; ask students to read through the documentation, give an example from documentartion and give own example; 
+
+<b> automatic differentiation </b>
+See [zygote](https://fluxml.ai/Zygote.jl/latest/) and [enzyme](https://enzyme.mit.edu/julia/); 
 
 #### Julia for FEM specifically 
-Refer to grid.jl, ferritefem.jl and zygote.jl; 
+Refer to grid.jl and ferritefem.jl; 
 Recommend WriteVTK.jl tyo visualize the results using Paraview or use Makie instead; 
 
 ####  Extend documentation on GMSH; check what is available on the GMSH website; 
@@ -76,6 +91,10 @@ Recommend WriteVTK.jl tyo visualize the results using Paraview or use Makie inst
 
 ### Homework-2 - 1D FEM Model  
 
+#### Eddy Current Assignment:  modeling part
+1. explain what eddy currents are and how this effect is modeled mathematically; 
+2. give expression for skin-depth; 
+
 #### Eddy Current Assignment:  analytical part 
 1. extend text of the assignment: specify geometry of air-coil-core; specify material coefficients on domain; 
 2. derive equation for the z-component of the vector potential; analytical reference solution; expression for skin depth; 
@@ -92,6 +111,10 @@ Recommend WriteVTK.jl tyo visualize the results using Paraview or use Makie inst
 4. compare with analytical solution for various mesh sizes for first and second order elements; 
 5. sparse linear (Krylov and algebraic multigrid) solvers for large scale problems  
 
+#### Saturation Assignment: modeling part:
+1. explain what saturation is and how it is modeled mathematically; 
+2. choose example of $B$-$H$ curve; show linear behavior with small and large mur value; show how to derive $\mu_r$ and $d \mu_r / d \, normB$ from the curve (derivative of a cubic spline interpolation); 
+
 #### Saturation Assignment: analytical part:
 
 1. add automatic differentiation in Julia to compute the sparse Jacobian;
@@ -100,7 +123,7 @@ Recommend WriteVTK.jl tyo visualize the results using Paraview or use Makie inst
 
 1. solve non-linear problem without Jacobian using fixed-point iteration; linear computation as initial guess; post-process for normB; retrieve mur for non-linear material characteristic tabulated as mur vs. Mur; repeat until convergence; 
 
-2. solve non-linear problem with Jacobian using Newton iteration; provide function for non-linear residual and  its Jacobian to non-linear system solver such as solve() or find_zeros(); see HW2 by Anna in. 2022; computation of the Jacobian will required more attention; provide details for the linear case first; in linear case R(\vec{c}) = A \vec{c} - f and J(\vec{c}) = A; in case of the 1D finite difference method on a uniform mesh A =B^T D B independent of \vec{c} where D_j is the value of the diffusion coefficient on the j-th element; in non-linear case R(\vec{c}) = A(\vec{c}) \vec{c} - f and J(\vec{c}) = A + (dA/dc)*\vec{c}; in case of the 1D finite difference method on a uniform mesh dA/dc =B^T dD/dc B; need to provide more details on how D depends on \vec{c}
+2. solve non-linear problem with Jacobian using Newton iteration; provide function for non-linear residual and  its Jacobian to non-linear system solver such as solve() or find_zeros(); computation of the Jacobian will required more attention; provide details for the linear case first; in linear case R(\vec{c}) = A \vec{c} - f and J(\vec{c}) = A; in case of the 1D finite difference method on a uniform mesh A =B^T D B independent of \vec{c} where D_j is the value of the diffusion coefficient on the j-th element; in non-linear case R(\vec{c}) = A(\vec{c}) \vec{c} - f and J(\vec{c}) = A + (dA/dc)*\vec{c}; in case of the 1D finite difference method on a uniform mesh dA/dc =B^T dD/dc B; need to provide more details on how D depends on \vec{c}; dD/dc = dD/dnormB dnormB/dc; dD/dnormB = dmur/dnormB from BH-curve interpolated using cubic splines;  need to make specific given de particular BH-curve; dnormB/dc from the expression of normB as function of c; 
 
 3. look into packages such as zygote.jl and ChainRules; ask on discourse forum; maybe do finite differences first; provide references; 
 
