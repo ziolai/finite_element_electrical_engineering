@@ -1,0 +1,10 @@
+[deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+DiffEqOperators = "9fdde737-9c7f-55bf-ade8-46b3f136cc48"
+DomainSets = "5b8099bc-c8ec-5219-889f-1d9e522a28bf"
+Gmsh = "705231aa-382f-11e9-3f0c-b7cb4346fdeb"
+LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
+MethodOfLines = "94925ecb-adb7-4558-8ed8-f975c56a0bf4"
+ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
+NonlinearSolve = "8913a72c-1f9b-4ce2-8d82-65094dcecaec"
+OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
