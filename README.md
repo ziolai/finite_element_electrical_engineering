@@ -1,6 +1,6 @@
 # Finite Element Methods for Electrical Engineering Applications (EE4375)
 
-# Section 1:/ Introduction
+## Section 1:/ Introduction
 
 This course consists of three blocks. 
 
@@ -29,9 +29,11 @@ The course consists of two hours of lectures and four hours of computer lab sess
 7. [wiki on finite difference method](https://en.wikipedia.org/wiki/Finite_difference_method) 
 
 ### References for Second Block
-1. [wiki Finite Element Method](https://en.wikipedia.org/wiki/Finite_element_method): Section 3 for the weak form and Section 4 for the finite element discretization;  
-2. [Comsol Multiphysics Finite Element Method](https://www.comsol.com/multiphysics/finite-element-method): more information and illustrations; 
-3. [Sphinx Finite Element Method](http://hplgit.github.io/INF5620/doc/pub/sphinx-fem/): reference for implementation;
+1. [Introduction to Numerical Methods for Variational Problems](https://link.springer.com/book/10.1007/978-3-030-23788-2) by Hans Petter Langtangen and Kent-Andre Mardal. The [book](https://link.springer.com/book/10.1007/978-3-030-23788-2) is freely available; 
+2. [Wolfgang Bangerth's video lectures](https://www.math.colostate.edu/~bangerth/videos.html); 
+3. [wiki Finite Element Method](https://en.wikipedia.org/wiki/Finite_element_method): Section 3 for the weak form and Section 4 for the finite element discretization;  
+4. [Comsol Multiphysics Finite Element Method](https://www.comsol.com/multiphysics/finite-element-method): more information and illustrations; 
+5. [Sphinx Finite Element Method](http://hplgit.github.io/INF5620/doc/pub/sphinx-fem/): reference for implementation;
 
 ## Section 2:/ Lectures 
 Provide link to slides available at [shared drive](https://mega.nz/fm/CcsEnLxL), recordings and in-class notebooks. 
@@ -46,5 +48,6 @@ Provide link to slides available at [shared drive](https://mega.nz/fm/CcsEnLxL),
 7. [seventh lab session](lab-sessions/seventh-lab-session.ipynb)
 
 
+```julia
 
-
+```
