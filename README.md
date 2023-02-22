@@ -40,7 +40,7 @@ The course consists of two hours of lectures and four hours of computer lab sess
 The course slides are available in the slides directory. 
 
 ## Section 3:/ Lab Sessions
-1. [first lab session](lab-sessions/1-lab-session.ipynb) and [small GMSH manual](lab-sessions/Mesh-Generation-using-Gmsh.html)
+1. [first lab session](lab-sessions/1-lab-session.ipynb) and [small GMSH manual](extended-lab-sessions/gmsh/Mesh-Generation-using-Gmsh.ipynb)
 2. [second lab session](lab-sessions/2-lab-session.ipynb)
 3. [third lab session](lab-sessions/3-lab-session.ipynb)
 4. [fourth lab session](lab-sessions/4-lab-session.ipynb)
