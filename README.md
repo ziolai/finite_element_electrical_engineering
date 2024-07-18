@@ -2,7 +2,7 @@
 
 ## Section 1:/ Introduction
 
-This course consists of three blocks. 
+This course consists of three consequitively blocks. The first and second block are intended as stepping stone to the second and third block, respectively.  
 
 ### First Block 
 In the first block we discuss the finite difference method to solve the Poisson equation in one and two spatial dimensions. We restrict ourselves to the interval and the square discretized by a uniform mesh. The Poisson equation models a diffusion process and typically appears in the computation of electrostatic and magneto-static fields. Our motivation is to introduce initial problem formulations and simplified numerical solution methods. 
@@ -27,14 +27,24 @@ The course consists of two hours of lectures and four hours of computer lab sess
 5. [wiki on magnetostatics](https://en.wikipedia.org/wiki/Magnetostatics)
 6. [wiki on discrete Poisson matrix](https://en.wikipedia.org/wiki/Discrete_Poisson_equation)  
 7. [wiki on finite difference method](https://en.wikipedia.org/wiki/Finite_difference_method) 
+8. [Electromagnetic Fields and Energy by Hauss, Melcher, Zahn and Silva](https://ocw.mit.edu/courses/res-6-001-electromagnetic-fields-and-energy-spring-2008/)
 
-### References for Second Block
+### References for Second and Third Block
 1. [Introduction to Numerical Methods for Variational Problems](https://link.springer.com/book/10.1007/978-3-030-23788-2) by Hans Petter Langtangen and Kent-Andre Mardal. The [book](https://link.springer.com/book/10.1007/978-3-030-23788-2) is freely available; 
 2. [Wolfgang Bangerth's video lectures](https://www.math.colostate.edu/~bangerth/videos.html); 
 3. [wiki Finite Element Method](https://en.wikipedia.org/wiki/Finite_element_method): Section 3 for the weak form and Section 4 for the finite element discretization;  
 4. [Comsol Multiphysics Finite Element Method](https://www.comsol.com/multiphysics/finite-element-method): more information and illustrations; 
 5. [Comsol Multiphysics Brief Introduction to the Weak Form](https://www.comsol.com/blogs/brief-introduction-weak-form): good introduction to a theoretical concept that provides a basis for the finite element method; 
-6. [Sphinx Finite Element Method](http://hplgit.github.io/INF5620/doc/pub/sphinx-fem/): reference for implementation;
+6. [Ferrite Introduction to FEM](https://ferrite-fem.github.io/Ferrite.jl/stable/manual/fe_intro/)
+7. [Sphinx Finite Element Method](http://hplgit.github.io/INF5620/doc/pub/sphinx-fem/): reference for implementation;
+
+### References to Julia Implemetations 
+1. [Solving Partial Differential Equations in Parallel on GPU](https://pde-on-gpu.vaw.ethz.ch): finite difference methods among others; 
+2. [Trixi](https://trixi-framework.github.io): finite volume method for hyperbolic PDEs; 
+3. [MinFEM](https://github.com/MinFEM/MinFEM.jl): a minimal finite element tool for demonstration and teaching;
+4. [GridAp](https://github.com/gridap/Gridap.jl): finite element method; 
+5. [Ferrite](https://ferrite-fem.github.io/Ferrite.jl/stable/): finite element method;
+6. Finite Element Codes by [Petr Krysl](http://hogwarts.ucsd.edu/~pkrysl/)
 
 ## Section 2:/ Lectures 
 The course slides are available in the slides directory. 
