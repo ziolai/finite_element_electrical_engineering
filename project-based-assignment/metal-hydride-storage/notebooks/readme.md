@@ -1,0 +1,58 @@
+# Building the Hydrogen Storage Infrastructure in the Arabian Gulf Region using Metal-Organic Frameworks
+
+### Domenico Lahaye, Delft Institute of Applied Mathematics, Technical University of Delft, d.j.p.lahaye@tudelft.nl
+### Valentina Olabi, Gulf Petrochemical Chemical Association, valentina@gpca.org.ae
+### Rudy Paiman Sadi, Almajdouie - de Rijke, Kingdom of Saudi Arabia; sadirp@almajdouie.com 
+
+## Section 1: Introduction
+
+The aim of this project is to contribute to the deployment of hydrogen gas as a sustainable fuel in the Arabian Gulf. This includes the design of infrastructure for storage, transport and distribution of hydrogen. Other goals are looking into alternative modes of transport and energy prodiuction that accelerate the adoption of hydrogen as energy carier. Mathematical modeling techniques and numerical simulation tools are expected to provide indispensable insight allowing to compare various scenarios.
+
+In the Arabian Gulf, the joint use of solar and wind energy is expected to play a crucial role in the production of sustainable (green) hydrogen gas.  Hydrogen opens the perspectives to replace hydro-carbon fuels and to allow for clean combustion without pollutant formation. This combustion can supply energy in various ways. It can generate heat (household boilers), drive the generation of electricity (see e.g. recent studies on (micro) gas turbine engines) and be used as a fuel in internal combustion engines or fuel cells for cars and trucks. Hydrogen, however, has a small molecular size and low density. The storage of hydrogen (at e.g. low temperatures and high pressure) is therefore a well-known technical challenge. 
+ 
+This project intends to study solutions for the storage of hydrogen. Both small (individual households, personalized trasnsport) and large scale storage (industrial, residential, mass transport) systems can be examined (quantify small and large, amount of hydrogen fuel and storage capacity). The batteries proposed will be adapted to local  circumstances in the Arab Gulf.  Here solar energy is abundantly available in large flat dessert areas. This energy can be harnessed to produce, store and discharge hydrogen. 
+ 
+This project aims to investigate alternative hydrogen utilisation and storage techniques in the Arabian Gulf region. In Section 2, we give an overview of existing hydrogen storage techniques. In Section 3, we describe the utilisation of Metal Organic Frameworks (MOFs) as the potential future solution to wide-scale hydrogen storage.
+
+## Section 2: Metal-Organic Frameworks for Hydrogen Gas Storage 
+
+The storage of hydrogen is not without technical difficulties due to its [chemical properties](https://en.wikipedia.org/wiki/Hydrogen). Options for hydrogen storage are listed at [hydrogen_storage](https://en.wikipedia.org/wiki/Hydrogen_storage). 
+
+[Langmuir_adsorption_model](https://en.wikipedia.org/wiki/Langmuir_adsorption_model) 
+
+## Section 3: Project Stages 
+
+### Literature Study 
+
+Consider battery for truck, forklift or similar vehicle; 
+
+1. find and read relevant sources;
+2. summarize in own wording; 
+3. dialogue with project partners on information gained; 
+4. in case feasible, attend [Combura2024](https://www.combura.nl) on Thursday, October 24th, and meet and discuss with Rudy Sadi; 
+
+### Mathematical Modeling and Numerical Simulation 
+
+1. chemical reaction of absorption and desorption in absence of flow or plug-flow reactor;
+2. laminar flow through void and metal-oxide filled spaces assuming no absorption or desorption takes places; 
+3. combine two above physical processes; 
+
+### Study Visit to the Arabian Gulf 
+
+1. verify findings, place findings in broader context; 
+
+### Report and Presentation 
+
+## Section 4: Mathematical Modeling and Numerical Simulation 
+
+More details on the mathematical modeling and numerical simlation using the [Julia](https://julialang.org) programmibng language are given in [absorption of hydrogen](darzi-2016.ipynb). 
+
+## References  
+
+1. List more references here; 
+2. [Liquid_organic_hydrogen_carriers](https://en.wikipedia.org/wiki/Liquid_organic_hydrogen_carriers) 
+
+
+```julia
+
+```
