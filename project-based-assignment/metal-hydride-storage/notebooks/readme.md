@@ -16,26 +16,46 @@ This project aims to investigate alternative hydrogen utilisation and storage te
 
 ## Section 2: Metal-Organic Frameworks for Hydrogen Gas Storage 
 
-The storage of hydrogen is not without technical difficulties due to its [chemical properties](https://en.wikipedia.org/wiki/Hydrogen). Options for hydrogen storage are listed at [hydrogen_storage](https://en.wikipedia.org/wiki/Hydrogen_storage). 
+The storage of hydrogen is not without technical difficulties due to its [chemical properties](https://en.wikipedia.org/wiki/Hydrogen). Options for hydrogen storage are listed at [hydrogen_storage](https://en.wikipedia.org/wiki/Hydrogen_storage). In this project we will look into storage using metal-organic frameworks. These material are able to bind hydrogen. The process can be explained by a [Langmuir_adsorption_model](https://en.wikipedia.org/wiki/Langmuir_adsorption_model). A scale model (courtesy of [Horizon Fuel Cell Technologies](www.horizonfuelcell.com)) is shown below. 
 
-[Langmuir_adsorption_model](https://en.wikipedia.org/wiki/Langmuir_adsorption_model) 
+<img src="battery.jpeg" width=500 />
+Fig 1: Rechargeable hydrogen gas battery. 
+<img src="charger.jpeg" width=300 />
+Fig 2: Electrolyzer. 
+
+For a discussion of how this technology is currently used in the automotive industry, see e.g. the video [what is a hydrogen fuel cell vehicle](https://www.youtube.com/watch?v=rzdBHr3v5mc).  
 
 ## Section 3: Project Stages 
+
+The project is subdivided into the following stages. 
 
 ### Literature Study 
 
 Consider battery for truck, forklift or similar vehicle; 
 
-1. find and read relevant sources;
+1. find and read relevant sources. Read on factors such as storage capacity, weight, (de-)charging times and temperatures, paratic losses, safety concerns, risk for corrosion, risk for fire and cost;
 2. summarize in own wording; 
-3. dialogue with project partners on information gained; 
-4. in case feasible, attend [Combura2024](https://www.combura.nl) on Thursday, October 24th, and meet and discuss with Rudy Sadi; 
+3. develop mathematical model (PDE, boundary conditions and initial conditions) for flow, heat and chemical reactions; 
+4. obtain educated guesses for model outcome; 
+5. discuss information collected with project partners; 
+
+References include
+- <i>New Approaches to Hydrogen Storage - Tutorial Review</i> by Jason Graetz, Chemical Society Reviews, 2008. 
+- <i>Hydrogen Storage Materials - The characterisation of Their Storage Properties</i> by Darren P. Broom, Springer, 2011. 
+- papers in International Journal of Hydrogen Energy;  
 
 ### Mathematical Modeling and Numerical Simulation 
 
-1. chemical reaction of absorption and desorption in absence of flow or plug-flow reactor;
-2. laminar flow through void and metal-oxide filled spaces assuming no absorption or desorption takes places; 
-3. combine two above physical processes; 
+<b>Convection-Diffusion-Reaction Model Assuming Simplified Flow Conditions</b>
+
+Chemical reaction of absorption and desorption in absence of flow or assuming simplified plug-flow of hydrogen gas through the reactor. Examples include [NonlinearPoisson2D Reaction Tutorial in VoronoiFVM](https://j-fu.github.io/VoronoiFVM.jl/stable/module_examples/Example210_NonlinearPoisson2D_Reaction/) (finite volume with first order upwind for the convective term (?)) and [Reactive_Surface Tutorial in Ferrite](https://ferrite-fem.github.io/Ferrite.jl/stable/tutorials/reactive_surface/) (finite element include stabilization for the convective term). 
+
+<b>Laminar Flow in Porous Media Model Assuming no Chemistry</b>
+
+Laminar flow (conservation of mass and momentum) through void and porous media metal-oxide (Darcy Law) filled spaces assuming no absorption or desorption takes places. Examples include [Incompressible Navier-Stokes tutorial in Ferrite](https://ferrite-fem.github.io/Ferrite.jl/stable/tutorials/ns_vs_diffeq/). 
+
+<b>Combination of Two Previous Models</b>
+Combine model of laminar flow with chemical reactions into a single model.   
 
 ### Study Visit to the Arabian Gulf 
 
@@ -45,7 +65,7 @@ Consider battery for truck, forklift or similar vehicle;
 
 ## Section 4: Mathematical Modeling and Numerical Simulation 
 
-More details on the mathematical modeling and numerical simlation using the [Julia](https://julialang.org) programmibng language are given in [absorption of hydrogen](darzi-2016.ipynb). 
+More details on the mathematical modeling and numerical simlation using the [Julia](https://julialang.org) programmibng language are given in a seperate notebook on [absorption of hydrogen](darzi-2016.ipynb). 
 
 ## References  
 
