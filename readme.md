@@ -1,76 +1,70 @@
-# Building the Hydrogen Storage Infrastructure in the Arabian Gulf Region using Metal-Organic Frameworks
-
-### Domenico Lahaye, Delft Institute of Applied Mathematics, Technical University of Delft, d.j.p.lahaye@tudelft.nl
-### Valentina Olabi, Gulf Petrochemical Chemical Association, valentina@gpca.org.ae
-### Rudy Paiman Sadi, Almajdouie - de Rijke, Kingdom of Saudi Arabia; sadirp@almajdouie.com 
+# Finite Element Methods for Electrical Engineering Applications (EE4375)
 
 ## Section 1: Introduction
 
-The aim of this project is to contribute to the deployment of hydrogen gas as a sustainable fuel in the Arabian Gulf. This includes the design of infrastructure for storage, transport and distribution of hydrogen. Other goals are looking into alternative modes of transport and energy prodiuction that accelerate the adoption of hydrogen as energy carier. Mathematical modeling techniques and numerical simulation tools are expected to provide indispensable insight allowing to compare various scenarios.
+This course consists of three consequitively blocks. The first and second block are intended as stepping stone to the second and third block, respectively.  
 
-In the Arabian Gulf, the joint use of solar and wind energy is expected to play a crucial role in the production of sustainable (green) hydrogen gas.  Hydrogen opens the perspectives to replace hydro-carbon fuels and to allow for clean combustion without pollutant formation. This combustion can supply energy in various ways. It can generate heat (household boilers), drive the generation of electricity (see e.g. recent studies on (micro) gas turbine engines) and be used as a fuel in internal combustion engines or fuel cells for cars and trucks. Hydrogen, however, has a small molecular size and low density. The storage of hydrogen (at e.g. low temperatures and high pressure) is therefore a well-known technical challenge. 
+### Section 1.1: Learning Activities 
+The course consists of two hours of lectures and four hours of computer lab sessions each week. We will use the programing language julia (see julialang.org) and Jupiter notebooks to develop the assignments. We will use the gmsh mesh generation software. You are kindly requested to install Julia, the Jupiter notebook system and the Julia interface to gmsh (Gmsh.jl) on your laptop. You are most welcome to give a look at the references below. 
+
+###  Section 2.1: Assessment 
+Each block will be concluded with a graded homework assignment. The three homework assignments have to be defended during the oral exam. 
+
+## Section 2: First Block: 1D and 2D Finite Difference Method  
+In the first block we discuss the finite difference method to solve the Poisson equation in one and two spatial dimensions. We restrict ourselves to the interval and the square discretized by a uniform mesh. The Poisson equation models a diffusion process and typically appears in the computation of electrostatic and magneto-static fields. Our motivation is to introduce initial problem formulations and simplified numerical solution methods. 
+
+### Section 1.2: Lecture Slides 
+1. [first block lecture slides](https://github.com/ziolai/finite_element_electrical_engineering/blob/main/slides/block1-finite-difference-method.pdf)
+2. [mathematical preliminaries slides](https://github.com/ziolai/finite_element_electrical_engineering/blob/main/slides/mathematical-preliminaries.pdf)
+
+### Section 2.2: Lab Sessions 
+1. [first lab session](lab-sessions/1-lab-session.ipynb): getting started 
+2. [second lab session](lab-sessions/2-lab-session.ipynb): 1D Finite Difference Method 
+3. [third lab session](lab-sessions/3-lab-session.ipynb): 2D Finite Difference Method
+
+### Section 3.2: References 
+1. [wiki on the Laplace equation](https://en.wikipedia.org/wiki/Laplace's_equation)
+2. [wiki on the Poisson equation](https://en.wikipedia.org/wiki/Poisson%27s_equation): including an example on electrostatics
+3. [wiki on boundary value problem](https://en.wikipedia.org/wiki/Boundary_value_problem)
+4. [wiki on electrostatics](https://en.wikipedia.org/wiki/Electrostatics)
+5. [wiki on magnetostatics](https://en.wikipedia.org/wiki/Magnetostatics)
+6. [wiki on discrete Poisson matrix](https://en.wikipedia.org/wiki/Discrete_Poisson_equation)  
+7. [wiki on finite difference method](https://en.wikipedia.org/wiki/Finite_difference_method) 
+8. [Electromagnetic Fields and Energy by Hauss, Melcher, Zahn and Silva](https://ocw.mit.edu/courses/res-6-001-electromagnetic-fields-and-energy-spring-2008/)
  
-This project intends to study solutions for the storage of hydrogen. Both small (individual households, personalized trasnsport) and large scale storage (industrial, residential, mass transport) systems can be examined (quantify small and large, amount of hydrogen fuel and storage capacity). The batteries proposed will be adapted to local  circumstances in the Arab Gulf.  Here solar energy is abundantly available in large flat dessert areas. This energy can be harnessed to produce, store and discharge hydrogen. 
- 
-This project aims to investigate alternative hydrogen utilisation and storage techniques in the Arabian Gulf region. In Section 2, we give an overview of existing hydrogen storage techniques. In Section 3, we describe the utilisation of Metal Organic Frameworks (MOFs) as the potential future solution to wide-scale hydrogen storage.
+## Section 3: Second Block: 1D Finite Element Method
+In the second block we discuss the variational formulation of the Poisson equation in one spatial dimension. This variational formulation allows to subsequently solve the problem by a finite element method using non-uniform meshes. We show that the versatility of the finite element method in solving problems that are more complex than in the first block. 
 
-## Section 2: Metal-Organic Frameworks for Hydrogen Gas Storage 
+### Section 1.3: Lecture Slides 
+1. [second block lecture slides](https://github.com/ziolai/finite_element_electrical_engineering/blob/main/slides/block2-finite-element-method-1d.pdf)
+2. [mathematical preliminaries slides](https://github.com/ziolai/finite_element_electrical_engineering/blob/main/slides/mathematical-preliminaries.pdf)
+   
+### Section 2.3: Lab Sessions 
+1. [fourth lab session](lab-sessions/4-lab-session.ipynb): 1D Finite Element Method 
 
-The storage of hydrogen is not without technical difficulties due to its [chemical properties](https://en.wikipedia.org/wiki/Hydrogen). Options for hydrogen storage are listed at [hydrogen_storage](https://en.wikipedia.org/wiki/Hydrogen_storage). In this project we will look into storage using metal-organic frameworks. These material are able to bind hydrogen. The process can be explained by a [Langmuir_adsorption_model](https://en.wikipedia.org/wiki/Langmuir_adsorption_model). A scale model (courtesy of [Horizon Fuel Cell Technologies](www.horizonfuelcell.com)) is shown below. 
+### Section 3.4: References
+1. See Third Block
+   
+## Section 4: Third Block: 2D Finite Element Method
+In the third and last block we discuss the finite element solution of the Poisson equation in two spatial dimension. We discuss the mesh generation using triangle and the construction of the discrete problem using a loop over all elements. We illustrate the method in the computation of magnetostatic fields in transformers and electrical machines.  
 
-<img src="battery.jpeg" width=500 />
-Fig 1: Rechargeable hydrogen gas battery. 
-<img src="charger.jpeg" width=300 />
-Fig 2: Electrolyzer. 
+### Section 1.4: Lecture Slides 
+1. [third block lecture slides](https://github.com/ziolai/finite_element_electrical_engineering/blob/main/slides/block3-finite-element-method-applications.pdf)
+2. [mathematical preliminaries slides](https://github.com/ziolai/finite_element_electrical_engineering/blob/main/slides/mathematical-preliminaries.pdf)
+   
+### Section 2.4: Lab Sessions 
+1. [fifth lab session](lab-sessions/5-lab-session.ipynb): using GMSH 
+2. [sixth lab session](lab-sessions/6-lab-session.ipynb): unit square 
+3. [seventh lab session](lab-sessions/7-lab-session.ipynb): more complex 2D geometries 
 
-For a discussion of how this technology is currently used in the automotive industry, see e.g. the video [what is a hydrogen fuel cell vehicle](https://www.youtube.com/watch?v=rzdBHr3v5mc).  
-
-## Section 3: Project Stages 
-
-The project is subdivided into the following stages. 
-
-### Literature Study 
-
-Consider battery for truck, forklift or similar vehicle; 
-
-1. find and read relevant sources. Read on factors such as storage capacity, weight, (de-)charging times and temperatures, paratic losses, safety concerns, risk for corrosion, risk for fire and cost;
-2. summarize in own wording; 
-3. develop mathematical model (PDE, boundary conditions and initial conditions) for flow, heat and chemical reactions; 
-4. obtain educated guesses for model outcome; 
-5. discuss information collected with project partners; 
-
-References include
-- <i>New Approaches to Hydrogen Storage - Tutorial Review</i> by Jason Graetz, Chemical Society Reviews, 2008. 
-- <i>Hydrogen Storage Materials - The characterisation of Their Storage Properties</i> by Darren P. Broom, Springer, 2011. 
-- papers in International Journal of Hydrogen Energy;  
-
-### Mathematical Modeling and Numerical Simulation 
-
-<b>Convection-Diffusion-Reaction Model Assuming Simplified Flow Conditions</b>
-
-Chemical reaction of absorption and desorption in absence of flow or assuming simplified plug-flow of hydrogen gas through the reactor. Examples include [NonlinearPoisson2D Reaction Tutorial in VoronoiFVM](https://j-fu.github.io/VoronoiFVM.jl/stable/module_examples/Example210_NonlinearPoisson2D_Reaction/) (finite volume with first order upwind for the convective term (?)) and [Reactive_Surface Tutorial in Ferrite](https://ferrite-fem.github.io/Ferrite.jl/stable/tutorials/reactive_surface/) (finite element include stabilization for the convective term). 
-
-<b>Laminar Flow in Porous Media Model Assuming no Chemistry</b>
-
-Laminar flow (conservation of mass and momentum) through void and porous media metal-oxide (Darcy Law) filled spaces assuming no absorption or desorption takes places. Examples include [Incompressible Navier-Stokes tutorial in Ferrite](https://ferrite-fem.github.io/Ferrite.jl/stable/tutorials/ns_vs_diffeq/). 
-
-<b>Combination of Two Previous Models</b>
-Combine model of laminar flow with chemical reactions into a single model.   
-
-### Study Visit to the Arabian Gulf 
-
-1. verify findings, place findings in broader context; 
-
-### Report and Presentation 
-
-## Section 4: Mathematical Modeling and Numerical Simulation 
-
-More details on the mathematical modeling and numerical simlation using the [Julia](https://julialang.org) programmibng language are given in a seperate notebook on [absorption of hydrogen](darzi-2016.ipynb). 
-
-## References  
-
-1. List more references here; 
-2. [Liquid_organic_hydrogen_carriers](https://en.wikipedia.org/wiki/Liquid_organic_hydrogen_carriers) 
+### Section 3.4: References
+1. [Introduction to Numerical Methods for Variational Problems](https://link.springer.com/book/10.1007/978-3-030-23788-2) by Hans Petter Langtangen and Kent-Andre Mardal. The [book](https://link.springer.com/book/10.1007/978-3-030-23788-2) is freely available; 
+2. [Wolfgang Bangerth's video lectures](https://www.math.colostate.edu/~bangerth/videos.html); 
+3. [wiki Finite Element Method](https://en.wikipedia.org/wiki/Finite_element_method): Section 3 for the weak form and Section 4 for the finite element discretization;  
+4. [Comsol Multiphysics Finite Element Method](https://www.comsol.com/multiphysics/finite-element-method): more information and illustrations; 
+5. [Comsol Multiphysics Brief Introduction to the Weak Form](https://www.comsol.com/blogs/brief-introduction-weak-form): good introduction to a theoretical concept that provides a basis for the finite element method; 
+6. [Ferrite Introduction to FEM](https://ferrite-fem.github.io/Ferrite.jl/stable/manual/fe_intro/)
+7. [Sphinx Finite Element Method](http://hplgit.github.io/INF5620/doc/pub/sphinx-fem/): reference for implementation;
 
 
 ```julia
