@@ -2,20 +2,35 @@
 
 ## Section 1: Introduction 
  
-The goal of this project is to study fluids often encountered in the food processing industry. Dressings, sauces and mayonaises are typically be described as [emulsions](https://en.wikipedia.org/wiki/Emulsion) obtained by mixing oil and water. Industrial partners in this project are eager to further develop modeling and simulations techniques to obtain a better grip on the batch production and long term storage of emulsions. This grip is obtained by a better understanding of the physical properties ([dynamic modulus](https://en.wikipedia.org/wiki/Dynamic_modulus)) of the mixture in terms of the properties of the oil and water components. We will consider mayonnaise as an emulsions obtained by mixing oil droplets in water. 
+The goal of this project is to study fluids often encountered in the food processing industry. 
 
-## Section 2: Oil Mixture Fraction and Visco-Elastic Properties of the Emulsion 
+Dressings, sauces and mayonaises are typically be described as [emulsions](https://en.wikipedia.org/wiki/Emulsion) obtained by mixing oil and water. Industrial partners in this project are eager to further develop modeling and simulations techniques to obtain a better grip on the batch production and long term storage of emulsions. This grip is obtained by a better understanding of the physical properties of the mixture in terms of the properties of the oil and water components. 
 
-A characteristic property of an emulsion is its plateau elastic modulus. This quantity is a measure of the stress-strain response of the fluid caused by its combined elastic and viscous properties. It can be measured experimentally in a [rheometer](https://en.wikipedia.org/wiki/Rheometer). The 2014 paper by Mason and Sheffold is model for the plateau elastic modulus of the emulsion as a function of amount of oil in the emulsion. 
+We will consider [mayonnaise](https://en.wikipedia.org/wiki/Mayonnaise) as an emulsions obtained by mixing oil droplets in water. These emulsion can be described as [linear visco-elastic materials](https://en.wikipedia.org/wiki/Viscoelasticity). An important physical property in the study of emulsions is the [dynamic modulus](https://en.wikipedia.org/wiki/Dynamic_modulus). The modulus is defined as the ratio of stress to strain under vibratory conditions. Given that strain is dimensionless, the dynamic modulus has the same units as stress. The dynamic modulus is complex-valued quantify. The real part is called the storage modulus and represents the elastic portion of the material. The imaginary part is called the loss modulus and represent the viscous part of the material. Our interest is understanding how the dynamic modulus of mayonaise dependent on its ingredients and how it evolves over the shell live time. 
 
-We suggest to start the project the studying the 2014 paper by Mason and Sheffold. We suggest to rephrase 
+## Section 2: Oil Mixture Fraction and Visco-Elastic Properties of Emulsions 
+
+The dynamic modulus of mayonaise depends on (among many others factors) the types and amount of oil used. The dynamic modulus can be both measured experimentally and modeled mathematically.    
+
+### Measuring the Strength of Mayonaise 
+
+The dynamic modulus of mayonaise can be measured using [dynamic mechanical analysis](https://en.wikipedia.org/wiki/Dynamic_mechanical_analysis) (general term) and [rheometry](https://en.wikipedia.org/wiki/Rheometry) (more specific terms). 
+
+1. picture of weak and strong mayonaise;
+2. provide figures for $G'(\omega)$ and $G''(\omega)$: explain that sample breaks down at sufficiently large frequencies as sample no longer allowed to restore from exitation, multiple relaxation times).
+
+### Modeling the Strength of Mayonaise  
+
+### Mason-Scheffold-2014
+
+We suggest to start the project the studying the 2014 paper by Mason and Sheffold. In a particular frequency range, the storage modulus can be consider to be constant. This value is refered to as the plateau elastic modulus. 
+
+We suggest to rephrase 
 1. the model (the minimization of sum of total free energy, i.e., the sum of entropic and interfacial energy);
 2. the solution approach (finding first order critical points) and;
 3. the results obtained (small and large plateau elastic modulus at small and large oil mixture fraction);
 
 see seperate notebook [mason-sheffold-2014.ipynb](mason-sheffold-2014.ipynb).
-
-### Notation in Mason-Scheffold-2014
 
 Assume a mono-disperse oil-in-water emulsion subject to a shear strain with value $]\gamma$. 
 1. $N$: number of droplets; 
@@ -38,8 +53,8 @@ Assume a mono-disperse oil-in-water emulsion subject to a shear strain with valu
 1. scaling laws for $G'_p(\phi) \sim \sigma/a \, [ \phi^{8/3} \, (\phi-\phi_c)^{0.82} + \phi^{5/3} \, (\phi-\phi_c)^{1.82} ]$;
 
 ### Free Energy
-1. entropic free energy: 
-2. interfascial free energy: 
+1. entropic free energy: $ F_{entropic}/N = -3 \, k_B \, T \, \log[ \phi_c + \phi_d - \phi - \alpha \, \gamma^2] $ 
+3. interfacial free energy: $ F_{interfacial}/N = 4 \, \pi \, \xi \, a \, \phi_d^2 $  
 
 ### Energy Minimization 
 1. first order critical point determines the optinmal deformation volume fraction $\phi^*_d$
@@ -60,7 +75,7 @@ A first alternative to is to first generalize the expression for the entropic an
 
 ### Particle Based Models
 
-A second alternative is to replace the energy minimization framework by a mechanical model of a number of oil drops interconnected by springs, dashpots and dampers. One wishes to study the stress-strain response of these systems. Possibly one can start by considering interconnections (networks or graphs) of Kelvin-Voight and Maxwell material models. Possibly one can borrow ideas from molecular dynamics or other particle-based simulations methods.
+A second alternative is to replace the energy minimization framework by a mechanical model of a number of oil drops interconnected by springs, dashpots and dampers. One wishes to study the stress-strain response of these systems. Possibly one can start by considering interconnections (networks or graphs) of [Kelvin-Voigt](https://en.wikipedia.org/wiki/Kelvin–Voigt_material) (parallel spring-dashpot, single relaxation mode, ODE model for strain given stress, further to Mason-Sheffold-2014) and [Maxwell](https://en.wikipedia.org/wiki/Maxwell_model) (series spring-dashpot, single relaxation mode, closer to Mason-Sheffold-2014) material models. Possibly one can borrow ideas from molecular dynamics or other particle-based simulations methods.
 
 <b>Example of a Particle Based Model</b> [computation of the viscosity](https://docs.lammps.org/Howto_viscosity.html) by ensemble averaging of the auto-correlation of the stress/pressure tensor using [LAMMPS](https://docs.lammps.org/Manual.html);
 
@@ -128,8 +143,11 @@ Here we show computational results for the magnitude of the velocity for Stokes 
 ## Section 6: References 
 1. Mason-Sheffold-2014; 
 2. Russel, Saville and Schowalter, “Colloidal Dispersions”; 
-3. master thesis [Wei Fan](https://repository.tudelft.nl/record/uuid:acbfbd35-3ab1-4ec2-9a7b-b3098bdfcea9); 
-4. slides by D. Lahaye;
+3. master thesis [Wei Fan](https://repository.tudelft.nl/record/uuid:acbfbd35-3ab1-4ec2-9a7b-b3098bdfcea9);
+4. Tabilo-Munizags-2005: provides good overview.
+5. Barnes-1994: Rheology of Emulsion - A review: provides good introduction
+6. Barnes-2000: [Handbook_of_Rheology](https://ia601206.us.archive.org/4/items/HandbookOfRheology/Handbook_of_Rheology.pdf) - valuable resource; 
+7. slides by D. Lahaye;
 
 ### Books 
 1. Belitz, Grosch and Schieberle, <i>Food Chemistry</i>, Springer, 2009, [link](https://www.google.nl/books/edition/Food_Chemistry/xteiARU46SQC?hl=en&gbpv=0);
