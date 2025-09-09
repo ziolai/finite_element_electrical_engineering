@@ -21,6 +21,9 @@ The dynamic modulus of mayonaise can be measured using [dynamic mechanical analy
 
 ### Modeling the Strength of Mayonaise  
 
+1. single relaxation time [Kelvin-Voigt model](https://en.wikipedia.org/wiki/Kelvin–Voigt_material) (parallel spring-dashpot)
+2. single relaxation time [Maxwell model](https://en.wikipedia.org/wiki/Maxwell_model) (series spring-dashpot)  
+
 ### Mason-Scheffold-2014
 
 We suggest to start the project the studying the 2014 paper by Mason and Sheffold. In a particular frequency range, the storage modulus can be consider to be constant. This value is refered to as the plateau elastic modulus. 
@@ -75,7 +78,7 @@ A first alternative to is to first generalize the expression for the entropic an
 
 ### Particle Based Models
 
-A second alternative is to replace the energy minimization framework by a mechanical model of a number of oil drops interconnected by springs, dashpots and dampers. One wishes to study the stress-strain response of these systems. Possibly one can start by considering interconnections (networks or graphs) of [Kelvin-Voigt](https://en.wikipedia.org/wiki/Kelvin–Voigt_material) (parallel spring-dashpot, single relaxation mode, ODE model for strain given stress, further to Mason-Sheffold-2014) and [Maxwell](https://en.wikipedia.org/wiki/Maxwell_model) (series spring-dashpot, single relaxation mode, closer to Mason-Sheffold-2014) material models. Possibly one can borrow ideas from molecular dynamics or other particle-based simulations methods.
+A second alternative is to replace the energy minimization framework by a mechanical model of a number of oil drops interconnected by springs, dashpots and dampers. One wishes to study the stress response of these systems given as oscillatory shear. Possibly one can start by considering interconnections (networks or graphs) of Kelvin-Voight and Maxwell models. Possibly one can borrow ideas from molecular dynamics or other particle-based simulations methods.
 
 <b>Example of a Particle Based Model</b> [computation of the viscosity](https://docs.lammps.org/Howto_viscosity.html) by ensemble averaging of the auto-correlation of the stress/pressure tensor using [LAMMPS](https://docs.lammps.org/Manual.html);
 
