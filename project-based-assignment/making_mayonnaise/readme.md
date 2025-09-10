@@ -8,6 +8,8 @@ Dressings, sauces and mayonaises are typically be described as [emulsions](https
 
 We will consider [mayonnaise](https://en.wikipedia.org/wiki/Mayonnaise) as an emulsions obtained by mixing oil droplets in water. These emulsion can be described as [linear visco-elastic materials](https://en.wikipedia.org/wiki/Viscoelasticity). An important physical property in the study of emulsions is the [dynamic modulus](https://en.wikipedia.org/wiki/Dynamic_modulus). The modulus is defined as the ratio of stress to strain under vibratory conditions. Given that strain is dimensionless, the dynamic modulus has the same units as stress. The dynamic modulus is complex-valued quantify. The real part is called the storage modulus and represents the elastic portion of the material. The imaginary part is called the loss modulus and represent the viscous part of the material. Our interest is understanding how the dynamic modulus of mayonaise dependent on its ingredients and how it evolves over the shell live time. 
 
+The <b>use of the Julia programming language</b> is an integral part of the learning objectives of this project. The spatial resolution required in this project leads to large scale linear systems. These large scale systems are cumbersome to solve without use of a compiled programming language. Julia merges the easy of use (Python like) with the speed of execution (C++) like. 
+
 ## Section 2: Oil Mixture Fraction and Visco-Elastic Properties of Emulsions 
 
 The dynamic modulus of mayonaise depends on (among many others factors) the types and amount of oil used. The dynamic modulus can be both measured experimentally and modeled mathematically.    
@@ -68,7 +70,7 @@ Assume a mono-disperse oil-in-water emulsion subject to a shear strain with valu
 
 We suggest to further improve the understanding of concepts introduced by Mason-Sheffold-2014 by complementing with material from other sources. We suggest consulting e.g. the 1999 book by Russel, Saville and Schowalter entitled “Colloidal Dispersions”. 
 
-## Section 4: Oil Droplet Size and Visco-Elastic Properties
+## Section 4: Beginner Level: Oil Droplet Size and Visco-Elastic Properties
 
 The framework introduced by Mason-Sheffold-2014 is limited to mono-disperse emulsions in which all oil droplets have the same diameter. Motivated by practical applications, we wish to extend the Mason-Sheffold-2014 model to poly-disperse emulsions. 
 
@@ -86,9 +88,23 @@ A second alternative is to replace the energy minimization framework by a mechan
 
 A third alternative is to study computational fluid dynamics models of the rheometer that determines the plateau shear modulus. One thus needs to solve a rotating lid-driven cavity Stokes flow model for a shear-thinning non-Newtonian fluid.  
 
-## Section 5: Rotating-Lid-Driven Cavity Stokes Flow for Shear-Thinning Non-Newtonian Fluid
+## Section 5: Intermediate Level: Lid-Driven Cavity Stokes Flow for Shear-Thinning Non-Newtonian Fluid
 
-### Section 1.5: Pre-Processor 
+### Section 1.5: Newtonian Fluid 
+
+Perform lid-driven cavity Stokes flow simulations with translation shear for Newtonian fluid. 
+
+<b>Coding</b>: see seperate notebook [ferrite_stokes_lid_driven_square.ipynb](./ferrite_stokes_lid_driven_square.ipynb) (in progress). 
+
+### Section 2.5: Non-Newtonian Fluid
+
+Perform lid-driven cavity Stokes flow simulations with translation shear for visco-elastic (non-Newtonian) fluid with shear-thinning behavior. Extend previous case by e.g. a power-law for the viscosity (provide examples here).  
+
+## Section 6: Expert Level: Rotating-Lid-Driven Cavity Stokes Flow for Shear-Thinning Non-Newtonian Fluid
+
+(Include schematic representation from the book).  
+
+### Section 1.6: Pre-Processor 
 
 The preprocessor consist of the following two components: 
 
@@ -103,7 +119,7 @@ Here, the preprocessor should generate a mesh on the cylindrical cavity of the r
 
 <b>Coding</b>: see seperate notebook [gmsh_cavity.ipynb](gmsh_cavity.ipynb).
 
-## Section 2.5: Computational Kernel 
+## Section 2.6: Computational Kernel 
 
 The computational kernel assumes the responses of the sample to the excitation of the rheometer to be modeled in terms of physical laws of conservation (conservastion of mass and momentum) and constituive laws of the material (stress-strain relation). Given these models, the computational kernel consists of the following three four components: 
 
@@ -114,19 +130,19 @@ The computational kernel assumes the responses of the sample to the excitation o
    
 Simulations reported here were performed using the [Ferrite](https://ferrite-fem.github.io/Ferrite.jl/stable/) finite element software.
 
-### Section 3.5: Scalar Diffusion 
+### Section 3.6: Scalar Diffusion 
 
 A elementary proof of concept is to solve a scalar diffusion eqiation on the volume (computational domain) of a cylindrical cavity. 
 
 <b>Coding</b>: see seperate notebook [ferrite_diffusion_cavity.ipynb](ferrite_diffusion_cavity.ipynb).
 
-### Section 4.5: Stationary Stokes Flow of a Newtonian Fluid 
+### Section 4.6: Stationary Stokes Flow of a Newtonian Fluid 
 
 Here we consider the rotation of the lid covering the cylindrical cavity to be modeled by a overly simplified [Stokes flow](https://en.wikipedia.org/wiki/Stokes_flow) model for a [Newtonian fluid](https://en.wikipedia.org/wiki/Newtonian_fluid).  
 
 <b>Coding</b>: see seperate notebook [ferrite_stokes_cavity.ipynb](ferrite_stokes_cavity.ipynb). 
 
-### Section 5.5: Transient Navier-Stokes Flow of a Newtonian Fluid
+### Section 5.6: Transient Navier-Stokes Flow of a Newtonian Fluid
 
 Here we extend flow Stokes to [Navier-Stokes flow](https://en.wikipedia.org/wiki/Navier–Stokes_equations), thus including non-linear convective terms. We also include time-dependent terms;
 
@@ -136,14 +152,21 @@ Here we extend flow Stokes to [Navier-Stokes flow](https://en.wikipedia.org/wiki
 
 Resultsa are visualized using [paraview](https://www.paraview.org). 
 
-### Section 7.5: Preliminary Results 
+### Section 7.6: Preliminary Results 
 
 Here we show computational results for the magnitude of the velocity for Stokes flow. 
 
 <img src="./stokes_3d_cylinder.png" width=400 />
 
 
-## Section 6: References 
+## Section 7: Introductory material on the Julia Programming Language
+
+- Elementary introduction: [Thinking Julia](https://benlauwens.github.io/ThinkJulia.jl/latest/book.html);
+- Aalto Short Course: [julia-introduction](https://github.com/AaltoRSE/julia-introduction); 
+- Video Collection by Chris Rackauckas: [link](https://www.youtube.com/playlist?list=PLCAl7tjCwWyGjdzOOnlbGnVNZk0kB8VSa) 
+- Pointer to lots of goodies: [Nouvelles Julia](https://pnavaro.github.io/NouvellesJulia/pages/2022_03.html);
+
+## Section 8: References 
 1. Mason-Sheffold-2014; 
 2. Russel, Saville and Schowalter, “Colloidal Dispersions”; 
 3. master thesis [Wei Fan](https://repository.tudelft.nl/record/uuid:acbfbd35-3ab1-4ec2-9a7b-b3098bdfcea9);
@@ -161,6 +184,11 @@ Here we show computational results for the magnitude of the velocity for Stokes 
 1. [What is an emulsion? by Silverston](https://www.youtube.com/watch?v=mBvKar6t1LY): mixing by high shear to reduce surface tension;  
 2. [The emulsification process by Jacob Burton](https://www.youtube.com/watch?v=qnudmk_63r4): viscosity as a stabilizer; 
 3. [What is an emulsion by Dow](https://www.youtube.com/watch?v=uWfdU92uPNY) phases separate to find state with lesser energy; 
+
+
+```julia
+
+```
 
 
 ```julia
