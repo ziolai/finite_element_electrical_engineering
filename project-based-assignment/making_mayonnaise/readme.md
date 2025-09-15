@@ -21,6 +21,10 @@ The dynamic modulus of mayonaise can be measured using [dynamic mechanical analy
 1. picture of weak and strong mayonaise;
 2. provide figures for $G'(\omega)$ and $G''(\omega)$: explain that sample breaks down at sufficiently large frequencies as sample no longer allowed to restore from exitation, multiple relaxation times).
 
+See seperate notebook [Experimental_Data_in_Python_Code.ipynb](Experimental_Data_in_Python_Code.ipynb) for experimental data of dynamic modulus of various mayonnaise types. (to do: add plots and highlight the plateau zone). 
+
+Can this experimental data be modeled using [pyRheo](https://github.com/mirandi1/https://github.com/mirandi1/pyRheo) or [rheofit](https://rheofit.readthedocs.io/en/latest/index.html)? 
+
 ### Modeling the Strength of Mayonaise  
 
 1. single relaxation time [Kelvin-Voigt model](https://en.wikipedia.org/wiki/Kelvin–Voigt_material) (parallel spring-dashpot)
@@ -35,7 +39,7 @@ We suggest to rephrase
 2. the solution approach (finding first order critical points) and;
 3. the results obtained (small and large plateau elastic modulus at small and large oil mixture fraction);
 
-see seperate notebook [mason-sheffold-2014.ipynb](mason-sheffold-2014.ipynb).
+See seperate notebook [mason-sheffold-2014.ipynb](mason-sheffold-2014.ipynb).
 
 Assume a mono-disperse oil-in-water emulsion subject to a shear strain with value $]\gamma$. 
 1. $N$: number of droplets; 
@@ -64,7 +68,13 @@ Assume a mono-disperse oil-in-water emulsion subject to a shear strain with valu
 ### Energy Minimization 
 1. first order critical point determines the optinmal deformation volume fraction $\phi^*_d$
 
-### Computation of osmotic pressure and plateau shear modulus 
+### Computation of osmotic pressure 
+
+First order thermodynamical derivative. 
+
+### Computation of plateau shear modulus 
+
+Second order thermodynamical derivative.
 
 ## Section 3: Complement Understanding of the Problem 
 
@@ -99,6 +109,8 @@ Perform lid-driven cavity Stokes flow simulations with translation shear for New
 ### Section 2.5: Non-Newtonian Fluid
 
 Perform lid-driven cavity Stokes flow simulations with translation shear for visco-elastic (non-Newtonian) fluid with shear-thinning behavior. Extend previous case by e.g. a power-law for the viscosity (provide examples here).  
+
+See e.g. [example](https://link.springer.com/chapter/10.1007/978-981-97-7759-4_42) of the kind of result we would like to obtain (to elaborate further). 
 
 ## Section 6: Expert Level: Rotating-Lid-Driven Cavity Stokes Flow for Shear-Thinning Non-Newtonian Fluid
 
@@ -172,23 +184,20 @@ Here we show computational results for the magnitude of the velocity for Stokes 
 3. master thesis [Wei Fan](https://repository.tudelft.nl/record/uuid:acbfbd35-3ab1-4ec2-9a7b-b3098bdfcea9);
 4. Tabilo-Munizags-2005: provides good overview.
 5. Barnes-1994: Rheology of Emulsion - A review: provides good introduction
-6. Barnes-2000: [Handbook_of_Rheology](https://ia601206.us.archive.org/4/items/HandbookOfRheology/Handbook_of_Rheology.pdf) - valuable resource; 
-7. slides by D. Lahaye;
+6. Barnes-2000: [Handbook_of_Rheology](https://ia601206.us.archive.org/4/items/HandbookOfRheology/Handbook_of_Rheology.pdf) - valuable resource;
+7. [rheoTool](https://github.com/fppimenta/rheoTool)
+8. slides by D. Lahaye;
 
 ### Books 
-1. Belitz, Grosch and Schieberle, <i>Food Chemistry</i>, Springer, 2009, [link](https://www.google.nl/books/edition/Food_Chemistry/xteiARU46SQC?hl=en&gbpv=0);
-2. Hasenhuettl and Hartel, <i>Food Emulsifiers and Their Applications</i>, Springer, 2019, [link](https://www.google.nl/books/edition/Food_Emulsifiers_and_Their_Applications/5Ea9DwAAQBAJ?hl=en&gbpv=0); 
+1. Owens and Phillips, <i>Computational Rheology</i>, Imperial College Press, 2005, [link](https://www.worldscientific.com/worldscibooks/10.1142/p160?srsltid=AfmBOorG7vsoNkHySUFhak1hYmUAA6EA8blCSgBJHpqgR_dqwpRwgoRm#t=aboutBook).  
+2. Belitz, Grosch and Schieberle, <i>Food Chemistry</i>, Springer, 2009, [link](https://www.google.nl/books/edition/Food_Chemistry/xteiARU46SQC?hl=en&gbpv=0);
+3. Hasenhuettl and Hartel, <i>Food Emulsifiers and Their Applications</i>, Springer, 2019, [link](https://www.google.nl/books/edition/Food_Emulsifiers_and_Their_Applications/5Ea9DwAAQBAJ?hl=en&gbpv=0); 
 
 
 ### Videos 
 1. [What is an emulsion? by Silverston](https://www.youtube.com/watch?v=mBvKar6t1LY): mixing by high shear to reduce surface tension;  
 2. [The emulsification process by Jacob Burton](https://www.youtube.com/watch?v=qnudmk_63r4): viscosity as a stabilizer; 
 3. [What is an emulsion by Dow](https://www.youtube.com/watch?v=uWfdU92uPNY) phases separate to find state with lesser energy; 
-
-
-```julia
-
-```
 
 
 ```julia
