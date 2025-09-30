@@ -1,47 +1,57 @@
 # Making Mayonaise 
 
+To do: 
+1. extend with figure of computed streamlines in rheometer.
+2. look for suitable data in [pyRheo](https://github.com/mirandi1/https://github.com/mirandi1/pyRheo).
+3. add chapter 5 of book of [Lapasin and Pricl](https://link.springer.com/chapter/10.1007/978-1-4615-2185-3_5)
+
 ## Section 1: Introduction 
  
 The goal of this project is to study fluids often encountered in the food processing industry. 
 
-Dressings, sauces and mayonaises are typically be described as [emulsions](https://en.wikipedia.org/wiki/Emulsion) obtained by mixing oil and water. Industrial partners in this project are eager to further develop modeling and simulations techniques to obtain a better grip on the batch production and long term storage of emulsions. This grip is obtained by a better understanding of the physical properties of the mixture in terms of the properties of the oil and water components. 
+Dressings, sauces and mayonaises are typically be described as [emulsions](https://en.wikipedia.org/wiki/Emulsion) obtained by mixing oil and water. Industrial partners in this project are eager to further develop modeling and simulations techniques to obtain a better grip on the batch production and long term storage of emulsions. This grip is obtained by a better understanding of the physical properties of the mixture in terms of the properties of the oil and water components. This is the field of [rheology](https://en.wikipedia.org/wiki/Rheology). 
 
-We will consider [mayonnaise](https://en.wikipedia.org/wiki/Mayonnaise) as an emulsions obtained by mixing oil droplets in water. These emulsion can be described as [linear visco-elastic materials](https://en.wikipedia.org/wiki/Viscoelasticity). An important physical property in the study of emulsions is the [dynamic modulus](https://en.wikipedia.org/wiki/Dynamic_modulus). The modulus is defined as the ratio of stress to strain under vibratory conditions. Given that strain is dimensionless, the dynamic modulus has the same units as stress. The dynamic modulus is complex-valued quantify. The real part is called the storage modulus and represents the elastic portion of the material. The imaginary part is called the loss modulus and represent the viscous part of the material. Our interest is understanding how the dynamic modulus of mayonaise dependent on its ingredients and how it evolves over the shell live time. 
+We will consider [mayonnaise](https://en.wikipedia.org/wiki/Mayonnaise) as an emulsions obtained by mixing oil droplets in water. These emulsion can be described as [linear visco-elastic materials](https://en.wikipedia.org/wiki/Viscoelasticity). An important physical property in the study of emulsions is the [dynamic modulus](https://en.wikipedia.org/wiki/Dynamic_modulus). The modulus is defined as the ratio of stress to strain under vibratory conditions. Given that strain is dimensionless, the dynamic modulus has the same units as stress (units Pa = N/m$^2$). The dynamic modulus is complex-valued quantify. The real part is called the storage modulus (reflecting recoverable energy) and represents the elastic portion of the material. The imaginary part is called the loss modulus (related to energy dissipation) and represent the viscous part of the material. Our interest is understanding how the dynamic modulus of mayonaise dependent on its ingredients and how it evolves over the shell live time. 
+
+Representative values of the dynamic modulus: 
+1. water: the dynamic modulus of water is approximately 2.1 to 2.2 GPa (hard to compress);
+2. milk: between 500 MPa and 2500 MPa. See e.g. Ozer-1998, <i>Gelation Properties of Milk Concentratedby Diﬀerent Techniques</i>;
+3. butter: see e.g. [link](https://www.rheologylab.com/articles/food/butter-v-margarine-spread/);  
 
 The <b>use of the Julia programming language</b> is an integral part of the learning objectives of this project. The spatial resolution required in this project leads to large scale linear systems. These large scale systems are cumbersome to solve without use of a compiled programming language. Julia merges the easy of use (Python like) with the speed of execution (C++) like. 
 
 ## Section 2: Oil Mixture Fraction and Visco-Elastic Properties of Emulsions 
 
-The dynamic modulus of mayonaise depends on (among many others factors) the types and amount of oil used. The dynamic modulus can be both measured experimentally and modeled mathematically.    
+The dynamic modulus of mayonaise depends on (among many others factors) the types and amount of oil used. The dynamic modulus can be both measured experimentally and modeled mathematically. 
+
+<img src="./plateau_region.png" width=400 />
 
 ### Measuring the Strength of Mayonaise 
 
-The dynamic modulus of mayonaise can be measured using [dynamic mechanical analysis](https://en.wikipedia.org/wiki/Dynamic_mechanical_analysis) (general term) and [rheometry](https://en.wikipedia.org/wiki/Rheometry) (more specific terms). 
+The dynamic modulus of mayonaise can be measured using [dynamic mechanical analysis](https://en.wikipedia.org/wiki/Dynamic_mechanical_analysis) (general term) and [rheometry](https://en.wikipedia.org/wiki/Rheometry) (more specific terms). This [video](https://www.rheologylab.com/videos/) explains oscillatory stress sweeps. 
 
 1. picture of weak and strong mayonaise;
 2. provide figures for $G'(\omega)$ and $G''(\omega)$: explain that sample breaks down at sufficiently large frequencies as sample no longer allowed to restore from exitation, multiple relaxation times).
 
-See seperate notebook [Experimental_Data_in_Python_Code.ipynb](Experimental_Data_in_Python_Code.ipynb) for experimental data of dynamic modulus of various mayonnaise types. (to do: add plots and highlight the plateau zone). 
+See seperate notebook [Experimental_Data_in_Python_Code](Experimental_Data_in_Python_Code.ipynb) for experimental data of dynamic modulus of various mayonnaise types. (to do: add plots and highlight the plateau zone). 
 
 Can this experimental data be modeled using [pyRheo](https://github.com/mirandi1/https://github.com/mirandi1/pyRheo) or [rheofit](https://rheofit.readthedocs.io/en/latest/index.html)? 
 
 ### Modeling the Strength of Mayonaise  
 
-1. single relaxation time [Kelvin-Voigt model](https://en.wikipedia.org/wiki/Kelvin–Voigt_material) (parallel spring-dashpot)
+1. single relaxation time [Kelvin-Voigt model](https://en.wikipedia.org/wiki/Kelvin–Voigt_material) (parallel spring-dashpot) (attempt to solve in time-domain first)? 
 2. single relaxation time [Maxwell model](https://en.wikipedia.org/wiki/Maxwell_model) (series spring-dashpot)  
 
-### Mason-Scheffold-2014
+### Mason-Scheffold-2014 Model
 
-We suggest to start the project the studying the 2014 paper by Mason and Sheffold. In a particular frequency range, the storage modulus can be consider to be constant. This value is refered to as the plateau elastic modulus. 
+We suggest to start the project the studying the 2014 paper by Mason and Sheffold. This paper is unique is deriving an expression for the dynamical modulus. In a particular frequency range, the storage modulus can be consider to be constant. This value is refered to as the plateau elastic modulus. 
 
 We suggest to rephrase 
 1. the model (the minimization of sum of total free energy, i.e., the sum of entropic and interfacial energy);
 2. the solution approach (finding first order critical points) and;
 3. the results obtained (small and large plateau elastic modulus at small and large oil mixture fraction);
 
-See seperate notebook [mason-sheffold-2014.ipynb](mason-sheffold-2014.ipynb).
-
-Assume a mono-disperse oil-in-water emulsion subject to a shear strain with value $]\gamma$. 
+Assume a mono-disperse oil-in-water emulsion subject to a shear strain with value $\gamma$. 
 1. $N$: number of droplets; 
 1. $a$: oil droplet radius, in the order of nano-meters (nano-emulsions) or micro-meter (micro-emulsions);
 2. $V_{drop} = 4 \pi \, a^3 / 3$: volume of droplet;  
@@ -51,30 +61,66 @@ Assume a mono-disperse oil-in-water emulsion subject to a shear strain with valu
 6. $\phi_d = \phi'_c - \phi_c$: deformation mixture fraction. Precise value is given by imposing equilibrium in energy contributions; 
 7. $\sigma$: oil in water [interfacial tension](https://www.youtube.com/watch?v=2BBHl8Zvs2U&t=40s) of the droplets, in the order of miliNewtons/meter. $\sigma/a$ is the Laplace pressure scale. Q: is this value independent of the strain applied to the system?;
 8. $G'_p(\phi)$: linear (or plateau) shear [elastic modulus](https://en.wikipedia.org/wiki/Elastic_modulus) (as opposed to Youngs or bulk modulus). Also referred to as effective spring constant. Clearly independent of frequency of shearing force. Assumption is that the emulsion is in the state in which the shear tension responds linear to the shear rate. In this state the definition as second order derivative applies;
-9. $\Pi(\phi)$: [osmotic pressure](https://en.wikipedia.org/wiki/Osmotic_pressure)
-10. $F(\phi,\gamma)/N$: free energy per particle
+10. $\Pi(\phi)$: [osmotic pressure](https://en.wikipedia.org/wiki/Osmotic_pressure)
+11. $F(\phi,\gamma)/N$: free energy per particle
 
-### Scaling laws based on [Surface Evolver](https://kenbrakke.com/evolver/evolver.html) 
+#### Scaling laws based on [Surface Evolver](https://kenbrakke.com/evolver/evolver.html) 
 1. scaling laws for $G'_p(\phi) \sim \sigma/a \, \phi \, (\phi-\phi_c)$;
 2. scaling laws for osmotic pressure $\Pi(\phi) \sim \sigma/a \, \phi^2 \, (\phi-\phi_c)$
 
-### Scaling laws based on jamming simulations  
+#### Scaling laws based on jamming simulations  
 1. scaling laws for $G'_p(\phi) \sim \sigma/a \, [ \phi^{8/3} \, (\phi-\phi_c)^{0.82} + \phi^{5/3} \, (\phi-\phi_c)^{1.82} ]$;
 
-### Free Energy
-1. entropic free energy: $ F_{entropic}/N = -3 \, k_B \, T \, \log[ \phi_c + \phi_d - \phi - \alpha \, \gamma^2] $ 
-3. interfacial free energy: $ F_{interfacial}/N = 4 \, \pi \, \xi \, a \, \phi_d^2 $  
+#### Entropic Free Energy
 
-### Energy Minimization 
-1. first order critical point determines the optinmal deformation volume fraction $\phi^*_d$
+1. how is entropic free energy defined? $F_{entropic}(\phi,\gamma)/N = - T \, \Delta S$ where $S$ is the entropy given by $S = k \, \log(\Omega)$, where $k$ is the Boltzman constant and $\Omega$ in the number of microstate (number of droplets). See e.g. [entropic free energy](https://en.wikipedia.org/wiki/Entropic_force). 
+2. give small example illustrating this definition? 
+3. how should definition applied in current context? 
+4. here $ F_{entropic}(\phi,\gamma)/N = -3 \, k_B \, T \, \log[ \phi_c + \phi_d - \phi - \alpha \, \gamma^2] $ and its application to colloidal systems (same wiki link). See also [Depletion_force](https://en.wikipedia.org/wiki/Depletion_force); 
+5. give interpretation of the result obtained; 
 
-### Computation of osmotic pressure 
+#### Interfacial Free Energy
 
-First order thermodynamical derivative. 
+1. how is interfacial energy defined? $F_{interfacial}(\phi,\gamma)/N = \sigma \, \Delta A$ where $\sigma$ is the Laplace pressure; 
+2. give small example illustrating this definition? 
+3. how should definition applied in current context?
+4. interfacial energy: here $A = 4 \, \pi \, a^2 \, \left[ 1 + \xi \phi_d^2 + \ldots \right]$ and thus $\Delta A = 4 \, \pi \, a^2 \, \xi \, \phi_d^2$. Thus $ F_{interfacial}(\phi,\gamma)/N = 4 \, \pi \, \sigma \, \xi \, a^2 \, \phi_d^2 $. See also information on [surfactants](https://en.wikipedia.org/wiki/Surface_tension) and [interfacial_rheology](https://en.wikipedia.org/wiki/Interfacial_rheology); 
+5. give interpretation of the result obtained; 
 
-### Computation of plateau shear modulus 
+#### Total Energy 
 
-Second order thermodynamical derivative.
+$ F_{total}(\phi,\gamma)/N = F_{entropic}(\phi,\gamma)/N + F_{interfacial}(\phi,\gamma)/N$
+
+#### Energy Minimization 
+
+First order critical point $\left. \frac{\partial F_{total}}{\partial \phi_d}\right|_{\phi_d = \phi_d^*} = 0$ (entropic and interfacial force balance) determines the optimal deformation volume fraction $\phi^*_d$. 
+
+Define $ \phi_T^2 = \left( \frac{3 k_B T}{a^3} \right) / \left( 2 \pi \xi \frac{\sigma}{a} \right)$. 
+
+Optimal mixture fraction 
+$\phi_d^* = \frac{1}{2} \left\{ [\phi - (\phi_c - \alpha \gamma^2)] + \sqrt{ [\phi - (\phi_c - \alpha \gamma^2)]^2 + \phi_T^2 }\right\}$ 
+
+#### Thermodynamical derivative
+
+Expand on thermodynamical derivatives and provide examples. 
+
+#### Computation of osmotic pressure $\Pi$
+
+Compute osmotic pressure as first order thermodynamical derivative of total free energy wrt the applied shear strain, i.e., 
+
+$ \Pi = \frac{\phi^2}{N V_{drop}} \frac{\partial F_{total}}{\partial \phi_d} \text{ arguments missing}$
+
+#### Computation of plateau shear modulus $G'_p$ 
+
+$ G'_p = \frac{\phi}{N V_{drop}} \left. \frac{\partial^2 F_{total}}{\partial \gamma^2} \right|_{\phi_d = \phi_d^*, \gamma = 0} $ 
+
+Replace in expression for total free energy $\phi_d$ by $\phi^*_d$ and compute the second order derivative of the resulting expression wrt $\gamma$.
+
+See seperate notebook [mason-sheffold-2014.ipynb](mason-sheffold-2014.ipynb).
+
+### Mason-Scheffold-2014 Measured Values 
+
+### Mason-Scheffold-2014 Compare Model and Measured Values  
 
 ## Section 3: Complement Understanding of the Problem 
 
@@ -92,7 +138,8 @@ A first alternative to is to first generalize the expression for the entropic an
 
 A second alternative is to replace the energy minimization framework by a mechanical model of a number of oil drops interconnected by springs, dashpots and dampers. One wishes to study the stress response of these systems given as oscillatory shear. Possibly one can start by considering interconnections (networks or graphs) of Kelvin-Voight and Maxwell models. Possibly one can borrow ideas from molecular dynamics or other particle-based simulations methods.
 
-<b>Example of a Particle Based Model</b> [computation of the viscosity](https://docs.lammps.org/Howto_viscosity.html) by ensemble averaging of the auto-correlation of the stress/pressure tensor using [LAMMPS](https://docs.lammps.org/Manual.html);
+<b>Example of a Particle Based Model</b> [computation of the viscosity](https://docs.lammps.org/Howto_viscosity.html) by ensemble averaging of the auto-correlation of the stress/pressure tensor using [LAMMPS](https://docs.lammps.org/Manual.html). Another example is [Measuring the distribution of interdroplet forces
+in a compressed emulsion system](https://hmakse.ccny.cuny.edu/wp-content/uploads/2015/07/2003_Measuring.pdf)
 
 ### Continuum Models 
 
@@ -108,7 +155,7 @@ Perform lid-driven cavity Stokes flow simulations with translation shear for New
 
 ### Section 2.5: Non-Newtonian Fluid
 
-Perform lid-driven cavity Stokes flow simulations with translation shear for visco-elastic (non-Newtonian) fluid with shear-thinning behavior. Extend previous case by e.g. a power-law for the viscosity (provide examples here).  
+Perform lid-driven cavity Stokes flow simulations with translation shear for visco-elastic (non-Newtonian) fluid with shear-thinning behavior. Extend previous case by e.g. a power-law for the viscosity by modifying the [Ferrite Hyperelasticity Tutorial](https://ferrite-fem.github.io/Ferrite.jl/stable/tutorials/hyperelasticity/).  
 
 See e.g. [example](https://link.springer.com/chapter/10.1007/978-981-97-7759-4_42) of the kind of result we would like to obtain (to elaborate further). 
 
@@ -198,6 +245,16 @@ Here we show computational results for the magnitude of the velocity for Stokes 
 1. [What is an emulsion? by Silverston](https://www.youtube.com/watch?v=mBvKar6t1LY): mixing by high shear to reduce surface tension;  
 2. [The emulsification process by Jacob Burton](https://www.youtube.com/watch?v=qnudmk_63r4): viscosity as a stabilizer; 
 3. [What is an emulsion by Dow](https://www.youtube.com/watch?v=uWfdU92uPNY) phases separate to find state with lesser energy; 
+
+
+```julia
+
+```
+
+
+```julia
+
+```
 
 
 ```julia
