@@ -147,12 +147,12 @@ Assume a mono-disperse oil-in-water emulsion (all droplets have same diameter $a
 
 See [Maxwell relations](https://en.wikipedia.org/wiki/Maxwell_relations). 
 
-First order critical point $\left. \frac{\partial F_{total}}{\partial \phi_d}\right|_{\phi_d = \phi_d^*} = 0$ (entropic and interfacial force balance) determines the optimal deformation volume fraction $\phi^*_d$. 
+First order critical point $\left[ \frac{\partial F_{total}}{\partial \phi_d}\right]_{\phi_d = \phi_d^*} = 0$ (entropic and interfacial force balance) determines the optimal deformation volume fraction $\phi^*_d$. 
 
 Define $ \phi_T^2 = \left( \frac{3 k_B T}{a^3} \right) / \left( 2 \pi \xi \frac{\sigma}{a} \right)$. 
 
 Optimal mixture fraction 
-$\phi_d^* = \frac{1}{2} \left\{ [\phi - (\phi_c - \alpha \gamma^2)] + \sqrt{ [\phi - (\phi_c - \alpha \gamma^2)]^2 + \phi_T^2 }\right\}$ 
+$\phi_d^* = \frac{1}{2} \left[ [\phi - (\phi_c - \alpha \gamma^2)] + \sqrt{ [\phi - (\phi_c - \alpha \gamma^2)]^2 + \phi_T^2 }\right]$ 
 
 #### Exercises: Two Limit Cases 
 1. $T \rightarrow 0$ (no entropic energy): recover $G'_p = 12 \alpha \xi (\sigma/a) (\phi - \phi_c)$. Can be recovered by simulations as shown in [Lacasse-Weitz-1995](https://arxiv.org/pdf/mtrl-th/9603006)? 
