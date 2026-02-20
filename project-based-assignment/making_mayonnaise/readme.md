@@ -196,7 +196,7 @@ How to model and measured data compare? What is the role of the scaling paramete
 
 ### Section 1.3: Introduction 
 
-<b>Goals</i> 
+<b>Goals</b> 
 
 Assume molecular dynamics simulations in 2D (x and y dimensions) with N particles. Assume a pairwise interaction potential (e.g. Lennard - Jones). (<i>Not sure what kind off visco-elastic material can be represented by this potential</i>); 
 
