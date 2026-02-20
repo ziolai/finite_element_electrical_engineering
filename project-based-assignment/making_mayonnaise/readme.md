@@ -1,0 +1,748 @@
+# Making Mayonaise   
+
+## Section 1: Introduction 
+ 
+The goal of this project is to study fluids often encountered in the food processing industry. 
+
+<b>What is mayonnaise?</b> [Mayonnaise](https://en.wikipedia.org/wiki/Mayonnaise) is a mixture of vegetable oil (oil droplets, disperse phase, more on vegetable oil properties), egg yoke (continuous phase, continous phase, described as water, more on what is missed by this approximation) and egg white (proteins, emulsifier, more on these terms mean). Distinguish between regular (high oil content, concentrated, compressed, high internal phase) and low-fat mayonnaise. Similar fluids of interests are sauces and dressings. Industrial partners in this project are eager to further develop modeling and simulations techniques to obtain a better grip on the batch production and long term storage of mayonnaise (instability of mayonnaise, loss of elasticity, loss of matching in buoyancy, flocculation, phase seperation, population balance models). This grip is obtained by a better understanding of the physical properties of the mixture. The fact that these fluids are intended as nutrition adds to the modeling challenges. 
+
+<b>What is an emulsions?</b> Wikipedia describes an [emulsions](https://en.wikipedia.org/wiki/Emulsion) as a mixture of two or more liquids that are normally immiscible owing to liquid-liquid phase separation. Mayonnaise is an example. An example of emulsions without the (chemical and biological) complexity of mayonnaise is [boger fluids](https://en.wikipedia.org/wiki/Constant_viscosity_elastic_fluid). (How does rheometry data for a Boger fluid look like? Does this data exihibit a plateau shear modulus? Can this data be fitted with a small set of relaxation modes? What is the value of the plateau elastic modulus? What is the shape of the plateau zone? See [Kaur-Sobti-Wanchoo-2024](https://www-sciencedirect-com.tudelft.idm.oclc.org/science/article/pii/S2405830023001234?via%3Dihub). Computes relaxation time as the sum of relaxation times of indidividual modes.)
+
+<b>What is a surfactant?</b> Distinguish between anionic, nonionic, zwitterion and gemini surfactant? 
+
+<b>What is a visco-elastic fluid?</b> Wikipedia describes [visco-elastic materials](https://en.wikipedia.org/wiki/Viscoelasticity) as material property that combines both viscous and elastic characteristics. Constitutive stress-strain equations for these materials thus need to include both elastic (stress proportional to gradient of displacement, Hooke Law) and viscous effects (stress proportional to gradient of velocity). Examples are mixture of (soft or hard) spheres in water and mayonnaise. (Distinguish between linear and non-linear visco-elastic materials. Elaborate on constitutive equations for visco-elastic materials. Course notes on [visco-elasticity](https://web.mit.edu/course/3/3.11/www/modules/visco.pdf). Can the Boltzman integral representation be used to construct frequency-domain data consisting of various relaxation modes?). 
+
+<b>What are constitutive equations for visco-elastic fluid?</b>
+1. single relaxation time [Kelvin-Voigt model](https://en.wikipedia.org/wiki/Kelvin–Voigt_material) (parallel spring-dashpot) (how to model the energy stored in on Maxwell model? How to recover the real part of the dynamic modulus for the second derivative of the energy wrt strain rate?); 
+2. single relaxation time [Maxwell model](https://en.wikipedia.org/wiki/Maxwell_model) (series spring-dashpot) (as before);
+3. list more elaborate models here;
+
+<b>What is the dynamic modulus?</b> An important physical property in the study of emulsions is the [dynamic modulus](https://en.wikipedia.org/wiki/Dynamic_modulus). This modulus generalizes the notion of elasticity and viscosity. The modulus is defined as the ratio of stress to strain under vibratory conditions. Given that strain is dimensionless, the dynamic modulus has the same units as stress (units Pa = N/m$^2$). The dynamic modulus is complex-valued quantify. The real part is called the storage modulus (reflecting recoverable energy) and represents the elastic portion of the material. The imaginary part is called the loss modulus (related to energy dissipation) and represent the viscous part of the material. Our interest is two-fold. Our first interest is understanding how the dynamic modulus of mayonaise depends on factors such as its ingredients (type of oil, quantity of oil, type of emulsifier) and its micro-structure (oil droplet size distribution). Our second interest is understanding how the dynamic modulus of mayonaise evolves over the shell live time. 
+
+<b>What is the plateau modulus?</b> Give definition and properties (amplitude and extend in frequency). Cite Liu-2006 paper {\em Evaluation of different methods for the determination of the plateau modulus and the entanglement molecular weight}. 
+
+<b>What is shear thinning?</b> More on the role of the viscosity and its decrease as shear is applied. 
+
+<b>How is the dynamic modulus modeled?</b> The dynamic modulus of a visco-elastic fluid can be modeled from first principles (by energy minimization followed by suitable thermo-dynamical derivatives), by molecular dynamics simulations, by fluid dynamics simulations (as the auto-correlation of the shear stress), by symbolic regression of measured data or by least-squares fitting to measured data.    
+
+<b>How is the dynamic modulus measured?</b> The dynamic modulus of mayonaise can be measured using [dynamic mechanical analysis](https://en.wikipedia.org/wiki/Dynamic_mechanical_analysis) (general term) and [rheometry](https://en.wikipedia.org/wiki/Rheometry) (more specific terms). In these experiments the stress caused by a (linear or rotating) strain is measured. Measurement using Small Amplitude Oscillatory Shear (SAOS), using Large Amplitude Oscillatory Shear (LAOS), yield stress, frequency range, measured values of $G'(\omega)$ and $G''(\omega)$. This [video](https://www.rheologylab.com/videos/) explains oscillatory stress sweeps.
+
+<b>How does microstructure affect the dynamic modulus measured?</b> What is documented in literature? 
+
+<b>What are values of the dynamic modulus?</b>
+1. water: the dynamic modulus of water is approximately 2.1 to 2.2 GPa (hard to compress);
+2. milk: between 500 MPa and 2500 MPa. See e.g. Ozer-1998, <i>Gelation Properties of Milk Concentrated by Diﬀerent Techniques</i>;
+3. butter: see e.g. [link](https://www.rheologylab.com/articles/food/butter-v-margarine-spread/);
+4. Boger fluids: provide link here;
+5. mayonnaise example: [Katsaros-2020](https://pdf.sciencedirectassets.com/313379/1-s2.0-S2405844019X00134/1-s2.0-S2405844020326311/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEKv%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJHMEUCIAQ58J%2B9pg568BWMfgaIaIjlioUu554%2B%2FNSbuUpeI0vPAiEAqWllePMDbtQ8WiNg4wWaYAjD7WEAMAkXXhhXHS5Z12sqsgUIRBAFGgwwNTkwMDM1NDY4NjUiDJjzZz4FDFxQYG53OCqPBSUk9aX0UkiXRH%2BuI7c73h%2FUbPfk1HGG%2FeMn%2Fm%2FZhJ5JdOkf3Wc%2Bz6Ef4QsLrvOucTqa5HhhbVsPx4wVA9PUY34EUHZJZLgWJF0yRM7xOHjO0ogEI5bkoYXvYbZ3qCeZUoOIp0%2Fbe38tUJJosJfxNva%2Fe89OWbTUxKAJE4kowcb8VzpUmkzkIwtaytPBSDCthuiIGpdeNFKMjchFYFA7wjk%2BxJICDqrW2vUIX42wSUfCGCigbhzJgdWTr4wYOttchRNByfJ2E9V%2Bviv3oi2N371ZjhZaAtTlqiWnyn7dtQX8t46DSyMpsCjYVRL2r3p4YaTgNLuWqr%2FG0I69IY27U0ehZ0QuGkmbygBJVc6fEgG9szVcP8LKNsoN%2BEPzw7WxoA4IS9pWBwhnRrYrVyQUa9kiei1XxZ9Wlv4k%2FSPIadRMmNdKTgqkyDTeB0zyUWQ4nX%2FHQE38mtQuiYOzakLw0HcvzW3%2FIdYQYxMDwdIjJp%2FdJ7q1afoankvLVHfx8gNR4%2BDszpkLLR3QPwQIHKOYb57Jo2ZtBgGfT35L6og3NUtSlJJkM7dxZe6rysfIBtT1ENiehcHL40lKE%2B6UMahb1yX9PP65%2FZo8LgSihcCOJXLVPkrhvsRrytMHAtYpkHwh2i7pyO0UoJ%2Fa3hZFLumeai9CpB%2BZZ8WyI1%2BRrDC0nvTeZ%2BE3TG9uRzjtVKB8CdhPmss29546yLd2EJGeCzj9LEZfEUZIHlk7Cp5C9rGNSkNN4PavgB9VlQ1%2FunLMaOi%2BT737jk%2FVjVqQNJNS8gu72vqmd5NJs3yrQfE4WsPKWPxW8A8K%2FPI3VRQiXG4fcyp8IhEZe1ObUsrSC8L9HWRUUiW1%2BBx86qZT04sieJoikD4wgtr%2BxgY6sQF4gS2%2BLq9TpHoHse7inMo9rVuj8zEWhDfpei9gy%2BLdwTeZyFt85RQimYFh8zuA0Yx3mBJ5CdnW2S%2BtGYU6%2FyxeTBJoD882IfOw68QeShKNeJR1P9QaAiWYLJmWi8BBZDK4FWivbayMzdwnfZGrQuZAmeqi7Mol37PK5x2jeXXuUDqaxTZ0BQx6O6cVb0nhesjZOqKBhlGNjonUVbCAuo4PO1%2FBJEjfsmFDTXsOJcEhYuY%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20251003T112310Z&X-Amz-SignedHeaders=host&X-Amz-Expires=299&X-Amz-Credential=ASIAQ3PHCVTYY6VHRCCU%2F20251003%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=c32db79338c0a3b73a84aa299494613d86b27807d6b4f2d1941ae5eb21c34288&hash=ddad13b67be5c2f0a99e488ca71a23f65d4d09fda50c15f789200235c6e42f0d&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S2405844020326311&tid=spdf-21148d4b-3a7a-43e4-8e86-3d1c06ae4bce&sid=c585ca1f6483c9406b08a4e51c11ccdcf6b6gxrqb&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&rh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=080b575e5c005e570307&rr=988c10dd0a4ab8c7&cc=nl) and the master thesis of Wei Fan. See notebook [Experimental_Data_in_Python_Code](Experimental_Data_in_Python_Code.ipynb) for experimental data of dynamic modulus of various mayonnaise types (to do: add plots and highlight the plateau zone). Good to add more examples for regular and low fat mayonnaise;  
+6. to do: provide more references on measured data (both SAOS and LAOS) for regular (large oil mixture fraction, large internal phase) mayonaise. A recent example is [Miriyala-2025](https://pdf.sciencedirectassets.com/271146/1-s2.0-S0260877425X00078/1-s2.0-S0260877425001086/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjENr%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJHMEUCIQDLEnwNwsOeyIoAtXUC%2BNk%2BIqTgDV6YpatWARvR46bqDQIgLL7Yn5oafPmM%2BWXygwU5Amnp3RJV7mlBW%2B%2BjnT6lpoAqvAUIk%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAFGgwwNTkwMDM1NDY4NjUiDMWSjO5aagrIyI6ixCqQBeDPnVPsqWe6a28GUl5DXE8YtXhNQ25rzXgX4eSNEiNqzl%2BbRzqQKD9PYvro9kT3P8sMANoflngIxSekZcqsa3%2Bwn83r9km62vp%2BzLYEXFgx8ybZRgoi3PGFXHMYkn1PwJMPN3KBxyGnvHHKTmHVSJFVqPE0VpkeIjH2eMVt7F7uC9Y%2FoJsAIWW%2FIpfMYyYKSAo5bnoI2Wyq6PnQ14RCj9zJenl1xejasz7DKhTbBS7bB9hCcH5UjafOe18oQWAGpJs%2FXzS7IoNzoBbchYYCgL%2FpxKjMCX3QPkoWaMhVGyNF8gpJqOW%2FnV5dIY1eR9mOgrqhDaBSd2nRq4Hyo8WQpbnWizvxUEMSwBuuHRjT0dNaPO9nLX4vaw%2FJvThniIV%2BEaBV5O6H3emWI0J3A2uW5VmDCPHLdoaPRkV0LYz1vmAAhQORUJ6Q74XFV3B%2BKcmkPiTIVFiBrD4GHATvgzm%2Bi%2FpEYaeGRVHi0bZZn3z8GQKFEUSORwIJpuwCbFF15gK8GOOLtEd4TLgZmSdOvKhxQVeSJdTt%2F11kIVah10tJbWyOJ9nTLoUNwEgoxYpDKzVv%2B5a%2FltS538B6R%2Bb5cU0pJJ6bzPZg%2BgO0fz8VO21UTot33usUjYimc8%2BEwHc3LtR2jDSR63fUW6Er6UvT3vOfhqf08KXXENQ46%2FNGkrYqNNkKHLw1AZu%2F%2FxUnUazEZoF%2ByO9vAzg%2ByjeCdRWQk1wVvhrxGrhGShjc29vc7EZh1o6DwajlVwZrwdV9UL707%2F8GKTa1KrSrFnBBeebsDCfYzNjpwJxwfygjRIYTgNVsKzDwj6tva3pedmfGTuDexwXhcAqJNbSWN7SQyKilcjMGQADIc%2BZudq%2B%2FDfLz94uRDBnwMIq%2F%2BccGOrEB2Gy%2BexUr%2Bo04%2F5OvW0RdS4PWthZ6am%2BIY%2BbRTiT67%2BpW2GXFqcECxTboLWC2KRThsxW006%2Bue5H8p89g7nMZoy15wJn9qYbVpT5w2YiIvwXWqLtjpvkBsgUBWOYlb%2BbtZkfVokmxjsz1JdHv40Nn97uROR1CrdBg16rGjWmTwEqTLZieAUQ0rPS83FzVGYVfXrGllqkBP9bg5vutFdRGOZzPsYwdTapy3SOiPO0D3k8l&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20251026T191626Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTYXYJR7JGS%2F20251026%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=8074d4ce62a92c1fa2753857b21a82e6601beab9bc161d7984b5d2d93f0fc1ad&hash=13a09cff64f80ad17159bb72a39016db7003c5e88e81238e57b038662f92e55f&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S0260877425001086&tid=spdf-660a7048-7b04-4b25-9d82-f0ab60c05370&sid=2608015968f5644cf79a89b86232f21e9649gxrqb&type=client&tsoh=d3d3LXNjaWVuY2VkaXJlY3QtY29tLnR1ZGVsZnQuaWRtLm9jbGMub3Jn&rh=d3d3LXNjaWVuY2VkaXJlY3QtY29tLnR1ZGVsZnQuaWRtLm9jbGMub3Jn&ua=140a58595702565e015f50&rr=994c49c07ceffe93&cc=nl); 
+7. to do: provide more references on measured data (both SAOS and LAOS) for low-fat mayonaise. Document type of stabilizer (emulsifyer) used;
+8. other materials: see data available in [pyRheo/demos](https://github.com/mirandi1/pyRheo/tree/main/demos)
+
+<b>How does the dynamic modulus of mayonnaise evolve over the shelf time?</b> Up to 9 to 12 months. We expect the dynamic modulus to decrease due to the degredation of the emulsifier, lipid oxidation see e.g. [Merkx-Hennebelle-2021](https://www.mdpi.com/2076-3921/10/2/287)
+and the resulting phase seperation. 
+
+<b>What is the plateau modulus?</b> The paper [herman-panajotova-1997](https://www-sciencedirect-com.tudelft.idm.oclc.org/science/article/pii/S1089315697000159?via%3Dihub) discusses the appearing of a plateau modulus by relaxation at various time scales. How is the plateau modulus measured? See [Liu-Bailly-2006](https://www.sciencedirect.com/science/article/pii/S0032386106005684) for a discussion of various methods to determine the plateau modulus and the effect of polydispersity on measured values. 
+
+<b>What is (a digital twin of) a rheometer?</b> See [Anton Paar website](https://www.anton-paar.com/corp-en/products/group/rheometer/) rheometers for various types of rheometers. 
+
+<b>Exercise - Database for regular mayonnaise</b> Construct for published values in literature a database for regular mayonnaise. This database can include measured values of $G'(\omega)$, $G''(\omega)$, the viscosity, interfacial tension and other relevant data;  
+
+<b>Exercise - Database for low-fat mayonnaise</b> Idem as above, for low-fat mayonnaise.
+
+<b>Exercise - Combined Maxwel / Kelvin-Voight Model</b> Combine a single Maxwell mode and a single Kelvin-Voight into a combined mode as shown in the figure below. Explore the location and the value of the resulting plateau modulus. Explore the shape of the region in the vicinity of the plateau modulus.   
+
+<img src="./plateau_region.png" width=400 />
+
+<b>Exercise - Constitutive Equations of Linear Visco-Elastic Materials</b> Construct and solve an ODE model for a single mode Maxwell (or Kelvin-Voight) material under sinusoidal strain. From the ODE solution, compute the energy stored and the shear stress. From the stored energy, compute the first order derivative wrt the position to find the force and compute the second order derivative wrt the position to find parameters in the force-strain relation. From the shear stress, compute the dynamic modulus in time domain as the auto-correlation of the shear-stress. Repeat for various frequencies of the applied strain. Repeat for coupled Maxwell and Kelvin-Voight media. Repeat for for complex constitutive relations.   
+
+<b>Computation of Force as First Derivative of the Energy</b>
+
+$F_i = \frac{\partial V}{\partial x_i} = \sum_{j \in N_i} \frac{\partial V}{\partial r_j} \frac{\partial r_j}{\partial x_i} $
+
+<b>Computation of Stress Tensor as Second Derivative of the Energy</b>
+
+$\tau_{ij} = \frac{\partial^2 V}{\partial x_i \partial x_j}  =$
+
+## Section 2: Plateau Elastic Modulus of Emulsions From First Principles
+
+### To do Domenico: 
+
+1. document the concept of [polydisperse](https://en.wikipedia.org/wiki/Dispersity) dropletsize distributions (homogeneous in space?). Document jamming behavior and critical mass fraction of polydisperse droplet distributions. See literature online. Here is a first [example](https://journals.aps.org/prresearch/abstract/10.1103/PhysRevResearch.5.L012014). Here is a second [example](https://www.sciencedirect.com/science/article/abs/pii/S016773222201563X) (Need to elaborate on particle dynamics simulations being performed. );
+2. document extension of entropic free energy to polydisperse droplet sizes. Revisit notion partion function $Q$ for polydisperse distributions?
+3. investigate sensivity of scaling parameter $\alpha$ (log-dependency) in entropic energy;
+4. document extension of interfacial free energy to polydisperse droplet sizes. Revisit the reference Woodcock-1981;
+5. investigate sensivity of scaling parameter $\xi$ (linear dependency) in interfacial energy;
+6. investigate sensivity of scaling parameter in interfacial energy;
+7. expand on the shell life time of mayonnaise (degration of surfactant, coalesence of droplets, larger droplets raise, oil and water seperate, phase separtion)
+8. clarify results on viscosity for hard polydisperse spheres from literature;  
+9. add good explantion and example of a master curve;
+10. add explanation on harmonic potential (e.g. no odd powers in x in the potential);
+
+### Scaling Laws 
+
+#### Scaling laws based on [Surface Evolver](https://kenbrakke.com/evolver/evolver.html) 
+1. scaling laws for $G'_p(\phi) \sim \sigma/a \, \phi \, (\phi-\phi_c)$;
+2. scaling laws for osmotic pressure $\Pi(\phi) \sim \sigma/a \, \phi^2 \, (\phi-\phi_c)$
+
+#### Scaling laws based on jamming simulations  
+1. scaling laws for $G'_p(\phi) \sim \sigma/a \, [ \phi^{8/3} \, (\phi-\phi_c)^{0.82} + \phi^{5/3} \, (\phi-\phi_c)^{1.82} ]$;
+
+### Mason-Scheffold-2014 Model
+
+We suggest to start the project the studying the 2014 paper by Mason and Sheffold. This paper is unique is deriving an expression for the dynamical modulus. In a particular frequency range, the storage modulus can be consider to be constant. This value is refered to as the plateau elastic modulus. 
+
+We suggest to rephrase 
+1. the model (the minimization of sum of total free energy, i.e., the sum of entropic and interfacial energy);
+2. the solution approach (finding first order critical points) and;
+3. the results obtained (small and large plateau elastic modulus at small and large oil mixture fraction);
+
+Sample questions to be explored
+1. what happens in case small or large particle size $a$ (documented in part in Mason-Sheffold-2014, to be better documented), what happens in case of large (hard spheres) and small (soft spheres) surface tension $\sigma$ (surface tension can be influenzed by the type of emulsifier), what happens in case small or large temperature $T$;
+2. how does energy minimization work for single mode Kelvin or Maxwell model? What is free energy? Can free energy be minimized wrt to applied strain?  
+3. can analytical framework be extended for poly-disperse mixtures?; 
+
+#### Notation 
+
+Assume a mono-disperse oil-in-water emulsion (all droplets have same diameter $a$) subject to a shear strain with value $\gamma$. 
+1. $N$: number of droplets; 
+1. $a$: oil droplet radius, in the order of nano-meters (nano-emulsions) or micro-meter (micro-emulsions). Mason-Sheffold-2014 reports on measured data with oil droplets with radius $a = 0.53$ micro-meters. Same paper reports on numerical results with $a=5$ nanometers, $a=50$ nanometers, $a=500$ nanometers,
+3. $V_{drop} = 4 \pi \, a^3 / 3$: volume of droplet;
+4. $\xi$: dimensionless geometrical parameter;  
+5. $\gamma$: shear strain (dimensionless); 
+6. $\alpha$: dimensionless parameter that scales $\gamma^2$; 
+7. $\phi$: droplet mixture fraction for oil-in-water emulsion;
+8. $\phi_c$: threshold value of $\phi$ for jamming. In the range $0.6 \leq \phi_c \leq 0.7$ (depending on random or hexagonal packing). Paper uses $\phi_c = 0.64$. Value likely to change in case of polydisperse media; 
+9. $\phi'_c > \phi_c$: new and larger value for the threshold value of jamming;
+10. $\phi_d = \phi'_c - \phi_c$: deformation mixture fraction. Precise value is given by imposing equilibrium in energy contributions; 
+11. $\sigma$: oil in water [interfacial tension](https://www.youtube.com/watch?v=2BBHl8Zvs2U&t=40s) of the droplets, in the order of miliNewtons/meter. $\sigma/a$ is the Laplace pressure scale. Q: is this value independent of the strain applied to the system?;
+12. $G'_p(\phi)$: linear (or plateau) shear [elastic modulus](https://en.wikipedia.org/wiki/Elastic_modulus) (as opposed to Youngs or bulk modulus). Also referred to as effective spring constant. Clearly independent of frequency of shearing force. Assumption is that the emulsion is in the state in which the shear tension responds linear to the shear rate. In this state the definition as second order derivative applies;
+13. $\Pi(\phi)$: [osmotic pressure](https://en.wikipedia.org/wiki/Osmotic_pressure)
+14. $F(\phi,\gamma)/N$: free energy per particle
+
+#### Entropic Free Energy (How to Generalized to Particle Size Distributions? Sensitivity for scaling in \alpha?)
+
+1. how is entropic free energy defined? $F_{entropic}(\phi,\gamma)/N = - T \, \Delta S$ (beware of the sign) where $S$ is the entropy given by $S = k \, \log(\Omega)$, where $k$ is the Boltzman constant and $\Omega$ in the number of microstates (number of droplets?). See Kim-Sheffold-Mason-2016 for a more elaborate explanation. Is this explanation still valid in case of poly-disperse media? Does it suffice to adapt the value of $\phi_c$? 
+2.  See e.g. [entropic free energy](https://en.wikipedia.org/wiki/Entropic_force). This reference defines the Helmholtz free energy $A$ as $A = - k_B T \log(Q)$ where $Q$ is the partition function (includingh discussion of the sign).
+3. The expression for $\Omega$ is derived in 3 steps: (1/3) Woodcock-1981: hard sphere: $\Omega \sim (\phi_c-\phi)^{3N}$. Entropic energy thus diverges at $\phi = \phi_c$. (2/3) Allow soft spheres by replace $\phi_c$ by $\phi'_c = \phi_c + \phi_d$ where $\phi_d>0$ is positive. Entropic energy diverges at larger value $\phi = \phi'_c$. (3/3) Allow for shear strain by replacing (jamminng point is lowered by the shear strain) (free energy may not depend on the sign of $\gamma$, but making free energy depend on $\gamma^2$) $\phi_c + \phi_d$ by $\phi_c + \phi_d - \alpha \gamma^2$; 
+5. give small example illustrating this definition? 
+6. how should definition applied in current context? 
+7. here $ F_{entropic}(\phi,\gamma)/N = -3 \, k_B \, T \, \log[ \phi_c + \phi_d - \phi - \alpha \, \gamma^2] $ and its application to colloidal systems (same wiki link). See also [Depletion_force](https://en.wikipedia.org/wiki/Depletion_force); 
+8. give interpretation of the result obtained; 
+
+#### Interfacial Free Energy (How to Generalized to Particle Size Distributions? Sensitivity for scaling in \xi?) 
+
+1. how is interfacial energy defined? $F_{interfacial}(\phi,\gamma)/N = \sigma \, \Delta A$ where $\sigma$ is the Laplace pressure; 
+2. give small example illustrating this definition? 
+3. how should definition applied in current context?
+4. interfacial energy: here $A = 4 \, \pi \, a^2 \, \left[ 1 + \xi \phi_d^2 + \ldots \right]$ and thus $\Delta A = 4 \, \pi \, a^2 \, \xi \, \phi_d^2$. Thus $ F_{interfacial}(\phi,\gamma)/N = 4 \, \pi \, \sigma \, \xi \, a^2 \, \phi_d^2 $. See also information on [surfactants](https://en.wikipedia.org/wiki/Surface_tension) and [interfacial_rheology](https://en.wikipedia.org/wiki/Interfacial_rheology); 
+5. give interpretation of the result obtained; 
+
+#### Total Energy 
+
+1. $F_{total}(\phi,\gamma)/N = F_{entropic}(\phi,\gamma)/N + F_{interfacial}(\phi,\gamma)/N = - T \, \Delta S / N + \sigma \, \Delta A / N$
+2. should become a harmonic function at small values of the shear strain $\gamma$. What does this mean? Why is this important?  
+
+#### Energy Minimization 
+
+See [Maxwell relations](https://en.wikipedia.org/wiki/Maxwell_relations). 
+
+First order critical point $\left. \frac{\partial F_{total}}{\partial \phi_d}\right|_{\phi_d = \phi_d^*} = 0$ (entropic and interfacial force balance) determines the optimal deformation volume fraction $\phi^*_d$. 
+
+Define $ \phi_T^2 = \left( \frac{3 k_B T}{a^3} \right) / \left( 2 \pi \xi \frac{\sigma}{a} \right)$. 
+
+Optimal mixture fraction 
+$\phi_d^* = \frac{1}{2} \left\{ [\phi - (\phi_c - \alpha \gamma^2)] + \sqrt{ [\phi - (\phi_c - \alpha \gamma^2)]^2 + \phi_T^2 }\right\}$ 
+
+#### Exercises: Two Limit Cases 
+1. $T \rightarrow 0$ (no entropic energy): recover $G'_p = 12 \alpha \xi (\sigma/a) (\phi - \phi_c)$. Can be recovered by simulations as shown in [Lacasse-Weitz-1995](https://arxiv.org/pdf/mtrl-th/9603006)? 
+2. $\sigma \rightarrow \infty$ (hard spheres): recover $G'_p = 6 \alpha k_B T \phi^2 / [V_{drop} (\phi_c - \phi)]$. Can be recovered by simulations? See e.g. Mewis and Wagner, Chapter 3 <i>Brownian Hard Spheres</i>.   
+   
+#### Thermodynamical derivative
+
+Expand on thermodynamical derivatives for osmotic pressure and plateau shear modulues and provide examples. 
+
+#### Computation of osmotic pressure $\Pi$
+
+Compute osmotic pressure as first order thermodynamical derivative of total free energy wrt the applied shear strain, i.e., 
+
+$ \Pi = \frac{\phi^2}{N V_{drop}} \frac{\partial F_{total}}{\partial \phi_d} \text{ arguments missing}$
+
+#### Computation of plateau shear modulus $G'_p$ 
+
+$ G'_p = \frac{\phi}{N V_{drop}} \left. \frac{\partial^2 F_{total}}{\partial \gamma^2} \right|_{\phi_d = \phi_d^*, \gamma = 0} $ 
+
+Replace in expression for total free energy $\phi_d$ by $\phi^*_d$ and compute the second order derivative of the resulting expression wrt $\gamma$.
+
+See seperate notebook [mason-sheffold-2014.ipynb](mason-sheffold-2014.ipynb).
+
+### Mason-Scheffold-2014 Measured Values 
+
+What kind of data is available in Mason-Scheffold-2014? Can this data be plotted? 
+
+### Mason-Scheffold-2014 Compare Model and Measured Values  
+
+How to model and measured data compare? What is the role of the scaling parameters $\xi$ and $\alpha$ is order to obtain a good match? 
+
+### References 
+
+1. Kim-Mason: more verbose on entropic and free energy; 
+2. Russel, Saville and Schowalter, <i>Colloidal Dispersions</i>, Cambridge University Press, 1999, [link](https://api.pageplace.de/preview/DT0400.9781316043097_A23888925/preview-9781316043097_A23888925.pdf);
+3. Mewis and Wagner, <i>Colloidal Suspension Rheology</i>, Cambridge University Press, 1999, [link](https://www.eng.uc.edu/~beaucag/Classes/Properties/Books/MewisandWagnerColloidalsuspensionrheology(2011).pdf)
+
+<img src="./free_energy_contributions.jpg" width=400 />
+
+## Section 3: Energy-Minimization for N-Particle Systems 
+
+### Section 1.3: Introduction 
+
+<b>Goals</i> 
+
+Assume molecular dynamics simulations in 2D (x and y dimensions) with N particles. Assume a pairwise interaction potential (e.g. Lennard - Jones). (<i>Not sure what kind off visco-elastic material can be represented by this potential</i>); 
+
+A/ Given the potential (scalar), compute the force vector as the gradient (first derivative) of the potential wrt to the strain. Do so both analytically and using automatic differentiation. The use of automatic differentiation is here intended as a means to check the pen-and-paper computations. Compare the answers (partial answers are given in the Molly.jl documentation); 
+
+B/ Given the potential (scalar), compute the stress tensor as the hessian (second derivative) of the potential wrt to the strain. The shear stress components are the off-diagonal entries of stress tensor. Do so both analytically and using automatic differentiation. Compare the answers;
+
+C/ Assume all particles of the identical. Compare with analytical expression for single particle; 
+
+D/ Repeat above for entropic force $\vec{F} = - T \, \nabla_X{S}$ where $S$ denotes the entropy of the system;  
+
+E/ Repeat above for interfacial force taking the surface density of the particles into account. Check answer in the limit  of hard particles.  
+
+### Section 2.3: Concepts 
+
+We assume 
+- Two-dimensional molecular dynamics simulations with $N$ particles indexed by $i$ (in a single loop over all particles) and indexed by both $i$ and $j$ (in a double loop over all particles);
+- Indices $\alpha$ and $\beta$ will denote summation indices;
+- Coordinates of position of particle $i$ (time-dependent) denoted by $\vec{x}_i(t) = (x_i(t), y_i(t))$;
+- List of all position vectors $X = X(t) = [\vec{x}_1(t), …, \vec{x}_N(t)]$. In Julia as an array of 2D points; 
+- Distance between points $\vec{x}_i$ and $\vec{x}_j$ denoted by $r_{ij} = \sqrt{ (x_j-x_i)^2 + (y_j-y_i)^2}$;
+- Vector pointing from $\vec{x}_i$ to $\vec{x}_j$ denoted by $\vec{r}_{ij}$; 
+- Position of particles form a graph with nodes formed by the location of particles and edges formed by connection between particles; 
+- Given an index $i$ of a particle, we denote by $N(i)$ all nearest neighbours to particle $i$, i.e., all indices $j$ such that particle $i$ and $j$ share a direct connection;  
+- Pairwise interaction potential (time-dependent) $U_2(t)$;
+- Force on particle $i$ denoted by $\vec{f}_i = (f_{i,x}, f_{i,y})$;
+- Lisst of all force vectors $F(t) = [\vec{f}_1(t),\ldots,\vec{f}_N(t)]$;
+- Force (time-dependent) $F(t) = \nabla_X{U_2(t)}$ (first derivative or gradient of the potential wrt to the strain); 
+- Stress tensor (time-dependent) $\tau(t) = \nabla^2_X{U_2(t)}$ (second derivative or Hessian of the potential wrt to the strain) and shear stress elements $\tau_{ij}$ (off-diagonal entries of the stress tensor); 
+- Strain (time-dependent) $\sigma(t) = \sigma_0 \, \sin(\omega_0 t);$
+
+<b>Exercises</b> 
+
+<b>Exercise-1</b>: Compute gradient (2-component vector) and Hessian (2-by-2 matrix) of the distance $r_i$ from the point $\vec{x}_i = (x_i, y_i)$ to origin $(0,0)$. This distance is given by $r_{ij} = \sqrt{ x_i^2 + y_i^2}$. For the first order derivatives, we have that 
+
+$$
+\frac{\partial r_i}{\partial x_i} = \frac{x_i}{\sqrt{ x_i^2 + y_i^2}} 
+$$
+
+and similar for $\frac{\partial r_i}{\partial y_i}$. We thus have that the gradient is given by  
+
+$$
+\nabla_{\vec{x}_i} r_i = \begin{pmatrix}  \frac{\partial r_i}{\partial x_i} \\ \frac{\partial r_i}{\partial y_i} \end{pmatrix} = \frac{1}{\sqrt{ x_i^2 + y_i^2}} \begin{pmatrix} x_i \\ y_i \end{pmatrix} = \frac{\vec{x}_i}{r_i} \, . 
+$$
+
+For the second order derivatives instead, we have that 
+
+$$
+\frac{\partial^2 r_i}{\partial x_i^2} = \frac{y_i^2}{\sqrt{ (x_i^2 + y_i^2)^3}}
+\text{ and } 
+\frac{\partial^2 r_i}{\partial x_i \, y_i} = \frac{x_i^2 + y_i^2 - x_i \, y_i}{\sqrt{ (x_i^2 + y_i^2)^3}} \, . 
+$$
+
+We thus have that the Hessian is given by 
+
+$$
+\nabla^2_{\vec{x}_i} r_i = \frac{1}{r_i^3} \begin{pmatrix} y_i^2 & x_i^2+y_i^2-x_i y_i \\ x_i^2+y_i^2-x_i y_i & x_i^2 \end{pmatrix} \, . 
+$$
+These computations can be verified symbolically. 
+
+<b>Exercise-2</b>: Compute gradient  (4-component vector) and Hessian  (4-by-4 matrix) of distance $r_{ij}$ between the point $\vec{x}_i = (x_i, y_i)$ and the point $\vec{x}_j = (x_j, y_j)$. This distance is given by $r_{ij} = \sqrt{ (x_j-x_i)^2 + (y_j-y_i)^2}$. For the first order derivative, we have that 
+
+$$
+\nabla_{(\vec{x}_i,\vec{x}_j)} r_{ij} = \begin{pmatrix} \nabla_{\vec{x}_i} r_{ij} \\ \nabla_{\vec{x}_j} r_{ij}  \end{pmatrix} = \begin{pmatrix}  \frac{\partial r_{ij}}{\partial x_i} \\ \frac{\partial r_{ij}}{\partial y_i} \\ \frac{\partial r_{ij}}{\partial x_j} \\ \frac{\partial r_{ij}}{\partial y_j} \end{pmatrix} = \frac{1}{r_{ij}} \begin{pmatrix} x_i \\ y_i \\ x_j \\ y_j \end{pmatrix} = \frac{1}{r_{ij}} \begin{pmatrix} \vec{r}_{ij} \\ \vec{r}_{ij}  \end{pmatrix} \, . 
+$$
+
+For the second order derivative, we have that
+
+$$
+\nabla^2_{(\vec{x}_i,\vec{x}_j)} r_{ij} = \begin{pmatrix} \nabla^2_{\vec{x}_i} r_{ij} & \nabla^2_{(\vec{x}_i, \vec{x}_j)} r_{ij} \\ \nabla^2_{(\vec{x}_j, \vec{x}_i)} r_{ij} & \nabla^2_{\vec{x}_j} r_{ij} \end{pmatrix} = \frac{1}{r_{ij}^3} \begin{pmatrix} \ldots \\ \ldots \\ \ldots \\ \ldots  \end{pmatrix}\, . 
+$$
+
+<b>Exercise-3</b>: Assume a one-dimensional configuration with 3 nodes with coordinates $x_1$, $x_2$ and $x_3$. Assume a harmonic potential with spring constants $k_{12} = k_{21}$ and $k_{23} = k_{32}$ to hold between these nodes. Give an expression for the potential, its gradient and its Hessian. Let in this exercise $\vec{x}$ denote the vector of coordinates. Then for the potential $\vec{x} = (x_1, x_2, x_3)$ , we have that 
+
+$$
+V(\vec{x}) = V_1(\vec{x}) + V_2(\vec{x}) + V_3(\vec{x})
+$$
+
+where $V_1(\vec{x}) = \frac{1}{2} k_{12} (x_1-x_2)^2$, $V_2(\vec{x}) = \frac{1}{2} k_{21} (x_2-x_1)^2 + \frac{1}{2} k_{31} (x_2-x_3)^2$ and $V_3(\vec{x}) = \frac{1}{2} k_{32} (x_3-x_2)^2$. For the first order derivative, we have that 
+
+$$
+\nabla_{\vec{x}} V(\vec{x}) = \begin{pmatrix} \partial V / \partial x_1 \\ \partial V / \partial x_2 \\ \partial V / \partial x_3 \end{pmatrix} = \begin{pmatrix} \partial (V_1+V_2) / \partial x_1 \\ \partial (V_1+V_2+V_3) / \partial x_2 \\ \partial (V_2+V_3) / \partial x_3 \end{pmatrix} = \begin{pmatrix} 2 k_{12} (x_1-x_2) \\ 2 k_{12} (x_2-x_1) + 2 k_{32} (x_2-x_3) \\ 2 k_{32} (x_3-x_2) \end{pmatrix} 
+$$
+
+For the second order derivative, we have that
+
+$$
+\nabla^2_{\vec{x}} V(\vec{x}) = \begin{pmatrix}  2 k_{12} & -2 k_{12} & 0 \\ -2 k_{12} & 2 k_{12} + 2 k_{23} & - 2 k_{23} \\ 0 & -2 k_{23} & 2 k_{23} \end{pmatrix}
+$$
+
+<b>Exercise-4</b>: Extend <b>Exercise-3</b> to two spatial dimensions; 
+
+<b>Exercise-5</b>: Extend <b>Exercise-3</b> to other potentials (e.g. Lennard-Jones); 
+
+<b>Exercise-6</b>: Compute the first and second derivative of the pairwise interaction potential (e.g. harmonic, Lennard-Jones or soft sphere) wrt to the the distance between particles (for the first derivative of the Lennard-Jones potential, see e.g.,  the Molly doc page). For the first order derivative, we have that
+
+$$
+\frac{\partial  U_2(r_{ij})}{\partial r_{ij}} = \ldots
+$$
+
+For the second order derivative, we have that
+
+$$
+\frac{\partial^2  U_2(r_{ij})}{\partial r_{ij}^2} = \ldots 
+$$
+
+### Section 3.3: Evaluation of the Potential U_2,  its first and second derivative 
+
+<b>The potential</b>
+
+Here we introduce the pairwise interaction potential $U_{2}$ and its first and second order sensitivity. The potential is a scalar function of the set of coordinates $X$. We can thus say that in planar 2D configurations $U_{2}(X)$ maps from ${\cal R}^{2N}$ to ${\cal R}$. The potential $U_{2}$ is a sum of contributions from all particles. We thus write 
+
+$$
+U_{2}(X,t) = \sum_{\alpha = 1}^N U_{2,\alpha}(X,t) \, . 
+$$
+
+The contribution $U_{2,\alpha}(X,t)$ of particle of particle $\alpha$ is in turn given by contributions from its nearest neighbours as 
+
+$$
+U_{2,\alpha}(X,t) = \sum_{\beta \in N(\alpha)} U_{2,\alpha \beta}(X,t) \, . 
+$$
+
+The term $U_{2,\alpha \beta}$ depends on the coordinates $X$ through the distances $r_{\alpha \beta} = \sqrt{(x_{\alpha} - x_{\beta})^2+(y_{\alpha} - y_{\beta})^2}$ only. We can thus write 
+
+$$
+U_{2}(X,t) = \sum_{\alpha = 1}^N \sum_{\beta \in N(\alpha)} U_{2,\alpha \beta}(r_{\alpha \beta},t) \, . 
+$$
+
+<b>The Force as First Derivative of the Potential</b>
+ 
+We wish to compute the force vector $F$ as the gradient of the potential $\nabla_{X}U_2(X)$. More precisely, we wish to compute the $x$-component and $y$-component of the force at each of the $N$ points. This means that we wish to compute the $x$-component ($y$-component) of the force as the derivative wrt to $x$ ($y$) of the potential. We wish to apply this procedure to each of the $N$ particles. We thus wish to compute the sensitivity of the potential wrt to perturbations in the coordinate of the $i$-th point $\vec{x}_i$ while keeping the coordinates of all other points fixed.  
+
+More formally, we wish to compute 
+
+$$
+\vec{f}_i = \nabla_{\vec{x}_i} U_2(X)
+$$
+
+or component wise 
+
+$$
+f_{i,x} = \nabla_{x_i} U_2(X) = \frac{\partial}{\partial x_i} U_2(X) \text{ and } f_{i,y} = \nabla_{y_i} U_2(X) = \frac{\partial}{\partial y_i} U_2(X)\, . 
+$$
+
+On the $N$ terms in $U_2(X)$, only $U_{2,i}(X)$ and $U_{2,\alpha}(X)$ for $\alpha \in N(i)$ depend on $\vec{x}_i$. We thus have that (by interchanging order of summation and differentiation)
+
+$$
+f_{i,x} = \frac{\partial}{\partial x_i} U_{2,i}  + \frac{\partial}{\partial x_i} \sum_{\alpha \in N(i)}  U_{2,\alpha} = \frac{\partial}{\partial x_i} U_{2,i}  + \sum_{\alpha \in N(i)} \frac{\partial}{\partial x_i} U_{2,\alpha}  
+$$
+
+Upon expanding the both terms further, we find
+
+$$
+f_{i,x} = \sum_{\alpha \in N(i)} \frac{\partial}{\partial x_i} U_{2,i\alpha}  + \sum_{\alpha \in N(i)}  \sum_{\beta \in N(\alpha)} \frac{\partial}{\partial x_i} U_{2,\alpha \beta} (r_{\alpha \beta}) \, .
+$$
+
+By application of the chain rule, the last term can be rewritten as 
+
+$$
+f_{i,x} = \sum_{\alpha \in N(i)} \frac{\partial}{\partial x_i} U_{2,i\alpha} + \sum_{\alpha \in N(i)}  \sum_{\beta \in N(\alpha)} \frac{\partial}{\partial r_{\alpha \beta}} U_{2,\alpha \beta} (r_{\alpha \beta}) \frac{\partial r_{\alpha \beta}}{\partial x_i} \, .
+$$
+
+Given that 
+
+$$
+\frac{\partial r_{\alpha \beta}}{\partial x_i} = \delta_{\beta i}
+$$
+
+we find 
+
+$$
+f_{i,x} = 2 \sum_{\alpha \in N(i)} \frac{\partial}{\partial r_{i \alpha}} U_{2,i \alpha} (r_{i \alpha}) \frac{\partial r_{i \alpha}}{\partial x_i} \, .
+$$
+
+A similar result can be obtained for the y-component f_{y,i}. 
+
+<b> Exercise: Evaluation of the Force: Analytical vs. Automatic Differentiation Approach </b>
+
+Given the expression for the pairwise interaction potential U_2 (e.g. harmonic, Lennard-Jones or soft sphere), compute the force $F$ using both an analytical (pen-and-paper) and automatic differentiation (using e.g. Enzyme to compute the gradient of the potential). 
+
+<b> The Shear Stress as Second Derivative of the Potential </b>
+ 
+We wish to compute the stress tensor as the Hessian of the potential. We assume the stress tensor to be symmetrical. We thus wish to compute the xx-component, yy-component and xy-component of the of the stress tensor at each of the N points. 
+
+We denote the stress tensor at the point \vec{x}_i as the 3-component vector \vec{tau}_i = (tau_{xx,i}, tau_{yy,i}, tau_{xy,i}). The list of N stress tensor vectors is denoted as Tau = [\vec{tau}_1, …, \vec{tau}_N] (same notation as vectors X and F). 
+
+tau_{xx,i} = \partial^2 U_{2,i} / \partial x_i^2 = \partial  f_{x,i} / \partial x_i
+
+Using previous results, we obtain … A similar result can be obtained for tau_{yy,i} and tau_{xy,i}. 
+
+<b> Exercise: Evaluation of the Stress Tensor: Analytical vs. Automatic Differentiation Approach </b>
+
+As above, now for the stress tensor (using e.g. Enzyme to compute the Hessian of the potential). Investigate how the shear stress depend on the parameters in the potential. 
+
+### Section 3.3: Application to Entropic Energy to Compute Entropic Force and Stress Components
+
+Use above framework to compute the entropic force and stress components and recover the Mason-Sheffold result. The entropic force is defined at e.g. https://en.wikipedia.org/wiki/Entropic_force . \vec{F} ‎ =  - T \nabla (S), where S is the entropy of the system. See e.g. https://en.wikipedia.org/wiki/Entropy . For a classical discrete system (as in this application), the entropy can be computed from the partition function \Omega as explained at https://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics) . We are thus left with describing how the strain affects the en energy levels (E_i) and thus the partition function.  
+
+[Left to explain how applied shear affects the energy levels of the individual points., See also https://en.wikipedia.org/wiki/Finite_strain_theory].  
+
+### Section 4.3: Application to Interfacial Energy to Compute Interfacial Force and Stress Components 
+
+As above, for interfacial energy. Interfacial entry is given by surface tension times surface area of the assume spherical particle. 
+
+<i>Left to explain how applied strain affect surface area of the individual points </i>. 
+
+### Section 5.3: References 
+
+Section III.B of Grieser-2023. 
+
+## Section 4: Plateau Elastic Modulus of o/w Emulsions From Molecular Dynamics Simulations  
+
+### To do Domenico:
+1. How many particles (oil and water droplets should be used)?  
+2. How to choose the interaction potential for entropic and interfacial energy such that a molecular dynamics simulator can be used?
+3. How to implement the shearing force?
+4. How to post-process computation to obtain the plateau elastic modulus? 
+
+### Literature on MD Simulations for o/w Emulsions 
+
+[Lacasse-Grest-Levine-Mason-Weitz-1996](https://arxiv.org/pdf/mtrl-th/9603006): discusses the minimization of potential energy functional of the central force of $N$ particles in 3D. Surprisingly similar to [Particle Simulation using Julia](https://m3g.github.io/2021_FortranCon/)?
+
+[Mason-2006](https://web.archive.org/web/20170112080749/http://www.firp.ula.ve/archivos/pdf/06_JPCM_Mason.pdf): contains examples of molecular dynamics simulations.  
+
+[Chang-Sheng-Tsao-2022](https://www.sciencedirect.com/science/article/abs/pii/S016773222201563X) title <i>Packing microstructures and thermal properties of compressed emulsions: Effect of droplet size</i> Simulations using [Gromacs](https://www.gromacs.org). Details missing. 
+
+[Brujic-Edwards-Hopkinson-Makse](https://pdf.sciencedirectassets.com/271529/1-s2.0-S0378437100X05365/1-s2.0-S0378437103004771/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjENn%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJHMEUCICeFmfWfW9c5AeZuv2q%2FARmijjTV2MbOyCiI1UlJ37qSAiEAnYhsFnMqHi%2FL36O5QpTiNr%2B75sL79sARAEvddQUzlhwqvAUIkv%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAFGgwwNTkwMDM1NDY4NjUiDHISioHy3pyADUz7tSqQBRtF1J%2BEFCAmtnbwbNR6temXhQ0n60jIDasKHsB2Jl9Etreu9zwSm2orMompS%2BZ0hL9%2F%2B7Pg%2B9w5pkxQK%2B2m7aqa%2BQHETwSAbshIe0NR54x%2BBLhJ3QMy6c3ymwx8Ksl5aaV%2Fu9Vzj69brKpPzVJn1BMJJGKME2WgFmnKyN6%2F0HdFcctaY0gR2I6Wgo9pyBZkCjYifJpclI4LqEUsrK4WkZpgBxaMZbt8SvQ9Xx916WLi5%2BZj0KUEp9Ro2Ckb3M2zkA7T7%2F7bacKK8CNkWbfIfN3QkUtd3%2BG2TJRnFNiHYqrHk20jRdWSW8fwcVNY8P%2BlkzdeYfqoYjhLPJZD2AoFAUv3VTfkAzr5S5kpqsbXGbzXBqD90ayrTvOkfIfFmoIk198cLwik0%2FwOMGv2u1fpvFgXZ2utw35ejRTMgxOqylzbqwa73V1lgELnutGMMLgjCvkQ9rRmHAiHqjkU7iTECPDSHMtXeuE5ldEUpLcvMIltAYHXI86KsnQmSn2EnSfEQZVG6V92lJiGaYDh2pWQwv6E3AEXNJ%2F%2BuN9NzXLWAU87c7NJc5BjCPctjNOqAoqgfps9lk%2FWAsVS8sGgWNqKSOookJe5bPxUne2QG2DLGLT%2B5ghxa4klVM6423QGjxMPLryUORJmkrIdWo9lucX1o6wI0MAnXGpUgnUfh5jLtESNvq2fWobelx19weduAjPQlxXYmVnelsuTaFsli0Z8O2LEozRxYsPWb5YHKMm183YG%2FkyAeGrOycbpMpRWwBIWHPeSJv%2F1y7cY3%2Fl7mpBpVdT%2B1O%2B99McA5IEp9HiR2KWd6X4nfsCejNtfsG8lnPNzI38%2BTlKGHs5sfGO7%2FlBj7HD83RUKCXQHZ%2FEtKTjQHY1CMJGf%2BccGOrEBH3PYiRRwXctDH14guuepHZWp6StwvnS5yN%2BwmUqTGHHLjfSMgvPmTJXIRd7x3SwNtq6CJishPZlU%2B%2BFEcILIFcMLtoc0MfINWCATZr%2FAItSfuu7a0JuOAWqfWCWiKaD5luVY%2FtshjwwOYO1jSM8m9KHhdcSFy13xz%2FZeJsK2wv7x6dtXGmAFU0QlnWisvkuUhTuxyAekReX0bxLAFoAbbn3JZa6G7z7KcZy1Gz%2B10Ko%2B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20251026T174243Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTYUZXPZ7I7%2F20251026%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=b3f6d86b3c1d86873f26ae40a27c1174f2ffd08594bc9de8555135d5e396de68&hash=3140e96cf697201917540e69963788aebe1d2371050f9e55e1d174fc1929d6b8&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S0378437103004771&tid=spdf-53be9f18-f8f3-4955-aac6-21bcd2ba519f&sid=e6fd2cc07ffc7942df09bbb71babd7d621bdgxrqb&type=client&tsoh=d3d3LXNjaWVuY2VkaXJlY3QtY29tLnR1ZGVsZnQuaWRtLm9jbGMub3Jn&rh=d3d3LXNjaWVuY2VkaXJlY3QtY29tLnR1ZGVsZnQuaWRtLm9jbGMub3Jn&ua=080b575f50010c57505a&rr=994bc0798a9cb8ee&cc=nl) entitled <i>Measuring the distribution of interdroplet forces in a compressed emulsion system</i> Provides more technical details. 
+
+[Shi-Lin-2017](https://www-tandfonline-com.tudelft.idm.oclc.org/doi/full/10.1080/01932691.2017.1392319) title <i>Molecular dynamics simulation of four typical surfactants at oil/water interface</i>
+
+
+[Ebrahimi-Meunier-Soldera-2022](https://www.sciencedirect.com/science/article/pii/S0142941822001106) title <i>Molecular dynamics simulation of the dynamical mechanical analysis of polybutadiene</i>. Computes $G''(\omega)$ from the stress auto-correlation function using the [Green-Kubo](https://en.wikipedia.org/wiki/Green%E2%80%93Kubo_relations) relations using [Materials Studio](https://www.3ds.com/products/biovia/materials-studio). More information on the mathematical properties of the [auto-correlation function](https://chem.libretexts.org/Bookshelves/Physical_and_Theoretical_Chemistry_Textbook_Maps/Non-Equilibrium_Statistical_Mechanics_(Cao)/02%3A_Non-equilibrium_Thermodynamics/2.01%3A_Response_Relaxation_and_Correlation) and an example of the harmonic oscillator without damping and external forcing. The package [Molly.jl](https://juliamolsim.github.io/Molly.jl/stable/) provides the same functionality (shear force plus Green - Kubo relationship) in the example [shear_viscosity.ipynb](https://github.com/noeblassel/SINEQSummerSchool2023/blob/main/notebooks/shear_viscosity.ipynb); 
+
+[Assaf-Liu-Erkens-2025](https://www.sciencedirect.com/science/article/pii/S0167732224026989) title <i>Predicting the dynamic moduli and viscosities of bitumens via oscillatory strain-controlled molecular simulations</i>
+
+More documentation on molecular dynamics simulations at [Living Journal on Molecular Dynamics](https://livecomsjournal.org/index.php/livecoms/index). In particular [A Guide to Computing Interfacial Properties of Fluids from Molecular Simulations](https://livecomsjournal.org/index.php/livecoms/article/view/v2i1e21385) and  [Modeling electrostatics in molecular biology: A tutorial of DelPhi and associated resources](https://livecomsjournal.org/index.php/livecoms/article/view/v1i2e10841)
+
+### Molecular Dynamics Simulations Using LAMMPS 
+
+How to compute the [pressure](https://docs.lammps.org/compute_pressure.html) in post-processing phase of MD simulations? 
+
+### Molecular Dynamics Simulations Using Julia 
+
+Examples at e.g. [notebook-on-particle-simulations](https://discourse.julialang.org/t/notebook-on-particle-simulations/68496) and [small example](https://discourse.julialang.org/t/seven-lines-of-julia-examples-sought/50416/42). For time-integration using [Langevin Time Integration](https://docs.sciml.ai/DiffEqDocs/stable/api/stochasticdiffeq/misc/#Langevin-Dynamics). 
+
+### Molecular Dynamics Simulations Using Molly 
+
+Molecular dynamics simulations can be performed using [Molly.jl](https://juliamolsim.github.io/Molly.jl/stable/). Does the Differential Simulation paradigm of Molly.jl allow to compute the same first order (osmotic pressure) and second order (plateau modulus) thermodynamical derivatives as in Mason-Sheffold-2014?
+
+### Molly Tutorial on Shear Viscosity 
+
+Molly tutorial on shear viscosity. See [SINEQ shear viscosity](https://github.com/noeblassel/SINEQSummerSchool2023/blob/main/notebooks/shear_viscosity.ipynb). Computed using both using non-equilibrium technique and using Green-Kubo auto-correlation formula. 
+
+### Mono-Disperse Hard Spheres 
+
+### Mono-Disperse Soft Spheres 
+
+### Mono-Disperse at Low Temperature 
+
+### Poly-Disperse Spheres 
+
+## Section 5: Beginner Level: Oil Droplet Size and Visco-Elastic Properties
+
+The framework introduced by Mason-Sheffold-2014 is limited to mono-disperse emulsions in which all oil droplets have the same diameter. Motivated by practical applications, we wish to extend the Mason-Sheffold-2014 model to poly-disperse emulsions. 
+
+### Extension of the Energy Minimization Model 
+
+A first alternative to is to first generalize the expression for the entropic and interfacial free energy to a weighted sum of energy contributions valid for a mixture of oil droplet sizes. Subsequently, one needs to determine the critical mixture fraction that determines the equilibrium of the configuration. Finally, one can determine the plateau shear modulus by the second derivative of the total free energy with respect to the strain rate. 
+
+### Particle Based Models
+
+A second alternative is to replace the energy minimization framework by a mechanical model of a number of oil drops interconnected by springs, dashpots and dampers. One wishes to study the stress response of these systems given as oscillatory shear. Possibly one can start by considering interconnections (networks or graphs) of Kelvin-Voight and Maxwell models. Possibly one can borrow ideas from molecular dynamics or other particle-based simulations methods.
+
+<b>Example of a Particle Based Model</b> [computation of the viscosity](https://docs.lammps.org/Howto_viscosity.html) by ensemble averaging of the auto-correlation of the stress/pressure tensor using [LAMMPS](https://docs.lammps.org/Manual.html). Another example is [Measuring the distribution of interdroplet forces
+in a compressed emulsion system](https://hmakse.ccny.cuny.edu/wp-content/uploads/2015/07/2003_Measuring.pdf)
+
+### Continuum Models 
+
+A third alternative is to study computational fluid dynamics models of the rheometer that determines the plateau shear modulus. One thus needs to solve a rotating lid-driven cavity Stokes flow model for a shear-thinning non-Newtonian fluid.  
+
+## Section 6: Intermediate Level: Lid-Driven Cavity Stokes Flow for Shear-Thinning Non-Newtonian Fluid
+
+### Section 1.6: Newtonian Fluid 
+
+Perform lid-driven cavity Stokes flow simulations with translation shear for Newtonian fluid. 
+
+<b>Coding</b>: see seperate notebook [ferrite_stokes_lid_driven_square.ipynb](./ferrite_stokes_lid_driven_square.ipynb) (in progress). 
+
+### Section 2.6: Non-Newtonian Fluid
+
+Perform lid-driven cavity Stokes flow simulations with translation shear for visco-elastic (non-Newtonian) fluid with shear-thinning behavior. Extend previous case by e.g. a power-law for the viscosity by modifying the [Ferrite Hyperelasticity Tutorial](https://ferrite-fem.github.io/Ferrite.jl/stable/tutorials/hyperelasticity/).  
+
+ODE model: 
+
+PDE model solved using seperation of variables: [this paper](https://asmedigitalcollection-asme-org.tudelft.idm.oclc.org/fluidsengineering/article/130/4/041201/462633/Study-of-Oscillating-Flow-of-Viscoelastic-Fluid); 
+
+Examples of what we would like to obtain can be found at
+
+- searching [Comsol Multiphysics website](www.comsol.com) using terms such as <i>shear thinning</i> or <i>rheology</i>. Example is [non-Newtonian pulsed pipe flow](https://www.comsol.com/paper/simulation-and-performance-of-pulsed-pipe-flow-mixing-in-non-newtonian-liquid-dispersion-media-18911); 
+- example [example of two-sided lid driven cavity](https://link.springer.com/chapter/10.1007/978-981-97-7759-4_42) of the kind of result we would like to obtain (to elaborate further). 
+
+## Section 7: Expert Level: Rotating-Lid-Driven Cavity Stokes Flow for Shear-Thinning Non-Newtonian Fluid
+
+<img src="./streamlines_rheometer.png" width=400 />
+
+### Section 1.7: Pre-Processor 
+
+The preprocessor consist of the following two components: 
+
+1. geometry modeling tool;
+2. mesh generation tool;  
+
+The first component is the geometry modeler.  This modeler is either implements a form of [constructive solid geometry](https://en.wikipedia.org/wiki/Constructive_solid_geometry) or allows to import a geometry definition from file in standard definition. 
+
+The second component is the mesh generation tool. Here we use [GMSH](https://gmsh.info). 
+
+Here, the preprocessor should generate a mesh on the cylindrical cavity of the rheometer in which the sample resides. 
+
+<b>Coding</b>: see seperate notebook [gmsh_cavity.ipynb](gmsh_cavity.ipynb).
+
+## Section 2.7: Computational Kernel 
+
+The computational kernel assumes the responses of the sample to the excitation of the rheometer to be modeled in terms of physical laws of conservation (conservastion of mass and momentum) and constituive laws of the material (stress-strain relation). Given these models, the computational kernel consists of the following three four components: 
+
+1. read the mesh;
+2. discretize the conservation and constitutive equations in space and time;
+3. solve the discrete model in space and time;
+4. write snapshots for spatial distribution of velocity, strain and stress to file for visualization;
+   
+Simulations reported here were performed using the [Ferrite](https://ferrite-fem.github.io/Ferrite.jl/stable/) finite element software.
+
+### Section 3.7: Scalar Diffusion 
+
+A elementary proof of concept is to solve a scalar diffusion eqiation on the volume (computational domain) of a cylindrical cavity. 
+
+<b>Coding</b>: see seperate notebook [ferrite_diffusion_cavity.ipynb](ferrite_diffusion_cavity.ipynb).
+
+### Section 4.7: Stationary Stokes Flow of a Newtonian Fluid 
+
+Here we consider the rotation of the lid covering the cylindrical cavity to be modeled by a overly simplified [Stokes flow](https://en.wikipedia.org/wiki/Stokes_flow) model for a [Newtonian fluid](https://en.wikipedia.org/wiki/Newtonian_fluid).  
+
+<b>Coding</b>: see seperate notebook [ferrite_stokes_cavity.ipynb](ferrite_stokes_cavity.ipynb). 
+
+### Section 5.7: Transient Navier-Stokes Flow of a Newtonian Fluid
+
+Here we extend flow Stokes to [Navier-Stokes flow](https://en.wikipedia.org/wiki/Navier–Stokes_equations), thus including non-linear convective terms. We also include time-dependent terms;
+
+<b>Coding</b>: see seperate notebook [ferrite_navier_stokes_cavity.ipynb](ferrite_navier_stokes_cavity.ipynb) (in progress).
+
+### Section 6.7: Post-Processor 
+
+Resultsa are visualized using [paraview](https://www.paraview.org). 
+
+### Section 7.7: Preliminary Results 
+
+Here we show computational results for the magnitude of the velocity for Stokes flow. 
+
+<img src="./stokes_3d_cylinder.png" width=400 />
+
+
+## Section 8: Other Relevant Topics 
+
+### Jamming - Critical Mixture Fraction - Optimal Packing 
+
+### Bouyancy Matching - Lifetime of biological ingredients - Phase Separation 
+
+### Interfacial Viscosity - Palierne Model 
+
+### Energy Minimization and Shear Viscosity 
+
+Any formulas linking energy and shear viscosity> 
+
+### Energy Minimization and Frequency Dependency of Dynamic Modulus 
+
+Can oscillatory behavior of the shearing forcing be included in the energy minization model?  
+
+## Section 9: Introductory material on the Julia Programming Language 
+
+The <b>use of the Julia programming language</b> is an integral part of the learning objectives of this project. The spatial resolution required in this project leads to large scale linear systems. These large scale systems are cumbersome to solve without use of a compiled programming language. Julia merges the easy of use (Python like) with the speed of execution (C++) like. 
+
+- Elementary introduction: [Thinking Julia](https://benlauwens.github.io/ThinkJulia.jl/latest/book.html);
+- ETH course: [Scientific Programming in Julia](https://juliateachingctu.github.io/Scientific-Programming-in-Julia/stable/)
+- Aalto Short Course: [julia-introduction](https://github.com/AaltoRSE/julia-introduction); 
+- Video Collection by Chris Rackauckas: [link](https://www.youtube.com/playlist?list=PLCAl7tjCwWyGjdzOOnlbGnVNZk0kB8VSa) 
+- Pointer to lots of goodies: [Nouvelles Julia](https://pnavaro.github.io/NouvellesJulia/pages/2022_03.html);
+
+## Section 10: References 
+
+### Papers 
+1. [Xu-Mason-2023](https://www.nature.com/articles/s41598-023-28308-6.pdf) Scientific Reports in Nature  
+1. Mason-Sheffold-2014;
+2. [Dubbelboer-Janssen-Hoogland-Zondervan-Meuldijk-2016](https://www-sciencedirect-com.tudelft.idm.oclc.org/science/article/pii/S0009250916301233?via%3Dihub) (droplet size distribution for mayonaise);
+6. master thesis Wei Fan [link](https://repository.tudelft.nl/record/uuid:acbfbd35-3ab1-4ec2-9a7b-b3098bdfcea9);
+7. Tabilo-Munizags-2005: provides good overview.
+10. [rheoTool](https://github.com/fppimenta/rheoTool)
+11. slides by D. Lahaye;
+
+### Books 
+1. Barnes-1994: Rheology of Emulsion - A review: provides good introduction
+2. Barnes-2000: [Handbook_of_Rheology](https://ia601206.us.archive.org/4/items/HandbookOfRheology/Handbook_of_Rheology.pdf) - valuable resource;
+3. Belitz, Grosch and Schieberle, <i>Food Chemistry</i>, Springer, 2009, [link](https://www.google.nl/books/edition/Food_Chemistry/xteiARU46SQC?hl=en&gbpv=0);
+4. Berthier, Biroli, Bouchaud, Cipelletti and van Saarloos, <i>Dynamical Heterogeniety in Glasses, Colloids and Granular Matter</i>, Oxford University Press, 2011, [link](https://academic.oup.com/book/8915).
+5. Doi and Edwards, <i>The Theory of Polymer Dynamics</i>, Oxford Science Applications, 1988, [link](https://global.oup.com/academic/product/the-theory-of-polymer-dynamics-9780198520337?cc=nl&lang=en&#);   
+7. Hasenhuettl and Hartel, <i>Food Emulsifiers and Their Applications</i>, Springer, 2019, [link](https://www.google.nl/books/edition/Food_Emulsifiers_and_Their_Applications/5Ea9DwAAQBAJ?hl=en&gbpv=0);
+8. Hansen and McDonald, <i>Theory of Simple Liquids</i>, Academic Press, [link](https://www.eng.uc.edu/~beaucag/Classes/AdvancedMaterialsThermodynamics/Books/Jean-Pierre%20Hansen,%20I.R.%20McDonald%20-%20Theory%20of%20Simple%20Liquids,%20Third%20Edition%20(2006,%20Academic%20Press)%20-%20libgen.lc.pdf); 
+9. Lapasin and Pricl, <i>Rheology of Industrial Polysaccharides: Theory and Applications</i>, Chapter 5 of this book on Rheology, [link](https://link.springer.com/chapter/10.1007/978-1-4615-2185-3_5)
+10. McClement, <i>Food Emulsions - Principles, Practices, and Techniques, Third Edition</i>, 2015, [link](https://www.google.nl/books/edition/Food_Emulsions/YOGYCgAAQBAJ?hl=nl&gbpv=0); 
+11. Owens and Phillips, <i>Computational Rheology</i>, Imperial College Press, 2005, [link](https://www.worldscientific.com/worldscibooks/10.1142/p160?srsltid=AfmBOorG7vsoNkHySUFhak1hYmUAA6EA8blCSgBJHpqgR_dqwpRwgoRm#t=aboutBook);
+12. Russel, Saville and Schowalter, <i>Colloidal Dispersions</i>, Cambridge University Press, 1999, [link](https://api.pageplace.de/preview/DT0400.9781316043097_A23888925/preview-9781316043097_A23888925.pdf);
+13. Mewis and Wagner, <i>Colloidal Suspension Rheology</i>, Cambridge University Press, 1999, [link](https://www.eng.uc.edu/~beaucag/Classes/Properties/Books/MewisandWagnerColloidalsuspensionrheology(2011).pdf)    
+
+
+### Videos 
+1. [What is an emulsion? by Silverston](https://www.youtube.com/watch?v=mBvKar6t1LY): mixing by high shear to reduce surface tension;  
+2. [The emulsification process by Jacob Burton](https://www.youtube.com/watch?v=qnudmk_63r4): viscosity as a stabilizer; 
+3. [What is an emulsion by Dow](https://www.youtube.com/watch?v=uWfdU92uPNY) phases separate to find state with lesser energy; 
+
+## Exploring Scaling Laws for the Plateau Modulus
+
+
+```julia
+using Plots
+```
+
+
+```julia
+phi = 0:0.01:1 
+phic = 0.65
+Gpmodel = 1e4*(phi.*(phi .- phic).+1);
+plot(phi,Gpmodel,yaxis=:log)
+```
+
+
+
+
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAlgAAAGQCAIAAAD9V4nPAAAABmJLR0QA/wD/AP+gvaeTAAAgAElEQVR4nO3deUBU5d4H8N9Z2BURBAQTMUVzRUTCXRB3BJfcUm+LZl61rmV17d66mln3zW43UyvNSvOWWi65UC6YC7gg4obiEi64grEpyD7nOc/7x9y4hqiIM3Nm5nw/f80cDjM/zhye7zzPOec5AuecAAAA9ErUugAAAAAtIQgBAEDXEIQAAKBrCEIAANA1BCEAAOgaghAAAHQNQQgAALqGIAQAAF1DEAIAgK4hCAEAQNesLgg3btyYmJhY8/UVRTFfMXB/BoNB6xL0CxtfQ9j4GmKMmXxmUKsLwr179x4+fLiGK3POy8vLzVoP3EdZWZnWJegXNr6GsPE1ZDAYGGOmfU2rC0IAAABLQhACAICuIQgBAEDXEIQAAKBrCEIAANA1BCEAAOgaghAAAHQNQQgAALqGIAQAAJtxIFtILzTxayIIAQDANtwsp3F7hWJTz3Anm/j1NLJmzZp169ZpXYVpTJ06NSIiQusqAACszt9S2LAACvEy8cvaSRAmJia6u7v3799f60Ie1bfffnv48GEEIQBAFSk5PO4KPzJYNflYpp0EIRGFhISMHDlS6yoe1aFDh7QuAQDA6igqTd7H/h0uejia/sVxjBAAAKzdglOqtzONaWaWzLKfHiEAANilq8X8/46z/bHmCiz0CAEAwKr95YA6va3Usp5gptdHjxAAAKxX3BX1zC3+fW/JfG+BIAQAACtVrNDLB9TlvSQnM+YghkYBAMBazT7CevkJkX7mGhQ1Qo/QosrLy/fs2XP06NGCgoI5c+Y4OTlpXREAgJU6mc+/O6+eGO5g7jdCj9Cizp8/P2vWrFOnTs2bN6+iokLrcgAArJTKafI+9n4nycfF7O+FIDSL8vLypUuXVkadwWBYunRpWVlZmzZtkpOTP/jgA23LAwCwcl+cVSWRJrS0REghCM3Cyclp+fLlGzduND7dtGnT4sWLnZ2dta0KAMAm3Cil2UfYp10l8x4b/J3dHiP87ry64pxqsbf78EkpxOsPH9mUKVOWLl06atQoIlq6dOnUqVMtVgwAgE17JYm90FIM9rRMDtpvEPb2Fxq6mPN82z9qcdeVnqNHj37jjTfOnTsny3JycvL69estVgwAgO2Kv84PZvOve1ounuw2CP1dBX9XLQtwcnJ65plnvvrqK0mSxo4dW7duXS2rAQCwBaUKTd3PFneT3CyYTnYbhNZg8uTJ3bt3FwRhy5YtWtcCAGAD5h5jYd7CwMYWGhQ1QhCaUfPmzYODg2/duhUSEmJcwhhr0aKFoihE1L59ezc3t7S0NE1rBACwFqdu8i9/VVOHWzqYEITmVV5ePnny5MqnkiQdPny48qkgWPRbDwCA1TJeODg3VPJ3tXTDiCA0l+PHj69Zs+bSpUvjxo27c3n9+vW1KgkAwGp9+atqUOnFJzS4qA9BaC5Xr16VZTk+Ph7zqAEA3N9vpfSPwyx+oCxqMUyGIDSXmJiYmJgYrasAALABrxxkE1uKHby0OVqEIAQAAC1tv8YPZvOvemiWR5hiDQAANFOq0LQDlr5wsAoEIQAAaObdYyzcWxjwmJan0GNoFAAAtJF2ky9PV1PNf8fB+7OTIJQk6cMPP1y+fLnWhTyqa9euvfnmm1pXAQBgdpV3HPQ1/x0H789OgnDWrFnPPPOM1lWYRsuWLbUuAQDA7JacUSXBQnccvD87CUIvLy8vLy+tqwAAgBq5UUpzjrHd0bI1TK+lfRQDAIDevHSA/fkJsbWHNeSgvfQIAQDAVmy9yk/k8+8irCWArKUOAADQgyIDTdnPlveSnC136/QHwNAoAABYzj+OsCh/IdLPKgZFjdAjBAAACzmcy1dfUNOe0vjCwSrQIwQAAEtQVJq8j33cWWrgrHUpf4QgBAAAS5ifpno709hmVpc7GBoFAACzu1zE/3WCJcVaY+hYXTIDAID9eekAe6O91Mzdis6RqYQgBAAA81p5Xr1SRK+0tdLEscZeKgAA2I28cnrjENvcT3aw0hxEjxAAAMzptYNs9ONipwbWOChqhB4hAACYy54svieLpz1l1VmDHiEAAJhFqUKT9rJFXcU61nUBfVUIQgAAMIt3jrIwbyEmwNqDxqq7qwAAYKNO5PMV59TU4dbdGSQi9AgBAMDkVE6T97EPwiRfF61LqQEEIQAAmNgnaaqzRM+2sI2IwdAoAACY0qXb/P9SWVKsbL0XTPyRWeI6Ly9v7dq1paWldy5kjKWlpa1fv/7ixYvmeFMAALAGf97PXm8nNbfK2dSqZZYe4YwZM+Li4tLS0lxc/jc8fOLEiXfeeSczM/PFF198/PHHzfG+AACgrW/Pq1klNKOdbQyKGpm+1ri4uGbNmvn6+lZZHhISsmnTpoiICJO/IwAAWIO8cpp5iC3rKVntbGrVMnGxBQUFCxYsmDlzpmlfFgAArN/0JDa+uRhqxbOpVcvEQ6OvvPLKnDlznJycTPuyAABg5bZd4/t/s/bZ1Kr1EBWXlZVlZmb6+/s7OztXLmSMpaSkEFFYWBgR/fDDDydPniSiS5cuDRw4cMeOHT4+PqauGQAArEuJQtP2s6XdJTfby8GaBSHnvGPHjqdPnzYYDHv37u3WrZtx+a1btyIjI2VZJiLG2K5du0pKSow/atWq1datW318fNLS0lJTU8eNG8cYu3z58q1bt3Jzcy9duhQYGGievwgAACzt74dZLz+hbyMbGxQ1qtExQkEQ5s+fn5OT4+npeefyzz//3MfH59ChQ4cOHfL19f38888rfzRgwADjKaMlJSU5OTlEVFhY+OabbxYUFBw7dmz27Nkm/SsAAEAzydl8zUX1o3BJ60JqSeCc13ztBg0abNq0qbJHGBoa+uqrr44fP56IVq5c+fHHHx85cuQRC4qKikpKSqo8yujq6pqUlFQlgCtxzktLS11dXR/xTaF2ioqK6tSpo3UVOoWNryFs/DtVqNRju+PMNsrwANUCb1dWVibLsnEksiacnZ0fuPIjjeZeuXKlSZMmxseBgYFXr159lFczat++fe/evadOnWp8KkmSu7v7vVbmnIui6Obm9ujvC7XAOUdzoBVsfA1h49/pnaOsqTt/prWFOiTy70z5mo/yy+Xl5Y6OjsbHTk5OVaaSqR1RFF1cXOrXr//oLwUAAGZ19hZffEY9MtQGz5C5wyNdR9iwYcO8vDzj45ycHD8/P1OUBAAANkDl9MJeNjdUeszNJs+RqfRIQdi5c+eEhATj48TExM6dO5uiJAAAsAGLTqmySJOesKlZZKpT0/7s119/nZubW1paunLlyn379r344ov169efPn167969mzZtKgjC559/vmvXLrPWCgAAVuJyEX/vOEscbDO3mLiPmgZhQUHBzZs3X375ZSK6efOmqqpEFBoaumXLluXLlxPRli1bQkNDzVcoAABYj8n72OvtpFYedpCDNQ7CGTNmVLu8W7dulVdTAACAHnx7Xs0updds6hYT92Hbp/oAAICF5ZbRzEMsrp8s20kOmufGvAAAYK+m7mfPt7C9W0zcB3qEAABQU3FX1BP5/D8RdpUddvXHAACA+RRU0LT96qpIydlWZxWtHoZGAQCgRl49yIYGCt0b2s+gqBF6hAAA8GC7MvnuLH5iuB2mBnqEAADwACUKvbiPLekm1XXQuhQzQBACAMAD/P0w6+4r9H/M3gZFjeywkwsAACZ0MJuvy7DPQVEj9AgBAOCeyhlNTGQLu4ieTlqXYjYIQgAAuKfZR1k7T2F4oD2Hhd12dQEA4BEdz+Mr0tXjw+3xDJk72HPIAwBArSkqTUhk/+4s+bpoXYqZIQgBAKAa7x9X/V1pbDP7jwkMjQIAQFVpN/nnZ9jRobrICPuPegAAeCiKSs8nsPc7SY3c7PPCwSoQhAAA8Af/Oqm6O9LElnoJCF10ewEAoIbO3uL/PsEODZV10RkkIvQIAQCgksrphb3svU7S43X1k4MIQgAA+N38NNVBpMmt9BUNGBoFAAAiovQC/kEqS4rV0aCokb5iHwAAqqVymrSXzQqRmrvrLQcRhAAAQPTZaVUlmtZaj6GAoVEAAL27UMjfPcb2x8ii7nqDROgRAgDonMpp4l729w5Si3q6jEEEIQCAzn16Wq1g9Jc2+o0DDI0CAOhXxm0+9xhLHCxLOu0NEqFHCACgWyqn5xPZ3ztIrTx0HIMIQgAA3fpM94OiRhgaBQDQo4zb/N1jLEHfg6JGev8iAACgQ5xoQiL7W7DUWt+DokYIQgAA3fn0lFrOaHpbRAARhkYBAPQm4zZ/7zjbh0HR3+HrAACAjhjPFH2rgxSk18vn74YgBADQkQWnVEWll3Q5p+i9YGgUAEAvLt7mH6Tqd07Re8GXAgAAXVA5PZeg0xst3R+CEABAF+anqbJAUzEoehcMjQIA2L8zt/i8VJY8RHd3n68JfDUAALBzikrPJbD3OklN6yIHq4EgBACwc/+Xqro70qQn0OBXD0OjAAD2LDWfLzrFjgzDoOg94QsCAIDdMqg0MZF9FC41dkMO3hOCEADAbs05yvxdhWeC0NTfD4ZGAQDs09Fc/vWv6rHhDloXYu3wNQEAwA6VKjR+D1vQRWroonUpVg9BCABgh/5+mHXwEkY9jkb+wTA0CgBgb/bd4OsyeOpwtPA1gi8LAAB2pVih5xPZF90lTyetS7ERCEIAALsyPYn19hcGNcb1EjWFjjMAgP2Iv853ZWJQ9OFgYwEA2Im8cpqQyFZGSHVxxcTDwNAoAICdmLafjX5c6OWHQdGHgx4hAIA9WH1BPZnPv+mFVv2hYZMBANi868X8lYPsp36ys6R1KTYIQ6MAALaNE03ax6a3kcK8MShaGwhCAADb9ukp9VY5zQxGe15LGBoFALBhZ2/xd4+x/TGyhN5gbeEbBACArVJUei6RvddJalEPMVh7CEIAAFv13nFWz4FefAIt+SPB0CgAgE06lMOXnFGPDXNAZ/AR4XsEAIDtKVHomT1sYRfJz1XrUmwfghAAwPa8lsw6++B2g6aBoVEAABuz/Rrffo0fx8zaJoLtCABgS3LLaEIiWxkpuWNmbRNBtxoAwJZM2c+eCRIiMLO26aBHCABgM5alq+cL+cpINN2mhK0JAGAbLt7mbx5iu6NlR4zlmRQ2JwCADVBUGr+b/b2D1KY+BkVNDEEIAGAD3j+u1nGg6W3RaJsehkYBAKzd4Vz++Rl2eKiMzqA54MsFAIBVK1Zo3G62qIvU2A05aBYIQgAAq/aXA6xHQ0wiY0YYGgUAsF4bL6t7sjCJjHlh4wIAWKnMEv7nfWxjX7kuJpExJ/S1AQCskcrpuQQ2rbXU2QeHBs0LQQgAYI0+TlNLGf29A1pps8PQKACA1Um7yT86wQ7GyhJ6g+aH7xoAANaljNHY3Wx+ZymwLmLQEhCEAADW5ZUk1tFLeLoZ2mcLwdAoAIAV2XRZ3XGdH8P1EhaEbQ0AYC2M10ts6CvjpruWhK43AIBVUDn9aQ+ul9AAghAAwCrMO6EaVPobrpewOAyNAgBo73Au/ySNHRqC6yU0gK8eAAAaKzLQuN1sYRepSR3EoAYQhAAAGpuyn0X6CaNxfwmNYGgUAEBL355Xj+bylKFojTWDTQ8AoJkLhfy1g+yXQbIrGmPtoCcOAKCNCpWe3s3+ESK198ShQS0hCAEAtPFWCvNxppfaoB3WGHrjAAAa2H6N/3CRHxsuozOoOQQhAIClZZfShET2bYTk5aR1KYChUQAAC1M5jd+jvPiE2NsfvUGrgCAEALCoeSfUMkZvh6D5tRYYGgUAsJykbL4wjaUMxVRqVgRfSQAALORmOY3dzZb2kB5zQwxaEQQhAIAlcKKJe9nwQCEmAA2vdcHQKACAJSxMU68W8e97o9W1OvhIAADM7kQ+/yCV7Y+VHdEbtD74TAAAzKvIQKN2so87S4/XxaFBa4QgBAAwrz/vZ1GNhKebob21UhgaBQAwo6Vn1bR8fnAIGlvrhc8GAMBcUvP524fZvhjZWdK6FLg3dNUBAMyiyEBjdrGPO0st6uHQoFVDEAIAmMWU/SzCTxjfHM2stcPQKACA6S05o6bm8+RYtLE2AB8SAICJnczns46wxMGyC5pYW4A+OwCAKRUZaNQuNr+z9IQHDg3aBgQhAIApTUhkkX7COBwatB3otwMAmMyCNDW9gK/ohabVluDTAgAwjUM5/J+pLCkWhwZtDDrvAAAmcLOcxuxiS7phQlHbgyAEAHhUnOj5RDayqTAsEI2q7UEHHgDgUb1/TM0u5Wuj0KLaJHxsAACPZHcW//wMSxkiO6A3aJvwuQEA1F5mCR+/m30bITdyw6FBW4UgBACoJUWlMbvYS23EKH+koA1DEAIA1NIbh1g9R3ozGA2pbcMxQgCA2th4Wd14mR8eKqMzaOsQhAAADy29gE/ex7b2l72ctC4FHhmCEADg4RQrwrCd7IMwqWMD9AbtAYa2AQAezkspDt0aCs+3QPtpJ9AjBAB4CB+fVC/epu+iJK0LAZNBEAIA1NT+3/iHJ9gvUQZnCccG7Qe69gAANZJVQmN2sRW95CZuXOtawJQQhAAAD2ZQaeRO5aXWYv/HcIKMvUEQAgA82MsHWANn4a+4dt4e4RghAMADfJOuJtzgh4bg2nn7hCAEALifw7l8ZgrbEy3XddC6FDAPdPMBAO4pr5xG7WSfdZVaeaA3aLcQhAAA1VNUGvGL8qfmwoimaCrtGT5dAIDqzUhmThLN6ohr5+0cjhECAFTju/Pq9ms8eYgsYUzU3iEIAQCqOpbHX0tmuwbJHo5alwLmh6FRAIA/yC6lYTvYkm5Sm/roDOoCghAA4H8MKo3apTzXQhgWiOZRL/BJAwD8z8sHmIejMCsEJ8joCI4RAgD81+en1cQb/OAQWcSYqJ4gCAEAiIj23eBzj7G9MbI7ZpDRGQyNAgDQ5SI+cqeyvJfc3B2dQd1BEAKA3hUrNHQHezNYGoBbLOkSghAAdI0TPZvAQryE6W3RHuoUPngA0LXZR1hWCV/cDaeJ6hdOlgEA/VqfoX57nh+MlZ2QgzqGIAQAnTqWx/+8n20bIPu6aF0KaApDowCgRzdKaUg8+6yrFNoAJ8joHYIQAHSnVKEh8crkVuKox9EGAoIQAHSGE03Yy5q5C3/vgAYQiHCMEAD0Zs5Rdr6AJwyWMSQKRghCANCRtRnqinP8YKzsisYPfod9AQD04nAuf/kAix+I00ThDzBEDgC6cLmIx8YrX/aQ2ntiTBT+AEEIAPbvtoFi4tnM9lJMABo9qAr7BADYOUWl0buU7r6YTRSqh90CAOzcKwcZ57SwC2ZRg+rhZBkAsGf/PqnuyeL7Y2QZX/vhHhCEAGC3frrCP0lTD8RK9Ry1LgWsGIIQAOzTkVw+IVH5qb/c2A2nicL9YLAAAOzQ5SI+ZAdb1lN+0hspCA+AIAQAe3OznAZtY38LFgcHIAXhwRCEAGBXKlQauVOJDhCmtUb7BjWCHQUA7AcneiGReToJH4ThYgmoKZwsAwD2481D7FIRjx8oixgThRpDEAKAnfjyrPrjJX4gVnZGbxAeBoIQAOzB5svqnGPq3sGSt7PWpYCtQRACgM1LyuaT9rEt/eWmdTEkCg8NJ8sAgG07X8hH/ML+00sObYAUhNpAEAKADcss4X23sn+Gif0fQwpCLSEIAcBWFRooejub2kp8NghNGdQe9h4AsEkVKo34RenqK7zRHu0YPBLsQABgexincbuZp5OwCHcZhEeGs0YBwPa8epDll/Mt/XHhPJgAghAAbMzbh9nBbL5zkOyE3iCYglmGRnfs2PHRRx/dvfz777+fMmXKt99+a443BQA9+Py0uiaDx/WT6zpoXQrYC9MHYXZ29pw5c5YuXVpl+erVq1etWjVt2rTNmzcvX77c5O8LAHZv1QX1g1R1x0DJ10XrUsCOmD4IX3311Xfffffu5cuWLXv77bfbtm07a9asZcuWmfx9AcC+bb3KXzvItg2UmtTBgUEwJRMfI9y8eXNQUFCbNm3u/lFGRkazZs2IqFmzZhkZGaZ9XwCwb3tv8OcSlc195dYeSEEwMVMGYX5+/ieffLJ169Zbt27d/VNBEFRVJSLOuSBgVwaAmkrN5yN3Kv/pJYf7oOkA06vp0GhJSUlycvLOnTurLP/1118XL168bt26ioqKs2fP/vbbb926devXr9+VK1eGDRt255pNmza9ePEiEV24cKFp06YmqR4A7N65Aj5oG/u0q4RJ1MBMahSEBw4cqF+//qhRowYMGHDn8q1bt3bp0uXs2bOLFi3q27dveHj4qVOnDh8+HB8fHxAQsGHDBiJaunTpli1biGjixIlz5849fvz4nDlzJk6caI4/BgDszNVi3m8bm9tJHNEUs3+AudRoaDQ4ODgvLy8jI6Njx453Lp89e/aHH374wgsvVFRUtGnTZtu2bdHR0URUp06d119/3bhOQECAl5cXEY0ePVqSpGXLlo0cOXLMmDH3ei9VVUtLS2/evGl8KopivXr17lNbOSO3mvwNAGBrbpRS1Bb2WjtxQgukIJiRwDmv4aonT57s2LGjwWAwPs3NzfX29s7JyWnQoAER/eUvf1FV9dNPP33EgqKiopKSkpycnIxPXV1dk5KSPD09qy/pJo3d57AtytDI9RHfFmqjqKioTp06WlehU3a/8fMrhEG7HJ4KUN9orWhdS1V2v/GtWVlZmSzLslzTE1ycnZ0fuHLtT5bJzMx0dHQ0piAR+fv7Hzp0qNavVqlDhw7R0dEzZsyoycqd3fjUluUxCc4J0bIfstDiOOdoDrRi3xu/0EAjdir9HhPmPOmodS3VsO+Nb+Xk35nwNWs/4FDl5E9RFI0nhVrY1JbsT83F/tuUvHLLvzkAmF6JQjHblc4+wsedMYUaWELtg7Bhw4bl5eWVV0rcuHHD39/fRFU9nH+EiDEBQp8tyk1kIYCNK1Vo8HalmbuwALeVAEupfRD6+vq2a9fOeEYoY2z79u1RUVGmK+zhvN9J6ttIGLRduW3QqgQAeFQVKo3cqTRyE77qIeFSCbCYGg2z3r59+/XXX8/Pz1dVdfLkyR4eHvPmzSOiWbNmTZky5dy5c0eOHHF2dh4yZIiZq72feU9Kf97HYuOVn/vLrripBoCtMag0eidzkYXlPSXcXAksqUaJ4ejo2KdPHyIaNWoUEbm4/He+2xEjRjRp0iQ+Pj42Nvbpp5827dHLhyUQLe4mTdzLYuOVuH6yC7IQwHYoKj29m3GilZGSjGslwLJqFBdOTk4jR46s9kdhYWFhYWEmLan2RIG+7iE9l8CG7FA29UUWAtgGxunZBFZs4Bv7yo5IQbA4e9vpRIGW95J8XYShO5QypnU1APAgjNNzCSy3jG/oixvtgjbsLQiJSBLom15SA2dh2A6lHFkIYMVUTs8nsN9K+aZ+sjNSEDRih0FIRJJAK3pJdRyEUbtYhQYXNwLAgzFOzyeyrFK+qS9SELRkn0FIRLJIqyIlB5Ge+gX9QgCrwzg9n8CuF3MczgfN2W0QEpGDSD/0luo54nghgHVhv4+IxvXDxU6gPXsOQvp9jLSBszAkXim1upl7AfTIeHZMdhnfiL4gWAc7D0L6/dyZhq7CwO1KMbIQQFPGKyVykYJgTew/CIlIEmhZTynATRgSjywE0EyFSqN3sYIKvhFnx4A10UUQ0u/9wiZ1hIHblELMRwpgcWWMnvpFUTmt74PrBcG66CUIiUgU6KueUscGQu+fcc8mAIsqUSg2XnGThR96S5g7BqyNvnZJgeiTztKgxkLPOCWrROtqAPShyECDtyu+LsJ3EZKDvpocsA163CvfDZWeCRJ7b1GuF3OtawGwc7cqqO9WpaWHsKIXZtMGK6XTHXNmsPhckBjxM7t0G1kIYC6/lVLET0p3X+HzbrizElgvnQYhEc0MFl9pK/b8iZ25hSwEML3LRbznT8rwpuK/wnGXXbBq+g1CIprWWvzgSTHiZ+VgNrIQwJTO3uI9f2KTnxBnhei6kQGboPcrWsc2E90dhNh4ZVWk3KcRvrYCmMDRXD44XnmvkzShBVIQbAB2UxocIKzrI4/drfx4CTeqAHhUiTf4gG3Koi5IQbAZeu8RGvVsKGwZIMdsV4oM9EwQ/nsBamnTZfXFfeyHKDnSD+MrYDPQ6P9XpwbCvhh57jH1naO4UQVAbaw4p07exzb1RQqCjUEQ/k8zdyFxsLzpMp+exFScPQPwMOalqnOOqomD5c4+SEGwMQjCP/Bzpd3R8vE8PmoXwy0MAWqCE72WzL47r+4dLLWohxQE24MgrMrDkbYPlFVOsfFKEabnBrivckajd7LjeXx/rNzIDSkINglBWA1nidZGSc3chZ4/YUpSgHu6WU79tiqiQFv6y+4OWlcDUFsIwupJAi3uJj0bJD65SUnNxwFDgKou3ebd4pQOXsKqSAm3VQKbhiC8n+ltxfmdxYHblD1ZyEKA/zmRz3v9zKa1Fhd0wSSiYPMQhA8woqm4Lkoet5t9dx6X2wMQEcVf5/23Kou6iNNaowEBe4AL6h+sq6+wY5AUvZ1duk1vheDrL+jaZ6fVfx5XN/WTn/TGvwLYCXyhq5HWHkJSrBx3RX16FytVtK4GQAuM05spbMEpdXe0hBQEe4IgrKmGLpQwWJYEitqiZJdqXQ2AZRUZaNgOdjSXHxoi42JBsDMIwofgLNF3kVK/x4Qum5XTuIsh6Ma1Yt7zJ6WhK/3cX/Zw1LoaAFNDED4cgeidjtLsjmLkz0r8dWQh2L+kbB6+iT0bJC7tLjmgwQB7hP26Np4JEtdHyc8nsPlpOJUU7Nk36erQHcpXPaTpbdFWgN3Czl1L3RsKh4ZIq86r43bj9BmwQ8ZTY/6Zqu6Olgc2xkFBsGcIwtpr5CbsjZElgbr/pFwtxjAp2I+b5TRwm3I8jyfHyq09kIJg5xCEj8RZohUR0vBAsdtmdigHWQj24NRNHr5Zae8p/Nxfru+kdTUA5ocgfFQC0VsdxKitpA8AABTRSURBVM+6iTHxypdnccgQbNvaDDXyZ+UfIeJH4ZKEriDoA2aWMY2YAHHfYGH4L2zvDf5Fd8kF2xVsDeP01mG2+gL/ub8chuvlQU/QIzSZoHpCUqxcrlK3OOXSbQyTgi3JLaMB25RD2TxlCFIQdAdBaEp1HOj73tLY5mLXOGVnJrIQbMOhHB66UQn3FnYMkn1ctK4GwOIQhCYmEL3eTlwZKT+zh809pqpIQ7BuC0+psfHKoi7ie51wUBB0CkFoFpF+wrFh8t4bap8tyg1MTApW6baBxuxiK86p+2Pk2CZoCkC/sPebi48LbR0g9/QTOm4wYJgUrM2xPN5xg1LPkQ7EyM3c0RMEXUMQmpEk0DsdpWU95fG7lQ9SMUwK1uLz0+qAbco/w8QvuktOktbVAGgNQWh2Ax4TUobKW6+q/bYqmSUIQ9BSXjkN28GWpav7Bssjm+LfH4AIQWgZj7kJu6PlmACx00Yl7gouugdt7MniIT8qAXXoQKwchHsKAvwOF35biCjQ9LZiF19h7G629iJf0l1yxbYHS1FUeu84++KM+nVPeRBm0Ab4I/QILepJb+HwULmMUZfNysl8DJOCJVwo5D1/Ug5m8+PDHZCCAHdDEFqahyOtiZLeDhH7bFXeOcoY0hDM6T/n1C6blSFNxC39ZV9cLA9QHQzPaWNkUzHcW3g2ge24rvynl4Tz18HkskvpxX3s4m3+yyC5vSd2MIB7Qo9QMwF1hJ2D5GGBYtc45Zt0nEEDpvTjJbXDBkM7TzoyFCkI8ADoEWpJFOj1dmL/RsIzCWxdhvpFd6mRG9oseCS5ZfRyEjuay3/sI3f2we4E8GDoEWqvnaeQMkTu0VAM2aAsPYvL7qH24q6oHTYo7g50dBhSEKCm0CO0CrJIM4PF6ABhQiJbn6F+2UMKqINWDB5Cdim9dIAdy+OrIqWeDbHzADwE9AitSNv6woEYuaef2Gmj8tlpTMkGNcKJVpxTg380PO5OJ5+SkYIADws9Qusii/RWB3H048KU/WxZuvpFd6lTA7RrcE8XCvmU/SynjDb3ww11AWoJPUJr1NxdiB8oT28jxmxXpiexIoPWBYH1Mai0IE3tslmJ8hcPD0UKAtQegtBKCUTPBImpwx3yyin4R8xQCn+wO4t3j3famcmPDJNnBou4oS7Ao8DQqFXzcaHvIqRfrvOXk9gXZ9QFXXDpvd5dL+avH1IPZvP32xvGtnLUuhwAe4AeoQ3o00g4MVzu20gM34SRUv0yjoUG/6j4ONPJ4XLMYxgkADANBKFtcBBpelsxdbicXUbtflTWXMQppfry81Xe/kdlx3U1eYi8oItUx0HrggDsCIZGbUkjN2F1pJSQxWckswWn1I/DpXBcNG3vTubz15LZ1WL6KFyKxr0jAMwAPULb08tPODxUfqWtOGY3G7WTZdxG59A+5ZbR9CQWtUWJ8hdTh8tIQQAzQRDaJIFoZFMx7Sm5lQeFbVRmHmL55VrXBKZz20BzjqpPrDU4iJQ+ymFmsOiI/1QAs8G/lw1zk2lOqHTiKbnQQE+sNfzzuFqsaF0TPJpyRgvS1KA1hguFPGWo/FG45IEzQwHMDEFo8/xdhcXdpAOxctpN3mKN8tlptQKnE9ogxumbdLXlWmVXFv9lkPyfCKlpXYyFAlgCTpaxE83dhVWR0vE8/tZh9uEJ9c1gcUIL0UnSuiyoAUWlVRfU946r/q60KlLq6ov8A7Ao9AjtSgcv4ef+8uZ+0u5MHrRGWZCmlmKw1IqpnNZmqG3WK0vPqv8OF/dEy0hBAMtDj9AOBXsKa6KklBz+7jH20Un19XbixJYirjyzKuWMVpxTPzyhBrjR0u5SLz/kH4BmEIR2K8xbiOsnH83lH6Sq7x83/LmV+FJrycdF67J071YFLT6jLjrFQhsI3/SUuuOuSQBaw9ConevYQFgTJSXFyjll1GqdYep+dq4A1x1q40oRfz2ZNf/B8OstvmOgHNdPRgoCWAMEoS40cxcWd5POjHDwcqbuPynR25Xt1zjy0GISsviInazjBoWIjg+Xv+kltamPCASwFhga1REfF5obKr3VQVp9Qf1bCpueRC+1EZ8NEuvi8KF5lCq06oK66JRaodLLbcRvejrgSC2AFUIQ6o6zRM+3EJ9vIe69wRedUmcdMQwPFF9oKXbGtKWmk5rPvzqrrr6gdvUV/xUu9WkkYOMCWC0EoX71aCj0aCj9ViqtOKc+m8CcJHqhpTi+uejppHVlNuu2gVZfUL/6Vc0upQktxWPD5cZuSEAAa4cg1DtfF/pre/GN9mJCFv/qV3X2EUOEnzi+uRAdIDrjevyaMai0/RpfeUHddlWNaiS+Gyr1aySISEAAG4EgBCIigSjCT4jwk24bpB8vqUvOqpP3sWGB4tPNxF5+goQ2vToqp6RsvvqCujZDbVlPGNdc/KyrA/rTADYHQQh/UNeBng0Snw0SM0v49xf4zEPschEf0kQcHihGNRJwDwQiYpz2ZPEfL6kbLqnezsLox8VDQ+QmdfBlAcBWIQihev6uwox2wox24uUi/uMl/s9UNm4PH/iYGB0g9GskNnDWuj6Lu1VBO66rW6/yuCtq07rCU4Fi4mC5uTvyD8DmIQjhAZrUEV5tK7zaVrxRSnGX1XUZfOp+QysPYWBjsZen2L0O2fHAqcrpRD7fdo1vvaoez+PdGwqDGovvdJQD0P8DsCMIQqiphi406Qlx0hNUoUr7bvCtV9VpKQ7XEww9GooRfkKEn9DByx7OEOFEp27y3Zl8TxZPyFK9XYR+jYS/dZB6NRRc8O8CYI/wnw0PzVGk3v5Cb39pVuuSMoe6CVnqniz+9a9qZgkP9xHCvYVwHzHcR/CyndNGCiooOYcnZ/PkbDU5h9d3EiL8hKeaCp92dfBz1bo4ADAzBCE8Em9nGtFUHNGUiCinjA5mq4dy+Pw0lpLDvZ2FDl5Ce0+hvSe19xQC61rRReVXivjJm3Qin6fm8dR8fr2Yd2wgdPYRXnhC/LKHiPAD0BUEIZiMtzPFBIgxAUREKqdfC/4bM1+e5SfyqaCCt6gnBNUTmrtTi3pCkLsQUEdo6ErmTsffSulqMT9XwM8VUnoBP1/I0wu4s0Tt6gsdvITBAcJbHcTW9XGJCIB+IQjBLESBWnkIrTyEMc3+u+RmOaUX8HOFPL2Ab7nKzxeqV4t4fjk1dBUau1EjN8HHmTydyMtZ8HQiLyehrgO5yOQmk6NE7g5Vg0olKqjgBpWKDFTOqNBA+eU8r4zyyymvnOeW0dVifr2YMkt4PUd6zE1o7i4EuVMff2FqK7FFPUGHZ70CwL0gCMFC6jtRuI8Q/scZTStUyizm14rpWjHPKaP8cjpfyPPLKa9MvW2gMkZFBjKoVGjg7I83yxCIPBwFWaS6DuQokrsjeToJXk7k6UTN3YXOPtTYTWzkRo1cBSfMjwMA94UgBC05ihRYVwisS2T2IVIAgOphphAAANA1BCEAAOgaghAAAHTNtoPw8uXLq1ev1roKnSorK1u4cKHWVejXxx9/rCiK1lXo1IoVK27cuKF1FTq1ffv2o0ePmvY1bTsI09LS1q9fr3UVOpWTk7NkyRKtq9CvTz755Pbt21pXoVM//PDDr7/+qnUVOhUfH5+UlGTa17TtIAQAAHhECEIAANA1BCEAAOiawDl/8FoWNGjQoJSUFHd395qsXFpaWlhY6Ovra+6q4G6MsczMzMaNG2tdiE5dvny5cePGoojvshrIysry9PR0crKdG6zYkby8PEdHx7p169Zw/bFjx86dO/f+61hdEBYVFWVlZUlSTefFKi8vx+6oFWx8DWHjawgbX0OKogiCUPOM8PPzc3Fxuf86VheEAAAAloRxFQAA0DUEIQAA6BqCEAAAdA1BCAAAumbt9yPcuXPnzz//7OPjM3HiRG9v77tXyMjI+Oabb0pLS8eMGdOxY0fjQs752rVrDx482KRJk0mTJrm6ulq2ajth3LZlZWWjR4+u3LaVSktLt27deuTIEUEQ+vbt26tXL+PypKSkkydPVq42YcIEWbb23cwKXbt2bfny5YWFhcOHD+/SpUuVnyqKsmzZssqn7du379y5s/HxqVOnVq5cKQjCn/70pyeeeMJyFduRioqKr7/++ty5cx06dBg/fnyVa1SqbHwiCgkJCQsLy83N/fHHHysX9uzZE9v/Yamqmp6efvTo0aKiokmTJglCNbcpVVX122+/TU1NbdGixYQJExwdHY3Lq82CGrLqHuH3338/duzYwMDA9PT0Ll26lJSUVFnh+vXrYWFhJSUl3t7ekZGRBw4cMC6fO3fu7NmzmzdvHh8fHx0dbfHC7cG1a9eM29bLyysyMvLuyf0WL168cOFCV1dXZ2fnESNGzJ8/37h83bp1K1asuPg7nJZcC3l5eWFhYTk5OX5+ftHR0Tt27KiyQkVFxeTJk9PT040bOS8vz7j81KlTXbt2dXZ2dnBw6Ny5M+bDrJ2nn356zZo1LVq0WLBgwYwZM6r8lHNeuXtfuHDhpZdeOn/+PBFdvXr1jTfeqPxRYWGhFrXbtuTk5IiIiMWLF0+ePFlV1WrXmT59+sKFC4OCgr7//vvx48cbF94rC2qKW7F27dqtXLnS+DgsLGzZsmVVVnj77bdHjRplfPzee+8NHTqUc15cXOzh4ZGSksI5Lysr8/b23r9/vwWrthNvvfXW6NGjjY/nzp1r3LZ3Ki0trXz83XffBQUFGR/PmDHj7bfftkyR9mrevHkDBw40Pl64cGHv3r2rrFBcXExEd34ERhMnTpw+fbrx8bRp06ZMmWLuUu3P6dOnXV1dCwoKOOcZGRkuLi65ubn3WnnXrl0eHh4lJSWc86NHjzZp0sRiddolxhjnPD09nYgURbl7hezsbGdn54yMDM75rVu3XF1dz549y+/KgiFDhjzU+1pvj/DmzZsnT57s27ev8Wnfvn0TEhKqrJOYmNivX78qK5w4cUIUxU6dOhGRk5NTr1697v5FeKBqt+2dnJ2dKx+XlZXVqVOn8unx48fnzZu3evXq0tJSC5RqfxITE+/c8/fu3Vvtt+PFixcvWrTo2LFjlUsSEhLu/6nBAyUmJj755JPGya0CAwMbN26cnJx8r5W//vrr8ePHV16vXVJSMn/+/CVLlhj7iPCwHjhTUnJyckBAQGBgIBHVq1cvLCxs7969dNe/zMPu+dYbhMb5Zby8vIxPfX19MzMz716n8sChj4/PzZs3S0tLb9y4cefRxGp/ER6o2m1b7Zq5ubnvvPPOzJkzjU/9/PwaNWpUWFi4cOHC4ODg/Px8C1VsR6psfIPBkJube+cKxuOyOTk5p0+fjoiI+Pjjj6v9xaysLEuWbR+qNCA+Pj73akAKCgo2bNgwYcIE41NHR8du3brl5eUdOHAgJCRk48aNlihXZ+7VvFfZ82/duvVQ38Kt9ywGBwcHVVVVVTV+RzAYDHfPaSTLcuW9SRVFEUVRluU7Fxp/seaz0kGlarft3asVFhZGR0cPHz589OjRxiWvv/668QHnvEePHp9++umsWbMsU7PdqLLxiajyjAAjFxeX+Ph44+ORI0cOHDhwypQpLi4uVX6xym9BTciyzBirfGowGO61GVeuXNm8efOQkBDj0zZt2mzYsMH4ePHixX/961+HDh1q7mr15l6fTg3bq3ux3h6hn58fEVV+F7t+/bpxyZ0aNWp05wo+Pj4ODg7+/v6//fZb5Uap9hfhgardtlXWKSoqio6ODg0N/eSTT+5+BUEQunbtevHiRbPXaneqbHxXV1cPD497rdytWzeDwXD9+nXjLxofGH/R39/fAtXamTu3Id13My5btmzSpEnV/qhr166XLl3iOFPM1Pz9/av9dKr8y3h7e9/dXt2H9QZhnTp1IiMj165dS0RlZWVxcXGxsbFEVFxcvGvXLuMhk5iYmHXr1hn3trVr18bExBBRcHCwp6fntm3biCgnJychIcG4HB5KtduWiJKSkrKzs4mopKQkNjY2KCjo008/vfMs58oRibKysvj4+DZt2li8dpsXExOzYcMG4zffOzd+SkqK8b+9rKyscuW4uLg6deoEBAQQUWxsrPFfpsovQs0NGDAgNTU1IyODiA4ePFhSUtKtWzciysjIOHHiROVqJ0+ePHXq1NixYyuX3DkWFxcX17p162rP/odaqPxEevToUVRUdPDgQSLKyMg4efJk//79iSgmJmb9+vV3t1c1Vfvze8xv//79Xl5e48eP79SpU79+/YwnERn3xaKiIs55YWFh+/btIyMjR44c6efnd/78eeMvrlq1ytvb+7nnngsKCpo6daqWf4PNKigoMG7bESNG3LltAwMDV61axTl///33BUEICQkJDQ0NDQ0NDw83rtC0adNBgwaNGzeuSZMmPXv2LC4u1uxvsFklJSXh4eHdu3cfM2aMt7d3WlqacXn79u2XLFnCOV+yZEnbtm3HjRvXv39/d3f3ypOrMzMzAwMDBw8ePGjQoObNm//222+a/Q227O23327SpMmECRMaNmy4ePHiyoWDBg2qXOfll19++umn7/ytV199NTw8fPz48T169PD29t67d69Fi7YLRUVFoaGhbdu2JaKOHTtGRUUZlw8YMGDWrFnGx5999lnDhg0nTJjQpEmT2bNnGxcWFhYGBwffnQU1ZO13n8jKykpMTGzQoEFERITxvhulpaUnT57s1KmT8dhhWVnZzp07S0tL+/Tpc+fw0fnz51NSUgIDA+++GBlqqNptm5qa2rhxY09Pz8zMzDvPxRAEwXgR6/Xr148cOVJSUtKsWbOwsDBtSrd9FRUVu3btKiwsjIqKqjxlLC0tzdfX19vb22AwHDlyJCMjo169ep06dfLx8an8xaKiol9++UUQhD59+ri5uWlUvs07cuRIenp6cHBw69atjUuuX79eXFzcokUL49MzZ854eXndueWLi4tTUlKysrIaNGgQHh5ew5uqwp0YY8ePH698KstycHAwEaWnp7u5uTVq1Mi4/NSpUydOnGjRokVoaGjlyvfKgpqw9iAEAAAwK+s9RggAAGABCEIAANA1BCEAAOgaghAAAHQNQQgAALqGIAQAAF1DEAIAgK4hCAEAQNcQhAAAoGsIQgAA0DUEIQAA6Nr/AxW4nx4zB8F1AAAAAElFTkSuQmCC" />
+
+
+
+## Molecular Dynamics Simulations of Oil-in-Water Emulsions 
+
+[Video](https://drive.google.com/file/d/1T3wJDfLSW_WMIQhvoUiB72riKvNXzrTk/view) by students of emulsion subject to oscillatory shear.
+
+<b>Exercise - Molecular Dynamics - Literature Sources</b>
+
+The code listed below is taken from [this Discourse Post](https://discourse.julialang.org/t/seven-lines-of-julia-examples-sought/50416/42). 
+
+With 15 lines, Leandro Martinez (@lmiq) writes a code to perform a particle simulation with periodic boundary conditions, a Langevin thermostat, a quadratic potential between the particles, and produce an animation (see below). 
+
+The code below uses the function wrap that in turn uses the ternary operator a?b:c explained at [control flow](https://docs.julialang.org/en/v1/manual/control-flow/#man-conditional-evaluation).  
+
+<b>Exercise - Molecular Dynamics - Extension of a prototype code</b> Extend this code (increase N to increase the volume fraction of olil droplets) with: 
+1. monitor the potential, kinetic and total energy on each particle. Verify in which conditions (implicit vs. explicit time stepping, order of time stepping method, fixed vs. adaptive time step, time step size) the total energy remains preserved (i.e. constant in time);
+2. assume a uniform mesh on the domain of computation. Compute the mixture fraction on the mesh;
+3. assume a computed mixture fraction on a uniform mesh. Compute the partion function on this mesh;  
+4. differentiate the total energy wrt the position vector $\mathbf{x}_i$ of particle $i$ to obtain the force vector $\mathbf{F}_i$ on particle $i$. Possibly use [ForwardDiff](https://juliadiff.org/ForwardDiff.jl/stable/) or any for this differentiation;
+5. differentiate the force vector $\mathbf{F}_i$ on particle $i$ wrt its position vector $\mathbf{x}_i$ (thus obtaining the second derivative of the energy) to obtain the coefficients in the constitutive force-strain relation;
+6. repeat above for alternative choices of the potential between particles. Choices include adding a cubic term to the potential (Duffing oscillators), Langevin and Van der Waals potentials. Verify whether the later allow to take particle sizes into account;
+7. convert script into a function allowing Julia to compile the function for you, thus reducing wall clock time;
+8. replace for-loop for time stepping by calling [langevin time integrator](https://docs.sciml.ai/DiffEqDocs/stable/api/stochasticdiffeq/misc/#Langevin-Dynamics) instead;  
+
+<b>Exercise - Molecular Dynamics - Entropic Energy</b>
+
+1. taylor the above framework to emulsions formed by vegetable oil droplets in water by considering the entropic and interfacial free energy of the emulsion undergoing a shear force;
+
+<b>Exercise - Molecular Dynamics - Interfacial Energy</b>
+
+1. as above for interfacial energy; 
+
+<b>Exercise - Molecular Dynamics - Using Molly.jl</b>
+
+1. verify to what extend the package [Molly](https://juliamolsim.github.io/Molly.jl/stable/) allows to automate and/or extend any of the above steps. Please note that the Molly package allows for differentiable simulations. This property motivates our choice for this package;     
+
+
+```julia
+using Plots ; ENV["GKSwstype"]="nul";
+using LinearAlgebra
+```
+
+
+```julia
+#const N, τ, Δt, λ, T, k = 100, 1000, 0.01, 1e-3, 0.26, 1e-6 
+const N, τ, Δt, λ, T, k = 50000, 1000, 0.01, 1e-3, 0., 1e-6 
+const x, v, f = -0.5 .+ rand(3,N), -0.01 .+ 0.02*randn(3,N), zeros(3,N)
+wrap(x,y) = (x-y) > 0.5 ? (x-y)-1 : ( (x-y) < -0.5 ? (x-y)+1 : (x-y) )
+#anim = @animate 
+for t in 1:τ 
+  f .= 0
+  for i in 1:N-1, j in i+1:N 
+    f[:,i] .+= wrap.(x[:,i],x[:,j]) .- λ .* v[:,i]
+    f[:,j] .+= wrap.(x[:,j],x[:,i]) .- λ .* v[:,j]
+  end 
+  x .= wrap.(x .+ v*Δt .+ (f/2)*Δt^2,zeros(3))
+  v .= v .+ f*Δt .+ sqrt.(2*λ*k*T*Δt)*randn()
+  scatter(x[1,:],x[2,:],x[3,:],label="",lims=(-0.5,0.5),aspect_ratio=1,framestyle=:box,xlabel="x",ylabel="y",zlabel="z")
+end
+#gif(anim,"anim.gif",fps=10)
+```
+
+    WARNING: redefinition of constant Main.N. This may fail, cause incorrect answers, or produce other errors.
+    WARNING: redefinition of constant Main.x. This may fail, cause incorrect answers, or produce other errors.
+    WARNING: redefinition of constant Main.v. This may fail, cause incorrect answers, or produce other errors.
+    WARNING: redefinition of constant Main.f. This may fail, cause incorrect answers, or produce other errors.
+
+
+
+    InterruptException:
+
+    
+
+    Stacktrace:
+
+     [1] Array
+
+       @ ./boot.jl:477 [inlined]
+
+     [2] Array
+
+       @ ./boot.jl:486 [inlined]
+
+     [3] similar
+
+       @ ./array.jl:420 [inlined]
+
+     [4] similar
+
+       @ ./abstractarray.jl:830 [inlined]
+
+     [5] _unsafe_getindex
+
+       @ ./multidimensional.jl:901 [inlined]
+
+     [6] _getindex
+
+       @ ./multidimensional.jl:889 [inlined]
+
+     [7] getindex
+
+       @ ./abstractarray.jl:1290 [inlined]
+
+     [8] top-level scope
+
+       @ ./In[29]:9
+
+
+
+```julia
+
+```
