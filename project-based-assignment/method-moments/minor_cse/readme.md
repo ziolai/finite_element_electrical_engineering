@@ -10,14 +10,14 @@ When a metalic object is placed inside a magnetic field, the object is magnetize
 
 ### Section 1.2: Problem Formulation 
 
-<b>Physical Problem</b> Assume metalic plate to be placed in external (assumed known or given) [magnetic field](https://en.wikipedia.org/wiki/Magnetic_susceptibility). Let the external magnetic field be denoted by $\mathbf{H}_{ext}(\mathbf{r})$. Then $\mathbf{H}_{ext}(\mathbf{r})$ is a vector field with three components. This can be expressed as $\mathbf{H}_{ext}(\mathbf{r}) = \left( H_{ext,x}(\mathbf{r}), H_{ext,y}(\mathbf{r}), H_{ext,z}(\mathbf{r})\right)$ or as $ \mathbf{H}_{ext}(\mathbf{r}) = H_{ext,x}(\mathbf{r}) \mathbf{i} + H_{ext,y}(\mathbf{r}) \mathbf{j} + H_{ext,z}(\mathbf{r}) \mathbf{k}$. Assume that the plate has a [magnetic susceptibility](https://en.wikipedia.org/wiki/Magnetic_field) denoted by $\chi_{mag}$. The goal is to compute the [magnetization vector](https://en.wikipedia.org/wiki/Magnetization) in the plate denoted by $\mathbf{M}(\mathbf{r})$. This is a vector field with three components. The vector field to be computed can thus be written as $\mathbf{M}(\mathbf{r}) = \left( M_x(\mathbf{r}), M_y(\mathbf{r}), M_z(\mathbf{r})\right)$. 
+<b>Physical Problem</b> Assume metalic plate to be placed in external (assumed known or given) [magnetic field](https://en.wikipedia.org/wiki/Magnetic_susceptibility). Let the external magnetic field be denoted by ${\mathbf H}_{ext}(\mathbf{r})$. Then ${\mathbf H}_{ext}(\mathbf{r})$ is a vector field with three components. This can be expressed as ${\mathbf H}_{ext}(\mathbf{r}) = \left( H_{ext,x}(\mathbf{r}), H_{ext,y}(\mathbf{r}), H_{ext,z}(\mathbf{r})\right)$ or as $ \mathbf{H}_{ext}(\mathbf{r}) = H_{ext,x}(\mathbf{r}) \mathbf{i} + H_{ext,y}(\mathbf{r}) \mathbf{j} + H_{ext,z}(\mathbf{r}) \mathbf{k}$. Assume that the plate has a [magnetic susceptibility](https://en.wikipedia.org/wiki/Magnetic_field) denoted by $\chi_{mag}$. The goal is to compute the [magnetization vector](https://en.wikipedia.org/wiki/Magnetization) in the plate denoted by $\mathbf{M}(\mathbf{r})$. This is a vector field with three components. The vector field to be computed can thus be written as $\mathbf{M}(\mathbf{r}) = \left( M_x(\mathbf{r}), M_y(\mathbf{r}), M_z(\mathbf{r})\right)$. 
 
 <b>Mathematical Model</b> (requires reformulation) (see Poisson equation, see one-dimensional Fredholm integro-differential equation, see e.g. paper Morandi) Here we describe how the above problem can be translated (captured) into a mathematical model. 
 
 Assume given a metalic object with magnetic susceptibility $\chi_{mag}$ (dimensionless, value between $20$ and $200.000$) and with volume $\Omega \subset \mathbb{R}^3$ (typical dimensions?) placed in a given external magnetic field $\mathbf{H}_{ext}$. In case that the external magnetic field is in the $x$-direction $\mathbf{H}_{ext} = \left( H_{ext}, 0,0\right)$ (value?, units?). Then the object is magnitized, meaning that the magnetization vector $\mathbf{M}(\mathbf{r})$ is non-zero inside $\Omega$. We wish to compute $\mathbf{M}(\mathbf{r})$ by solving the linear vector-valued grad-div volume integro-differential equation with singular kernel given by 
 
 $$
-\mathbf{A} \left[ \mathbf{M}(\mathbf{r}) \right] = \mathbf{H}_{ext}
+\mathbf{A} \left[ \mathbf{M}(\mathbf{r}) \right] = {\mathbf H}_{ext}
 $$
 
 where 
