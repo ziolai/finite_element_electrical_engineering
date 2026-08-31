@@ -240,7 +240,11 @@ Explore weak formulation, weighted residual method, Galerkin approximation and l
 2. one-dimensional Fredholm integro-differential equation;
 3. see grad-div equation without kernel;
 
-### Section 3.3: Focus on Numerical Computations
+### Section 3.3: Assembly of the Mass Matrix and Load Vector 
+
+1. loop over elements in the mesh to assemble the mass matrix and the lopad vector. See notebook [mom_hcubature](./mom_hcubature.ipynb); 
+
+### Section 4.3: Numerical Assembly of the Stiffness Matrix 
 
 1. use of quadrature implemented in [hcubature.jl](https://github.com/JuliaMath/HCubature.jl) for integration in 1D (possibly singular, look into number of function evaluatiohs), 2D (reference triangle, coordinate transformation, general triangle), 3D (reference tetrahedra, coordinate transformation, general tetrahedra), 4D (by calling hcubature for 2D twice) and 6D (by calling hcubature for 2D twice). See notebook [mom_hcubature](./mom_hcubature.ipynb);
 2. formulate and compute 6D integrals for tetra/tetra interaction assuming no parallel facets. $P_{\alpha}$ with nodes ${\mathbf r}_1 = (0,0,0)$, ${\mathbf r}_2 = (1,0,0)$, ${\mathbf r}_3 = (0,1,0)$ and ${\mathbf r}_4 = (0,0,1)$. 
@@ -251,7 +255,7 @@ $P_{\beta}$ with nodes ${\mathbf r}_1 = (0,0,0)$, ${\mathbf r}_2 = (1,0,0)$, ${\
 6. loop over elements over the mesh to compute the mass matrix. Provide more details (expression of the local matrix per element) here;
 7. use of hcubature to compute the stiffness matrix elements. Possibly regularization in the kernel;
 
-### Section 4.3: Focus on Analytical Computations  
+### Section 5.3: Analytical Assembly of the Stiffness Matrix 
 
 1. implement point-edge interactions (cfr. seperate notebook); 
 2. implement edge-edge interactions  (cfr. seperate notebook); 
