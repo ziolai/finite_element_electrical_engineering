@@ -10,35 +10,51 @@ When a metalic object is placed inside a magnetic field, the object is magnetize
 
 ### Section 1.2: Problem Formulation 
 
-<b>Physical Problem</b> Assume metalic plate to be placed in external (assumed known or given) [magnetic field](https://en.wikipedia.org/wiki/Magnetic_susceptibility). Let the external magnetic field be denoted by ${\mathbf H}_{ext}(\mathbf{r})$. Then ${\mathbf H}_{ext}(\mathbf{r})$ is a vector field with three components. This can be expressed as ${\mathbf H}_{ext}(\mathbf{r}) = \left( H_{ext,x}(\mathbf{r}), H_{ext,y}(\mathbf{r}), H_{ext,z}(\mathbf{r})\right)$ or as $ \mathbf{H}_{ext}(\mathbf{r}) = H_{ext,x}(\mathbf{r}) \mathbf{i} + H_{ext,y}(\mathbf{r}) \mathbf{j} + H_{ext,z}(\mathbf{r}) \mathbf{k}$. Assume that the plate has a [magnetic susceptibility](https://en.wikipedia.org/wiki/Magnetic_field) denoted by $\chi_{mag}$. The goal is to compute the [magnetization vector](https://en.wikipedia.org/wiki/Magnetization) in the plate denoted by $\mathbf{M}(\mathbf{r})$. This is a vector field with three components. The vector field to be computed can thus be written as $\mathbf{M}(\mathbf{r}) = \left( M_x(\mathbf{r}), M_y(\mathbf{r}), M_z(\mathbf{r})\right)$. 
+<b>Computational Domain</b> Assume the computational domain $\Omega$ to denote a cube with lenght $L$, height $H$ and depth $D$ alligned with the coordinate axes. Then $0 \leq x \leq L$, $0 \leq y \leq H$ and $0 \leq z \leq D$ and $\Omega = [0,L] \times [0,H] \times [0,D]$. Typical values are $L = H = 1 \, \text{m}$ and $D = 0.1 \, \text{m}$. Assume $\mathbf{r} = (x,y,z)$ to denote the position vector inside $\Omega$. 
 
-<b>Mathematical Model</b> (requires reformulation) (see Poisson equation, see one-dimensional Fredholm integro-differential equation, see e.g. paper Morandi) Here we describe how the above problem can be translated (captured) into a mathematical model. 
+<b>Material Properties</b> Assume that $\Omega$ has a [magnetic susceptibility](https://en.wikipedia.org/wiki/Magnetic_susceptibility) denoted by $\chi_{mag}$. Then $\Omega$ will magnetize in an external field and thus mimmic a metalic plate. Here it will be suffucient to assume that the plate is homogeneous and that therefore $\chi_{mag}$ is constant. Assume that $200 \leq \chi_{mag} \leq 200,000$ (dimensionless). Non-homogeneous plate can be modeled assuming that $\chi_{mag}$ is piecewise constant. Non-linear magnetization effects are excluded in this project.   
 
-Assume given a metalic object with magnetic susceptibility $\chi_{mag}$ (dimensionless, value between $20$ and $200.000$) and with volume $\Omega \subset \mathbb{R}^3$ (typical dimensions?) placed in a given external magnetic field $\mathbf{H}_{ext}$. In case that the external magnetic field is in the $x$-direction $\mathbf{H}_{ext} = \left( H_{ext}, 0,0\right)$ (value?, units?). Then the object is magnitized, meaning that the magnetization vector $\mathbf{M}(\mathbf{r})$ is non-zero inside $\Omega$. We wish to compute $\mathbf{M}(\mathbf{r})$ by solving the linear vector-valued grad-div volume integro-differential equation with singular kernel given by 
+<b>Problem Description</b> Assume $\Omega$ to be placed in external (assumed known or given) [magnetic field](https://en.wikipedia.org/wiki/Magnetic_field). Let the external magnetic field be denoted by ${\mathbf H}_{ext}(\mathbf{r})$ in units Ampere per meter. Then ${\mathbf H}_{ext}(\mathbf{r})$ is a vector field with three components. This can be expressed as ${\mathbf H}_{ext}(\mathbf{r}) = \left( H_{ext,x}(\mathbf{r}), H_{ext,y}(\mathbf{r}), H_{ext,z}(\mathbf{r})\right)$ or as $ \mathbf{H}_{ext}(\mathbf{r}) = H_{ext,x}(\mathbf{r}) \mathbf{i} + H_{ext,y}(\mathbf{r}) \mathbf{j} + H_{ext,z}(\mathbf{r}) \mathbf{k}$. In case that the external magnetic field is constant and aligned with the $x$-direction, we can write that $\mathbf{H}_{ext} = \left( H_{0,ext}, 0,0\right)$ where $H_{0,ext}$ is a constant.
+
+The goal of the project is to compute the [magnetization vector](https://en.wikipedia.org/wiki/Magnetization) in the plate. This vector field is denoted by $\mathbf{M}(\mathbf{r})$ in units Ampere per meter. This is a vector field with three components. The vector field to be computed can thus be written as $\mathbf{M}(\mathbf{r}) = \left( M_x(\mathbf{r}), M_y(\mathbf{r}), M_z(\mathbf{r})\right)$. 
+
+The physical problem can thus be stated as: given the scalar $\chi_{mag}$ in $\Omega$ and given the vector field ${\mathbf H}_{ext}(\mathbf{r})$, compute the vector field ${\mathbf M}(\mathbf{r})$.
+
+<b>Mathematical Model</b> (Provide more explanation on the eqiuation for $\mathbf{M}(\mathbf{r})$. State that total magnetic field ${\mathbf H}_{tot}$ in $\Omega$ is sum of two components. The external field ${\mathbf H}_{ext}$ and the induced field ${\mathbf H}_{M}$. We thus have that ${\mathbf H}_{ext} + {\mathbf H}_{M} = {\mathbf H}_{tot}$ where ${\mathbf H}_{M} =  \text{grad}_{\mathbf{r}} \phi_M = \nabla_{\mathbf{r}} \phi_M$ and where $\phi_M$ can be related to $\mathbf{M}$) We wish to compute $\mathbf{M}(\mathbf{r})$ by solving a partial differential equation in which the external field ${\mathbf H}_{ext}(\mathbf{r})$ acts as a source term (i.e., ${\mathbf H}_{ext}(\mathbf{r})$ appears in the right-hand side of the equation). This differential equation can be written as  
 
 $$
-\mathbf{A} \left[ \mathbf{M}(\mathbf{r}) \right] = {\mathbf H}_{ext}
+{\cal D} \left[ \mathbf{M}(\mathbf{r}) \right] = {\mathbf H}_{ext}(\mathbf{r}) \text{ on } \Omega 
 $$
 
-where 
+where ${\cal D}$ is the [differential operator](https://en.wikipedia.org/wiki/Differential_operator) 
 
 $$
-\mathbf{A}\left[ \mathbf{M}(\mathbf{r}) \right] = \frac{1}{\chi_{mag}} \mathbf{M}(\mathbf{r}) - 
+{\cal D}\left[ \mathbf{M}(\mathbf{r}) \right] = \frac{1}{\chi_{mag}} \mathbf{M}(\mathbf{r}) - 
 \text{grad}_{\mathbf{r}} \, \text{div}_{\mathbf{r}} 
-\int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' = 
+\frac{1}{4 \pi}  \int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' = 
 \frac{1}{\chi_{mag}} \mathbf{M}(\mathbf{r}) - 
-\nabla_{\mathbf{r}} \, \nabla_{\mathbf{r}} \cdot 
-\int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega'
+\nabla_{\mathbf{r}} \, \nabla_{\mathbf{r}} \cdot \frac{1}{4 \pi}
+\int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, . 
 $$
 
-The magnetization $\mathbf{M}$ remains zero outside $\Omega$, i.e., on $\mathbb{R}^3 \setminus \Omega$ (the equivalent of homogeneous Dirichlet boundary conditions). The integro-differential equation above is a system of three coupled equations for the three components of the magnetization $\mathbf{M}(\mathbf{r})$. 
+This differential equation can be derived from [Biot-Savart Law](https://en.wikipedia.org/wiki/Biot–Savart_law). The differential operator ${\cal D}$ contains an integral term. The differential equation that determines $\mathbf{M}(\mathbf{r})$ is therefore an [integro-differential equation](https://en.wikipedia.org/wiki/Integro-differential_equation). The above integro-differential equation is a system of three coupled equations for the three components of the magnetization $\mathbf{M}(\mathbf{r})$. This equation is solved on $\Omega$ only. The magnetization $\mathbf{M}(\mathbf{r})$ remains zero outside $\Omega$. The kernel in the second term of ${\cal D}$ can be written as 
 
-For future reference, we write the equation in more explicit form. The first of the three scalae equations is 
+$$
+{\cal K}(\mathbf{r},\mathbf{r}') = \frac{1}{4 \pi}  \frac{1}{\|\mathbf{r}' - \mathbf{r} \|} \, . 
+$$
+
+This kernel is singular for $\mathbf{r}' = \mathbf{r}$. The convolution of $\mathbf{M}(\mathbf{r})$ and ${\cal K}(\mathbf{r},\mathbf{r}')$ can be written as 
+
+$$
+{\cal K}(\mathbf{r},\mathbf{r}') * \mathbf{M}(\mathbf{r}) = \frac{1}{4 \pi} \int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, . 
+$$
+
+For future reference, we write the integro-differential equation for $\mathbf{M}(\mathbf{r})$ in explicit form. The first of the three scalae equations is 
 
 $$
 \frac{1}{\chi_{mag}} M_x(\mathbf{r}) - 
-\frac{\partial}{\partial x} \, \nabla_{\mathbf{r}} \cdot 
-\int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' = H_{ext,x} \, , 
+\frac{\partial}{\partial x} \, \nabla_{\mathbf{r}} \cdot \frac{1}{4 \pi}
+\int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' = H_{ext,x}(\mathbf{r}) \, , 
 $$
 
 where 
@@ -46,21 +62,23 @@ where
 $$
 \nabla_{\mathbf{r}} \cdot 
 \int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' = 
-\frac{\partial}{\partial x} \int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + 
-\frac{\partial}{\partial y} \int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' 
+\frac{\partial}{\partial x} \frac{1}{4 \pi} \int_{\Omega} \frac{M_x(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + 
+\frac{\partial}{\partial y} \frac{1}{4 \pi} \int_{\Omega} \frac{M_y(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' 
 +
-\frac{\partial}{\partial z} \int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, . 
+\frac{\partial}{\partial z} \frac{1}{4 \pi} \int_{\Omega} \frac{M_z(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, ,  
 $$ 
+
+and simarly for $M_y(\mathbf{r})$ and $M_z(\mathbf{r})$.   
 
 ### Section 2.2: Mesh Generation and Shape Functions 
 
-We wish to compute the magnetization vector $\mathbf{M}(\mathbf{r})$ inside the object $\Omega$. We therefore generate a mesh on $\Omega$. 
+We wish to compute the magnetization vector $\mathbf{M}(\mathbf{r})$ inside the metallic plate $\Omega$. We therefore generate a mesh on $\Omega$. 
 
 <b>Mesh Generation</b> We denote the mesh by $\Omega^h$. We assume that the mesh consists of tetrahedral elements only. We denote the number of nodes, edges, facets and elements of $\Omega^h$ by $N_n$, $N_{ed}$, $N_f$ and $N_e$, respectively. Assume the elements to be denoted by $\left\{ P_{\alpha} | 1 \leq \alpha \leq N_e \right\}$. The union of all elements $P_{\alpha}$ forms the entire domain of computation. That is, we have that $\cup P_{\alpha} | 1 \leq \alpha \leq N_e = \Omega$. We will use this elementary fact in the computation of the matrix $\underline{\underline{A}}$ and the right-hand side vector $\mathbf{b}$.    
 
 We assume that the information to decompose an element $P_{\alpha}$ into a set of facets, a facet into a set of edges and an edge into a set of points to be available (representation of the mesh $\Omega^h$ as a directed a-cyclic graph (DAG) with corresponding operations to find parent nodes and child nodes. See e.g. [wikipedia entry on polygon mesh](https://en.wikipedia.org/wiki/Polygon_mesh).
 
-<b>Shape Functions</b> The mesh $\Omega^h$ allows to define a set of nodal P1 linear Lagrange basis functions $\{ \phi_i(\mathbf{r}) | 1 \leq i \leq N _n \}$ (see classical finite elements method). The functions $\phi_i(\mathbf{r})$ are scalar functions. To be able to cast a vector-valued partial differential equation in weak or variational form, we define $3 \, N_e$ vector-valued shape functions $\boldsymbol{\phi}_{3\,i-2} = \left( \phi_i, 0,0\right)$, 
+<b>Shape Functions</b> The mesh $\Omega^h$ allows to define a set of nodal P1 linear Lagrange basis functions $\{ \phi_i(\mathbf{r}) | 1 \leq i \leq N _n \}$ (see classical finite elements method). The functions $\phi_i(\mathbf{r})$ are scalar functions. To be able to cast a vector-valued partial differential equation in weak or variational form, we define $3 \, N_n$ vector-valued shape functions $\boldsymbol{\phi}_{3\,i-2} = \left( \phi_i, 0,0\right)$, 
 $\boldsymbol{\phi}_{3i-1} = \left( 0, \phi_i, 0\right)$ and 
 $\boldsymbol{\phi}_{3i} = \left( 0, 0, \phi_i \right)$ for $1 \leq i \leq N_n$.  
 
@@ -108,9 +126,9 @@ where the matrix $A$ is a dense $3 \, N_n$-by-$3 \, N_n$ matrix consisting of a 
 **Discrete Weak Form**
 
 $$
-\int_{\Omega} \mathbf{A} \left[ \mathbf{M}(\mathbf{r}) \right] \cdot \boldsymbol{\phi}_k \, d\Omega = 
+\int_{\Omega} {\cal D} \left[ \mathbf{M}(\mathbf{r}) \right] \cdot \boldsymbol{\phi}_k \, d\Omega = 
 \int_{\Omega} \mathbf{H}_{ext} \cdot \boldsymbol{\phi}_k \, d\Omega 
-\hspace{1cm} \forall 1 \leq k \leq N_e 
+\hspace{1cm} \forall 1 \leq k \leq N_n 
 $$ 
 
 or more explicitly 
@@ -121,7 +139,7 @@ $$
 \int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \right] \cdot \boldsymbol{\phi}_k \, d\Omega = \int_{\Omega} \mathbf{H}_{ext} \cdot \boldsymbol{\phi}_k \, d\Omega
 $$ 
 
-and thus after integration by parts 
+and thus after integration by parts on the second term 
 
 $$
 \frac{1}{\chi_{mag}} \int_{\Omega} \mathbf{M}(\mathbf{r}) \cdot \boldsymbol{\phi}_k \, d\Omega - 
@@ -136,7 +154,17 @@ resulting in $3 \, N_e$ equations for the $3 \, N_e$ components of the vector of
 
 **Local Representation**
 
-Assume that $P_{\alpha}$ has $4$ nodes. Assume that $\phi_k({\mathbf r}) = a_k x + b_k y + c_k y + d_k$ is a (scalar) basis function for $1 \leq k \leq N_e^{\alpha}$.  
+Assume that $P_{\alpha}$ has $4$ nodes. Assume that $\phi_k({\mathbf r}) = a_k x + b_k y + c_k y + d_k$ is a (scalar) basis function for $1 \leq k \leq N_e^{\alpha}$.   
+
+**Divergence of Vector Shape Function**
+
+We have that 
+
+$$
+\nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = a_k \text{ if } \mod{k,3} = 0 \\
+\nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = b_k \text{ if } \mod{k,3} = 1 \\
+\nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = c_k \text{ if } \mod{k,3} = 2
+$$
 
 **Bilinear Form**
 
@@ -204,7 +232,15 @@ Use of hcubature (or alternative) to compute the matrix elements. Possibly regul
 
 <b>Physical Problem</b> Study problem formulation. Study how the magnetization vector $\mathbf{M}(\mathbf{r})$ change with  of the plate, dimensions of the plate, and the direction of the external magnetic field. Use to this end literature or a reference code.
 
-### Section 2.3: Focus on Numerical Computations
+### Section 2.3: Solution Method  
+
+Explore weak formulation, weighted residual method, Galerkin approximation and linear system formulation for a sequence of problems of increasing complexity.  
+
+1. Poisson equation;
+2. one-dimensional Fredholm integro-differential equation;
+3. see grad-div equation without kernel;
+
+### Section 3.3: Focus on Numerical Computations
 
 1. use of quadrature implemented in [hcubature.jl](https://github.com/JuliaMath/HCubature.jl) for integration in 1D (possibly singular, look into number of function evaluatiohs), 2D (reference triangle, coordinate transformation, general triangle), 3D (reference tetrahedra, coordinate transformation, general tetrahedra), 4D (by calling hcubature for 2D twice) and 6D (by calling hcubature for 2D twice). See notebook [mom_hcubature](./mom_hcubature.ipynb);
 2. formulate and compute 6D integrals for tetra/tetra interaction assuming no parallel facets. $P_{\alpha}$ with nodes ${\mathbf r}_1 = (0,0,0)$, ${\mathbf r}_2 = (1,0,0)$, ${\mathbf r}_3 = (0,1,0)$ and ${\mathbf r}_4 = (0,0,1)$. 
@@ -215,15 +251,35 @@ $P_{\beta}$ with nodes ${\mathbf r}_1 = (0,0,0)$, ${\mathbf r}_2 = (1,0,0)$, ${\
 6. loop over elements over the mesh to compute the mass matrix. Provide more details (expression of the local matrix per element) here;
 7. use of hcubature to compute the stiffness matrix elements. Possibly regularization in the kernel;
 
-### Section 3.3: Focus on Analytical Computations  
+### Section 4.3: Focus on Analytical Computations  
 
 1. implement point-edge interactions (cfr. seperate notebook); 
 2. implement edge-edge interactions  (cfr. seperate notebook); 
 2. implement point-facet interactions  (cfr. seperate notebook);
 
+## Section 4: The Julia Programming Language
+
+### Introductory Material
+- Elementary introduction: [Thinking Julia](https://benlauwens.github.io/ThinkJulia.jl/latest/book.html);
+- Course: [Scientific-Programming-in-Julia](https://juliateachingctu.github.io/Scientific-Programming-in-Julia/stable/);  
+- Aalto Short Course: [julia-introduction](https://github.com/AaltoRSE/julia-introduction); 
+- Video Collection by Chris Rackauckas: [link](https://www.youtube.com/playlist?list=PLCAl7tjCwWyGjdzOOnlbGnVNZk0kB8VSa) 
+
+### Project Specific Packages 
+
+- Numerical Integral using hcubature 
+- Mesh Generation using GMSH 
+- Variational Formulation and Finite Element Methods: [Minfem.jl](https://minfem.github.io/MinFEM.jl/stable/) 
+
 ## References 
 
-1. Morandi
+1. Morandi (method of moments);
+2. [Introduction to Numerical Methods for Variational Problems](https://link.springer.com/book/10.1007/978-3-030-23788-2) by Hans Petter Langtangen and Kent-Andre Mardal. The [book](https://link.springer.com/book/10.1007/978-3-030-23788-2) is freely available; 
+3. [Wolfgang Bangerth's video lectures](https://www.math.colostate.edu/~bangerth/videos.html); 
+4. [wiki Finite Element Method](https://en.wikipedia.org/wiki/Finite_element_method): Section 3 for the weak form and Section 4 for the finite element discretization;  
+5. [Comsol Multiphysics Finite Element Method](https://www.comsol.com/multiphysics/finite-element-method): more information and illustrations; 
+6. [Comsol Multiphysics Brief Introduction to the Weak Form](https://www.comsol.com/blogs/brief-introduction-weak-form): good introduction to a theoretical concept that provides a basis for the finite element method; 
+7. [Ferrite Introduction to FEM](https://ferrite-fem.github.io/Ferrite.jl/stable/topics/fe_intro/)
 
 
 
