@@ -2,7 +2,13 @@
 
 ## Section 1: Introduction 
 
-When a metalic object is placed inside a magnetic field, the object is magnetized. The objective of this project is to contribute to the development of a new simulator for the magnetization field inside the object. 
+When a metalic object is placed inside a magnetic field, eddy currents are generated in the object. These eddy current tend to oppose the external field. The object is said to be magnetized. The objective of this project is to compute the spatial distribution of the magnetization field in the object. 
+
+This computation has numerous practical applications. In the non-destructive testing of metallic object for instance, anomalies in the magnetic field distribution might signal cracks or other defects. 
+
+Simulators for the magnization field have a long history of development. Traditional approaches to compute the magnetization are based on methods that ressemble the finite difference method. The advantage of these methods is that the resulting linear system is straightforward to assemble. The resulting coefficient matrix, however, is non-symmetric. This renders its large scale deployment cumbersome. 
+
+The objective of this project is to contribute to the development of a novel simulation approach for the magnetization field in metallic objects. Unlike traditional approaches, our appropach is based on a variational formulation. The integro-differential equation for the magnetization is discretized by a weighted residual method. We wish to take advantage of an elegant analytical approach to compute the six-dimensional integrals  resultiong from the source - receiver interactions. The linear systems that resuls from our approach are symmetric and positive definite, and therefore easy to solve. Our approach is therefore expected to render large scale computations feasible.    
 
 (Insert figures here). 
 
@@ -26,7 +32,7 @@ $$
 {\cal D} \left[ \mathbf{M}(\mathbf{r}) \right] = {\mathbf H}_{ext}(\mathbf{r}) \text{ on } \Omega 
 $$
 
-where ${\cal D}$ is the [differential operator](https://en.wikipedia.org/wiki/Differential_operator) 
+where ${\cal D}$ is the [differential operator](https://en.wikipedia.org/wiki/Differential_operator) acting on $\mathbf{M}(\mathbf{r})$ as 
 
 $$
 {\cal D}\left[ \mathbf{M}(\mathbf{r}) \right] = \frac{1}{\chi_{mag}} \mathbf{M}(\mathbf{r}) - 
@@ -43,13 +49,26 @@ $$
 {\cal K}(\mathbf{r},\mathbf{r}') = \frac{1}{4 \pi}  \frac{1}{\|\mathbf{r}' - \mathbf{r} \|} \, . 
 $$
 
-This kernel is singular for $\mathbf{r}' = \mathbf{r}$. The convolution of $\mathbf{M}(\mathbf{r})$ and ${\cal K}(\mathbf{r},\mathbf{r}')$ can be written as 
+This kernel depends on the distance $\|\mathbf{r}' - \mathbf{r} \|$ only. It is singular for $\mathbf{r}' = \mathbf{r}$. The convolution of $\mathbf{M}(\mathbf{r})$ and ${\cal K}(\mathbf{r},\mathbf{r}')$ can be written as 
 
 $$
 {\cal K}(\mathbf{r},\mathbf{r}') * \mathbf{M}(\mathbf{r}) = \frac{1}{4 \pi} \int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, . 
 $$
 
-For future reference, we write the integro-differential equation for $\mathbf{M}(\mathbf{r})$ in explicit form. The first of the three scalae equations is 
+For future reference, we will split ${\cal D}\left[ \mathbf{M}(\mathbf{r}) \right]$ in two terms as ${\cal D}\left[ \mathbf{M}(\mathbf{r}) \right] = {\cal D}_1\left[ \mathbf{M}(\mathbf{r}) \right] + {\cal D}_2 \left[ \mathbf{M}(\mathbf{r}) \right]$, where ${\cal D}_1$ is merely a scaling  
+
+$$
+{\cal D}_1\left[ \mathbf{M}(\mathbf{r}) \right] = \frac{1}{\chi_{mag}} \mathbf{M}(\mathbf{r})
+$$
+
+and where ${\cal D}_2$ is the integro-differential part of the equation
+
+$$
+{\cal D}_2\left[ \mathbf{M}(\mathbf{r}) \right] = - 
+\nabla_{\mathbf{r}} \, \nabla_{\mathbf{r}} \cdot {\cal K}(\mathbf{r},\mathbf{r}') * \mathbf{M}(\mathbf{r}) \, .
+$$
+
+We also write the integro-differential equation for $\mathbf{M}(\mathbf{r})$ in explicit form. The first of the three scalae equations is 
 
 $$
 \frac{1}{\chi_{mag}} M_x(\mathbf{r}) - 
@@ -86,9 +105,7 @@ More information on the mesh generation is provided in the [notebook](./mom_3d_p
 
 ### Section 3.2: Galerkin Method    
 
-Here we describe the [Galerkin method](https://en.wikipedia.org/wiki/Galerkin_method) that allows to convert the system of integral partial differential-equations for $\mathbf{M}(\mathbf{r})$ into a weak or variational formulation. This variational formulation will allow a spatial discretization. 
-
-(see also example of the weak formulation of the Poisson equation as [wiki on weak formulation](https://en.wikipedia.org/wiki/Weak_formulation).) 
+Here we describe the [Galerkin method](https://en.wikipedia.org/wiki/Galerkin_method) that allows to convert the system of integral partial differential-equations for $\mathbf{M}(\mathbf{r})$ into a weak or variational formulation. This variational formulation will allow a spatial discretization. See also example of the weak formulation of the Poisson equation as [wiki on weak formulation](https://en.wikipedia.org/wiki/Weak_formulation).) 
 
 Assume $g(\mathbf{r})$ and $h(\mathbf{r})$ to be scalar functions on $\Omega$ such that 
 
@@ -115,13 +132,14 @@ M_y(\mathbf{r}) = \sum_{i=1}^{N_n} d_i \, \phi_i(\mathbf{r}) \\
 M_z(\mathbf{r}) = \sum_{i=1}^{N_n} e_i \, \phi_i(\mathbf{r}) 
 \end{eqnarray}
 
-Note that components $M_x(\mathbf{r})$, $M_y(\mathbf{r})$ and $M_z(\mathbf{r})$ are each expanded in the same basis with proper expansion coefficients. In case of linear Lagrange shape functions on tetrahedra, the element $P_{\alpha}$ has 4 local degrees of freediom per components, thus in total $3*4=12$ local degrees of freedom. Mapping from local to global degrees of freedom. The expansion coefficients $c_i$, $d_i$ and $e_i$ can stacked into a global vector $\mathbf{u}$ of dimension $3 \, N_n$ where $\mathbf{u}^T = \begin{pmatrix} \mathbf{c}^T \mathbf{d}^T \mathbf{e}^T \end{pmatrix}$. This global vector is the solution of the Galerkin-MoM linear system 
+Note that components $M_x(\mathbf{r})$, $M_y(\mathbf{r})$ and $M_z(\mathbf{r})$ are expanded in the same basis with proper expansion coefficients. In case of linear Lagrange shape functions on tetrahedra, the element $P_{\alpha}$ has 4 local degrees of freediom per components, thus in total $3*4=12$ local degrees of freedom. Mapping from local to global degrees of freedom. The expansion coefficients $c_i$, $d_i$ and $e_i$ can stacked into a global vector $\mathbf{u}$ of dimension $3 \, N_n$ where $\mathbf{u}^T = \begin{pmatrix} \mathbf{c}^T \mathbf{d}^T \mathbf{e}^T \end{pmatrix}$. This global vector is the solution of the Galerkin-MoM linear system 
 
 $$
 \underline{\underline{A}} \, \mathbf{u} = \mathbf{b}
 $$
 
-where the matrix $A$ is a dense $3 \, N_n$-by-$3 \, N_n$ matrix consisting of a stiffness part $A^{(2)}$ and a mass matrix part $A^{(1)}$.  
+where the matrix $\underline{\underline{A}} = \underline{\underline{A}}^{(1)} + \underline{\underline{A}}^{(2)}$ is a dense $3 \, N_n$-by-$3 \, N_n$ matrix consisting of 
+mass matrix part $\underline{\underline{A}}^{(1)}$ and a stiffness part $\underline{\underline{A}}^{(2)}$. The mass matrix is the spatial discretization of the differential operator ${\cal D}_1 [\mathbf{M}(\mathbf{r})]$ and is very similar to a mass matrix in a classical finite element formulation. The stiffness matrix is the spatial discretization of the differential operator ${\cal D}_2 [\mathbf{M}(\mathbf{r})]$. Assembling this matrix is the main challenge of this project. 
 
 **Discrete Weak Form**
 
@@ -152,21 +170,17 @@ resulting in $3 \, N_e$ equations for the $3 \, N_e$ components of the vector of
 
 ### Section 4.2: Element-by-element Assembly of Stiffness Matrix
 
-**Local Representation**
+**Local Representation** The tetrahedral element $P_{\alpha}$ has $4$ nodes. Linear Lagrange shape functions on this mesh can be expressed as $\phi_k({\mathbf r}) = a_k x + b_k y + c_k y + d_k$ is a (scalar) basis function for $1 \leq k \leq N_e^{\alpha}$.   
 
-Assume that $P_{\alpha}$ has $4$ nodes. Assume that $\phi_k({\mathbf r}) = a_k x + b_k y + c_k y + d_k$ is a (scalar) basis function for $1 \leq k \leq N_e^{\alpha}$.   
-
-**Divergence of Vector Shape Function**
-
-We have that 
+**Divergence of Vector Shape Function** The divergence of the vector-valued shape functions can be expressed as 
 
 $$
-\nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = a_k \text{ if } \mod{k,3} = 0 \\
-\nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = b_k \text{ if } \mod{k,3} = 1 \\
-\nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = c_k \text{ if } \mod{k,3} = 2
+\nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = \frac{\partial}{\partial x} (a_k x + b_k y + c_k y + d_k) = a_k \text{ if } \mod(k,3) = 1 \\
+\nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = \frac{\partial}{\partial y} (a_k x + b_k y + c_k y + d_k)= b_k \text{ if } \mod(k,3) = 2 \\
+\nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = \frac{\partial}{\partial z} (a_k x + b_k y + c_k y + d_k)= c_k \text{ if } \mod(k,3) = 0
 $$
 
-**Bilinear Form**
+**Bilinear Form** By writing $d\Omega = \sum_{\alpha} dP_{\alpha}$ and $d\Omega' = \sum_{\beta} dP_{\beta}$, we arrive at 
 
 $$
 \underline{\underline{A}}^{(2)} = \sum_{\alpha} \underline{\underline{A}}_{\alpha}^{(2)} = \sum_{\alpha\beta} \underline{\underline{A}}_{\alpha\beta}^{(2)} \text{ of size } 3 \, N_n \text{ by } 3 \, N_n 
