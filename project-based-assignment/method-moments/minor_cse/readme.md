@@ -2,13 +2,13 @@
 
 ## Section 1: Introduction 
 
-When a metalic object is placed inside a magnetic field, eddy currents are generated in the object. These eddy current tend to oppose the external field. The object is said to be magnetized. The objective of this project is to compute the spatial distribution of the magnetization field in the object. 
+When a metalic object is placed inside a magnetic field, eddy currents are generated in the object. These eddy current tend to oppose the external field. The object is said to be magnetized. The objective of this project is to compute the spatial distribution of the magnetization field in the object. A system of coupled partial differential equations for the three components of the magnetization therefore needs to be solved numerically. These equations contains an integral term that renders this tasks challenging.     
 
-This computation has numerous practical applications. In the non-destructive testing of metallic object for instance, anomalies in the magnetic field distribution might signal cracks or other defects. 
+The computation of the magnitization field has numerous practical applications. In the non-destructive testing of metallic object for instance, anomalies in the magnetic field distribution might signal cracks or other defects. Some medical imaging techniques are based on similar principles. 
 
-Simulators for the magnization field have a long history of development. Traditional approaches to compute the magnetization are based on methods that ressemble the finite difference method. The advantage of these methods is that the resulting linear system is straightforward to assemble. The resulting coefficient matrix, however, is non-symmetric. This renders its large scale deployment cumbersome. 
+Simulators for the magnization field have a long history of development. Traditional approaches to compute the magnetization are based on so-called collocation methods. These methods ressemble the finite difference method. The advantage of these methods is that the resulting linear system is straightforward to assemble. In the presence of the integral term in the partial differential equations, however, the resulting coefficient matrix becomes non-symmetric. This renders its large scale deployment cumbersome. 
 
-The objective of this project is to contribute to the development of a novel simulation approach for the magnetization field in metallic objects. Unlike traditional approaches, our appropach is based on a variational formulation. The integro-differential equation for the magnetization is discretized by a weighted residual method. We wish to take advantage of an elegant analytical approach to compute the six-dimensional integrals  resultiong from the source - receiver interactions. The linear systems that resuls from our approach are symmetric and positive definite, and therefore easy to solve. Our approach is therefore expected to render large scale computations feasible.    
+The objective of this project is to contribute to the development of a novel simulation approach for the magnetization field in metallic objects. Unlike traditional approaches, our appropach is based on a variational formulation. The integro-differential equation for the magnetization is discretized by a weighted residual method. We wish to take advantage of an elegant analytical approach to compute the six-dimensional integrals  resulting from the source - receiver interactions. The linear systems that resuls from our approach are symmetric and positive definite, and therefore easy to solve. Our approach is therefore expected to render large scale computations feasible.    
 
 (Insert figures here). 
 
@@ -16,9 +16,9 @@ The objective of this project is to contribute to the development of a novel sim
 
 ### Section 1.2: Problem Formulation 
 
-<b>Computational Domain</b> Assume the computational domain $\Omega$ to denote a cube with lenght $L$, height $H$ and depth $D$ alligned with the coordinate axes. Then $0 \leq x \leq L$, $0 \leq y \leq H$ and $0 \leq z \leq D$ and $\Omega = [0,L] \times [0,H] \times [0,D]$. Typical values are $L = H = 1 \, \text{m}$ and $D = 0.1 \, \text{m}$. Assume $\mathbf{r} = (x,y,z)$ to denote the position vector inside $\Omega$. 
+<b>Computational Domain</b> Assume the computational domain $\Omega$ to denote a cube with lenght $L$, height $H$ and depth $D$ alligned with the coordinate axes. Then $0 \leq x \leq L$, $0 \leq y \leq H$ and $0 \leq z \leq D$ and $\Omega = [0,L] \times [0,H] \times [0,D]$. Typical values are $L = H = 1 \, \text{m}$ and $0.01 \, \text{m} \leq D \leq 0.1 \, \text{m}$. Assume $\mathbf{r} = (x,y,z)$ to denote the position vector inside $\Omega$. 
 
-<b>Material Properties</b> Assume that $\Omega$ has a [magnetic susceptibility](https://en.wikipedia.org/wiki/Magnetic_susceptibility) denoted by $\chi_{mag}$. Then $\Omega$ will magnetize in an external field and thus mimmic a metalic plate. Here it will be suffucient to assume that the plate is homogeneous and that therefore $\chi_{mag}$ is constant. Assume that $200 \leq \chi_{mag} \leq 200,000$ (dimensionless). Non-homogeneous plate can be modeled assuming that $\chi_{mag}$ is piecewise constant. Non-linear magnetization effects are excluded in this project.   
+<b>Material Properties</b> Assume that $\Omega$ has a [magnetic susceptibility](https://en.wikipedia.org/wiki/Magnetic_susceptibility) denoted by $\chi_{mag}$. Then $\Omega$ will magnetize in an external field and thus mimmic a metalic plate. Here it will be suffucient to assume that the plate is homogeneous and that therefore $\chi_{mag}$ is constant. Assume that $10 \leq \chi_{mag} \leq 1000$ (dimensionless). Non-homogeneous plate can be modeled assuming that $\chi_{mag}$ is piecewise constant. Non-linear magnetization effects are excluded in this project.   
 
 <b>Problem Description</b> Assume $\Omega$ to be placed in external (assumed known or given) [magnetic field](https://en.wikipedia.org/wiki/Magnetic_field). Let the external magnetic field be denoted by ${\mathbf H}_{ext}(\mathbf{r})$ in units Ampere per meter. Then ${\mathbf H}_{ext}(\mathbf{r})$ is a vector field with three components. This can be expressed as ${\mathbf H}_{ext}(\mathbf{r}) = \left( H_{ext,x}(\mathbf{r}), H_{ext,y}(\mathbf{r}), H_{ext,z}(\mathbf{r})\right)$ or as $ \mathbf{H}_{ext}(\mathbf{r}) = H_{ext,x}(\mathbf{r}) \mathbf{i} + H_{ext,y}(\mathbf{r}) \mathbf{j} + H_{ext,z}(\mathbf{r}) \mathbf{k}$. In case that the external magnetic field is constant and aligned with the $x$-direction, we can write that $\mathbf{H}_{ext} = \left( H_{0,ext}, 0,0\right)$ where $H_{0,ext}$ is a constant.
 
@@ -26,7 +26,9 @@ The goal of the project is to compute the [magnetization vector](https://en.wiki
 
 The physical problem can thus be stated as: given the scalar $\chi_{mag}$ in $\Omega$ and given the vector field ${\mathbf H}_{ext}(\mathbf{r})$, compute the vector field ${\mathbf M}(\mathbf{r})$.
 
-<b>Mathematical Model</b> (Provide more explanation on the eqiuation for $\mathbf{M}(\mathbf{r})$. State that total magnetic field ${\mathbf H}_{tot}$ in $\Omega$ is sum of two components. The external field ${\mathbf H}_{ext}$ and the induced field ${\mathbf H}_{M}$. We thus have that ${\mathbf H}_{ext} + {\mathbf H}_{M} = {\mathbf H}_{tot}$ where ${\mathbf H}_{M} =  \text{grad}_{\mathbf{r}} \phi_M = \nabla_{\mathbf{r}} \phi_M$ and where $\phi_M$ can be related to $\mathbf{M}$) We wish to compute $\mathbf{M}(\mathbf{r})$ by solving a partial differential equation in which the external field ${\mathbf H}_{ext}(\mathbf{r})$ acts as a source term (i.e., ${\mathbf H}_{ext}(\mathbf{r})$ appears in the right-hand side of the equation). This differential equation can be written as  
+<b>Mathematical Model</b> (Provide more explanation on the eqiuation for $\mathbf{M}(\mathbf{r})$. State that total magnetic field ${\mathbf H}_{tot}$ in $\Omega$ is sum of two components. The external field ${\mathbf H}_{ext}$ and the induced field ${\mathbf H}_{M}$. We thus have that ${\mathbf H}_{ext} + {\mathbf H}_{M} = {\mathbf H}_{tot}$ where ${\mathbf H}_{M} =  \text{grad}_{\mathbf{r}} \phi_M = \nabla_{\mathbf{r}} \phi_M$ and where $\phi_M$ can be related to $\mathbf{M}$. Point out the alternative derivation of using the magnetic flux ${\mathbf B}$ as in Morandi e.g.  
+
+We wish to compute $\mathbf{M}(\mathbf{r})$ by solving a partial differential equation in which the external field ${\mathbf H}_{ext}(\mathbf{r})$ acts as a source term (i.e., ${\mathbf H}_{ext}(\mathbf{r})$ appears in the right-hand side of the equation). This differential equation can be written as  
 
 $$
 {\cal D} \left[ \mathbf{M}(\mathbf{r}) \right] = {\mathbf H}_{ext}(\mathbf{r}) \text{ on } \Omega 
@@ -93,7 +95,7 @@ and simarly for $M_y(\mathbf{r})$ and $M_z(\mathbf{r})$.
 
 We wish to compute the magnetization vector $\mathbf{M}(\mathbf{r})$ inside the metallic plate $\Omega$. We therefore generate a mesh on $\Omega$. 
 
-<b>Mesh Generation</b> We denote the mesh by $\Omega^h$. We assume that the mesh consists of tetrahedral elements only. We denote the number of nodes, edges, facets and elements of $\Omega^h$ by $N_n$, $N_{ed}$, $N_f$ and $N_e$, respectively. Assume the elements to be denoted by $\left\{ P_{\alpha} | 1 \leq \alpha \leq N_e \right\}$. The union of all elements $P_{\alpha}$ forms the entire domain of computation. That is, we have that $\cup P_{\alpha} | 1 \leq \alpha \leq N_e = \Omega$. We will use this elementary fact in the computation of the matrix $\underline{\underline{A}}$ and the right-hand side vector $\mathbf{b}$.    
+<b>Mesh Generation</b> We denote the mesh by $\Omega^h$. We assume that the mesh consists of tetrahedral elements only. We denote the number of nodes, edges, facets and elements of $\Omega^h$ by $N_n$, $N_{ed}$, $N_f$ and $N_e$, respectively. Assume the nodes and the elements to be denoted by ${\mathbf x}_i$ for $1 \leq i \leq N_n$ and by $P_{\alpha}$ for $1 \leq \alpha \leq N_e$, respectively. The union of all elements $P_{\alpha}$ forms the entire domain of computation. That is, we have that $\cup P_{\alpha} | 1 \leq \alpha \leq N_e = \Omega$. We will use this elementary fact in the computation of the matrix $\underline{\underline{A}}$ and the right-hand side vector $\mathbf{b}$.    
 
 We assume that the information to decompose an element $P_{\alpha}$ into a set of facets, a facet into a set of edges and an edge into a set of points to be available (representation of the mesh $\Omega^h$ as a directed a-cyclic graph (DAG) with corresponding operations to find parent nodes and child nodes. See e.g. [wikipedia entry on polygon mesh](https://en.wikipedia.org/wiki/Polygon_mesh).
 
@@ -170,7 +172,7 @@ resulting in $3 \, N_e$ equations for the $3 \, N_e$ components of the vector of
 
 ### Section 4.2: Element-by-element Assembly of Stiffness Matrix
 
-**Local Representation** The tetrahedral element $P_{\alpha}$ has $4$ nodes. Linear Lagrange shape functions on this mesh can be expressed as $\phi_k({\mathbf r}) = a_k x + b_k y + c_k y + d_k$ is a (scalar) basis function for $1 \leq k \leq N_e^{\alpha}$.   
+**Definition of Shape Functions on a Single Tetrahedral Element** The tetrahedral mesh element $P_{\alpha}$ has $4$ nodes. Assume these nodes to be denote ${\mathbf x}_1$, ${\mathbf x}_2$, ${\mathbf x}_3$ and ${\mathbf x}_4$ (in local numbering on this single element). The linear Lagrange shape functions on this element can be expressed as $\phi_k({\mathbf r}) = a_k x + b_k y + c_k y + d_k$ for $1 \leq k \leq 4$, where $a_k$, $b_k$, $c_k$ and $d_k$ are coefficients. These coefficients are choosen such that the shape functions satisfy the constraint that $\phi_k({\mathbf x}_{\ell}) = \delta_{k\ell}$ for $1 \leq k,\ell \leq 4$. Linear system for these coefficients. 
 
 **Divergence of Vector Shape Function** The divergence of the vector-valued shape functions can be expressed as 
 
@@ -198,8 +200,18 @@ A_{\alpha\beta}^{zx} & A_{\alpha\beta}^{zy} &  A_{\alpha\beta}^{zz}
 \text{ of size } 12 \text{ by } 12
 $$
 
-where (row determined by the expansion of the magnetization, columns determined by the test function) 
-(assuming tetrahedra and $N_e^{\alpha}=4$). 
+where (row determined by the expansion of the magnetization, columns determined by the test function) (assuming tetrahedra and $N_e^{\alpha}=4$). 
+
+$$
+\underline{\underline{A}}_{loc,\alpha\beta}^{(2)} = 
+\begin{pmatrix} 
+{\mathbf a}^{\alpha} ({\mathbf a}^{\alpha\beta})^T & {\mathbf a}^{\alpha} ({\mathbf b}^{\alpha\beta})^T & {\mathbf a}^{\alpha} ({\mathbf c}^{\alpha\beta})^T \\ 
+{\mathbf b}^{\alpha} ({\mathbf a}^{\alpha\beta})^T & {\mathbf b}^{\alpha} ({\mathbf b}^{\alpha\beta})^T & {\mathbf b}^{\alpha} ({\mathbf c}^{\alpha\beta})^T \\
+{\mathbf c}^{\alpha} ({\mathbf a}^{\alpha\beta})^T & {\mathbf c}^{\alpha} ({\mathbf b}^{\alpha\beta})^T & {\mathbf c}^{\alpha} ({\mathbf c}^{\alpha\beta})^T 
+\end{pmatrix}
+$$
+
+More explicitly we have that 
 
 $$
 A_{\alpha\beta}^{xx} = 
@@ -291,14 +303,58 @@ $P_{\beta}$ with nodes ${\mathbf r}_1 = (0,0,0)$, ${\mathbf r}_2 = (1,0,0)$, ${\
 
 ## References 
 
-1. Morandi (method of moments);
-2. [Introduction to Numerical Methods for Variational Problems](https://link.springer.com/book/10.1007/978-3-030-23788-2) by Hans Petter Langtangen and Kent-Andre Mardal. The [book](https://link.springer.com/book/10.1007/978-3-030-23788-2) is freely available; 
-3. [Wolfgang Bangerth's video lectures](https://www.math.colostate.edu/~bangerth/videos.html); 
-4. [wiki Finite Element Method](https://en.wikipedia.org/wiki/Finite_element_method): Section 3 for the weak form and Section 4 for the finite element discretization;  
-5. [Comsol Multiphysics Finite Element Method](https://www.comsol.com/multiphysics/finite-element-method): more information and illustrations; 
-6. [Comsol Multiphysics Brief Introduction to the Weak Form](https://www.comsol.com/blogs/brief-introduction-weak-form): good introduction to a theoretical concept that provides a basis for the finite element method; 
-7. [Ferrite Introduction to FEM](https://ferrite-fem.github.io/Ferrite.jl/stable/topics/fe_intro/)
+### References of the Method of Moments 
 
+(Provide more guidance on what and how to read.) 
+
+1. R. F. Harrington, <i>Field Computation by Moment Methods</i>, Wiley-IEEE Press, 1993. 
+2. Morandi, A., Fabbri, M., & Ribani, P. L. (2010). <i>A modified formulation of the volume integral equations method for 3-D magnetostatics</i>. IEEE transactions on magnetics, 46(11), 3848-3859. And similar references;
+3. Le-Duc, T., Meunier, G., Chadebec, O., Guichon, J. M., & Bastos, J. P. A. (2013). <i> General integral formulation for the 3D thin shell modeling</i>. IEEE transactions on magnetics, 49(5), 1989-1992. And similar references; 
+
+### References on the weighted residual method, the variational formulation and the finite element method 
+
+1. [Introduction to Numerical Methods for Variational Problems](https://link.springer.com/book/10.1007/978-3-030-23788-2) by Hans Petter Langtangen and Kent-Andre Mardal. The [book](https://link.springer.com/book/10.1007/978-3-030-23788-2) is freely available; 
+2. [Wolfgang Bangerth's video lectures](https://www.math.colostate.edu/~bangerth/videos.html); 
+3. [wiki Finite Element Method](https://en.wikipedia.org/wiki/Finite_element_method): Section 3 for the weak form and Section 4 for the finite element discretization;  
+4. [Comsol Multiphysics Finite Element Method](https://www.comsol.com/multiphysics/finite-element-method): more information and illustrations; 
+5. [Comsol Multiphysics Brief Introduction to the Weak Form](https://www.comsol.com/blogs/brief-introduction-weak-form): good introduction to a theoretical concept that provides a basis for the finite element method; 
+6. [Ferrite Introduction to FEM](https://ferrite-fem.github.io/Ferrite.jl/stable/topics/fe_intro/)
+
+
+
+**Reference Tetrahedron** Assume the reference tetrahedron to have the nodes ${\mathbf x}_1 = (0,0,0)$, ${\mathbf x}_2 = (1,0,0)$, ${\mathbf x}_3 = (0,1,0)$ and ${\mathbf x}_4 = (0,0,1)$. Then the shape function are defined as 
+
+$$
+\phi_1({\mathbf r}) = 1 - x - y - z \\
+\phi_2({\mathbf r}) = x \\
+\phi_3({\mathbf r}) = y \\
+\phi_4({\mathbf r}) = z 
+$$
+
+**Two-Tetrahedra Test Case** For future reference, we define a test case involving two tetrahedra $P_{\alpha}$ and $P_{\beta}$. Assume $P_{\alpha}$ to be the reference element. 
+Assume $P_{\beta}$ to be the reference element shifted along the $x$-axis by a distance of $x_0$. Then 
+
+$$
+\phi^{\alpha}_1({\mathbf r}) = 1 - x - y - z \\
+\phi^{\alpha}_2({\mathbf r}) = x \\
+\phi^{\alpha}_3({\mathbf r}) = y \\
+\phi^{\alpha}_4({\mathbf r}) = z 
+$$
+
+$$
+\phi^{\beta}_1({\mathbf r}) = 1 - (x-x_0) - y - z \\
+\phi^{\beta}_2({\mathbf r}) = x - x_0 \\
+\phi^{\beta}_3({\mathbf r}) = y \\
+\phi^{\beta}_4({\mathbf r}) = z 
+$$
+
+$$
+{\mathbf a}^{\alpha} = \begin{pmatrix} -1 \\ 1 \\ 0 \\ 0 \end{pmatrix}
+\hspace{.5cm}
+{\mathbf b}^{\alpha} = \begin{pmatrix} -1 \\ 0 \\ 1 \\ 0 \end{pmatrix}
+\hspace{.5cm}
+{\mathbf c}^{\alpha} = \begin{pmatrix} -1 \\ 0 \\ 0 \\ 1 \end{pmatrix}
+$$
 
 
 
