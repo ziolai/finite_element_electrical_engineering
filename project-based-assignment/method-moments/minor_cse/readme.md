@@ -2,13 +2,15 @@
 
 ## Section 1: Introduction 
 
-When a metalic object is placed inside a magnetic field, eddy currents are generated in the object. These eddy current tend to oppose the external field. The object is said to be magnetized. The objective of this project is to compute the spatial distribution of the magnetization field in the object. A system of coupled partial differential equations for the three components of the magnetization therefore needs to be solved numerically. These equations contains an integral term that renders this tasks challenging.     
+When a metalic object is placed inside a magnetic field, eddy currents are generated in the object. These eddy currents tend to oppose the external field. The object is said to be magnetized. The objective of this project is to compute the spatial distribution of the magnetization field inside the object. A coupled system of three partial differential equations for the components of the magnetization vector therefore needs to be solved numerically. These equations contains an integral term that renders this tasks challenging.     
 
-The computation of the magnitization field has numerous practical applications. In the non-destructive testing of metallic object for instance, anomalies in the magnetic field distribution might signal cracks or other defects. Some medical imaging techniques are based on similar principles. 
+The computation of the magnitization field has numerous practical applications. In the non-destructive testing of metallic object for instance, anomalies in the magnetic field distribution signal cracks or other defects. Other applications can be found in medical imaging, geophysical prospecting and magnetic field sensoring. 
 
-Simulators for the magnization field have a long history of development. Traditional approaches to compute the magnetization are based on so-called collocation methods. These methods ressemble the finite difference method. The advantage of these methods is that the resulting linear system is straightforward to assemble. In the presence of the integral term in the partial differential equations, however, the resulting coefficient matrix becomes non-symmetric. This renders its large scale deployment cumbersome. 
+Simulators for the magnization field have a long history of development. Traditional approaches are based on so-called collocation methods. These methods ressemble the finite difference method. The advantage of these methods is that the resulting linear system is straightforward to assemble. In the presence of the integral term in the partial differential equations, however, the resulting coefficient matrix becomes non-symmetric. This renders its large scale deployment cumbersome. 
 
-The objective of this project is to contribute to the development of a novel simulation approach for the magnetization field in metallic objects. Unlike traditional approaches, our appropach is based on a variational formulation. The integro-differential equation for the magnetization is discretized by a weighted residual method. We wish to take advantage of an elegant analytical approach to compute the six-dimensional integrals  resulting from the source - receiver interactions. The linear systems that resuls from our approach are symmetric and positive definite, and therefore easy to solve. Our approach is therefore expected to render large scale computations feasible.    
+The objective of this project is to contribute to the development of a novel simulation approach for the magnetization field inside metallic objects. Unlike traditional approaches, our appropach is based on a variational formulation. Our approach thus ressembles a finite element method. The system of integro-differential equations for the components of the magnetization field is discretized by a weighted residual method. The construction of the coefficient matrix of the resulting linear system requires the computation of the six-dimensional singular integrals that represent the source - receiver interactions. These integrals can be computed using an elegant analytical approach based on Euler's integration theorem for homogeneous functions. The linear systems that resuls from our approach are symmetric and positive definite. It is therefore easy to solve. 
+
+The approach we suggest here is expected to render the computation of the magnetization field in realistic applications feasible.    
 
 (Insert figures here). 
 
@@ -20,13 +22,13 @@ The objective of this project is to contribute to the development of a novel sim
 
 <b>Material Properties</b> Assume that $\Omega$ has a [magnetic susceptibility](https://en.wikipedia.org/wiki/Magnetic_susceptibility) denoted by $\chi_{mag}$. Then $\Omega$ will magnetize in an external field and thus mimmic a metalic plate. Here it will be suffucient to assume that the plate is homogeneous and that therefore $\chi_{mag}$ is constant. Assume that $10 \leq \chi_{mag} \leq 1000$ (dimensionless). Non-homogeneous plate can be modeled assuming that $\chi_{mag}$ is piecewise constant. Non-linear magnetization effects are excluded in this project.   
 
-<b>Problem Description</b> Assume $\Omega$ to be placed in external (assumed known or given) [magnetic field](https://en.wikipedia.org/wiki/Magnetic_field). Let the external magnetic field be denoted by ${\mathbf H}_{ext}(\mathbf{r})$ in units Ampere per meter. Then ${\mathbf H}_{ext}(\mathbf{r})$ is a vector field with three components. This can be expressed as ${\mathbf H}_{ext}(\mathbf{r}) = \left( H_{ext,x}(\mathbf{r}), H_{ext,y}(\mathbf{r}), H_{ext,z}(\mathbf{r})\right)$ or as $ \mathbf{H}_{ext}(\mathbf{r}) = H_{ext,x}(\mathbf{r}) \mathbf{i} + H_{ext,y}(\mathbf{r}) \mathbf{j} + H_{ext,z}(\mathbf{r}) \mathbf{k}$. In case that the external magnetic field is constant and aligned with the $x$-direction, we can write that $\mathbf{H}_{ext} = \left( H_{0,ext}, 0,0\right)$ where $H_{0,ext}$ is a constant.
+<b>Problem Description</b> Assume $\Omega$ to be placed in external (assumed known or given) [magnetic field](https://en.wikipedia.org/wiki/Magnetic_field). Let the external magnetic field be denoted by ${\mathbf H}_{ext}(\mathbf{r})$ in units Ampere per meter. Then ${\mathbf H}_{ext}(\mathbf{r})$ is a vector field with three components. This can be expressed as ${\mathbf H}_{ext}(\mathbf{r}) = \left( H_{ext,x}(\mathbf{r}), H_{ext,y}(\mathbf{r}), H_{ext,z}(\mathbf{r})\right)$ or as $ \mathbf{H}_{ext}(\mathbf{r}) = H_{ext,x}(\mathbf{r}) \mathbf{i} + H_{ext,y}(\mathbf{r}) \mathbf{j} + H_{ext,z}(\mathbf{r}) \mathbf{k}$. In case that the external magnetic field is constant and aligned with the $x$-direction, we can write that $\mathbf{H}_{ext} = \left( H_{0,ext}, 0,0\right)$ where $H_{0,ext}$ is a constant. (Provide representative value for the strength of the magnetic field. Neglect non-linear material effects.)
 
 The goal of the project is to compute the [magnetization vector](https://en.wikipedia.org/wiki/Magnetization) in the plate. This vector field is denoted by $\mathbf{M}(\mathbf{r})$ in units Ampere per meter. This is a vector field with three components. The vector field to be computed can thus be written as $\mathbf{M}(\mathbf{r}) = \left( M_x(\mathbf{r}), M_y(\mathbf{r}), M_z(\mathbf{r})\right)$. 
 
 The physical problem can thus be stated as: given the scalar $\chi_{mag}$ in $\Omega$ and given the vector field ${\mathbf H}_{ext}(\mathbf{r})$, compute the vector field ${\mathbf M}(\mathbf{r})$.
 
-<b>Mathematical Model</b> (Provide more explanation on the eqiuation for $\mathbf{M}(\mathbf{r})$. State that total magnetic field ${\mathbf H}_{tot}$ in $\Omega$ is sum of two components. The external field ${\mathbf H}_{ext}$ and the induced field ${\mathbf H}_{M}$. We thus have that ${\mathbf H}_{ext} + {\mathbf H}_{M} = {\mathbf H}_{tot}$ where ${\mathbf H}_{M} =  \text{grad}_{\mathbf{r}} \phi_M = \nabla_{\mathbf{r}} \phi_M$ and where $\phi_M$ can be related to $\mathbf{M}$. Point out the alternative derivation of using the magnetic flux ${\mathbf B}$ as in Morandi e.g.  
+<b>Mathematical Model</b> (Provide a more detailed derivation on the coupled system of integro-differential eqiuations for the magnetization field $\mathbf{M}(\mathbf{r})$. State that total magnetic field ${\mathbf H}_{tot}$ in $\Omega$ is sum of two components. The external field ${\mathbf H}_{ext}$ and the induced field ${\mathbf H}_{M}$. We thus have that ${\mathbf H}_{ext} + {\mathbf H}_{M} = {\mathbf H}_{tot}$ where ${\mathbf H}_{M} =  \text{grad}_{\mathbf{r}} \phi_M = \nabla_{\mathbf{r}} \phi_M$ and where $\phi_M$ can be related to $\mathbf{M}$. Point out the alternative derivation of using the magnetic flux ${\mathbf B}$ as in Morandi e.g.  
 
 We wish to compute $\mathbf{M}(\mathbf{r})$ by solving a partial differential equation in which the external field ${\mathbf H}_{ext}(\mathbf{r})$ acts as a source term (i.e., ${\mathbf H}_{ext}(\mathbf{r})$ appears in the right-hand side of the equation). This differential equation can be written as  
 
@@ -107,7 +109,7 @@ More information on the mesh generation is provided in the [notebook](./mom_3d_p
 
 ### Section 3.2: Galerkin Method    
 
-Here we describe the [Galerkin method](https://en.wikipedia.org/wiki/Galerkin_method) that allows to convert the system of integral partial differential-equations for $\mathbf{M}(\mathbf{r})$ into a weak or variational formulation. This variational formulation will allow a spatial discretization. See also example of the weak formulation of the Poisson equation as [wiki on weak formulation](https://en.wikipedia.org/wiki/Weak_formulation).) 
+Here we describe the [Galerkin method](https://en.wikipedia.org/wiki/Galerkin_method) that allows to convert the system of integral partial differential-equations for $\mathbf{M}(\mathbf{r})$ into a weak or variational formulation. This variational formulation will allow a spatial discretization. See also example of the weak formulation of the Poisson equation as [wiki on weak formulation](https://en.wikipedia.org/wiki/Weak_formulation)). (Requires example of weak form of a c oupled system of differential equations.) 
 
 Assume $g(\mathbf{r})$ and $h(\mathbf{r})$ to be scalar functions on $\Omega$ such that 
 
@@ -115,16 +117,23 @@ $$
 g(\mathbf{r}) = \int_{\Omega} \frac{h(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, . 
 $$
 
-Then by decomposing $\Omega$ into a set of volumes $P_{\alpha}$, we find that 
+By decomposing $\Omega$ into a set of volumes $P_{\beta}$, we find that
+
+$$
+g(\mathbf{r}) = \int_{\Omega} \frac{h(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' = \sum_{\beta=1}^{N_e}  \int_{P_{\beta}} \frac{h(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, . 
+$$
+
+Then by decomposing $\Omega$ again into a set of volumes $P_{\alpha}$, the volume average of $g(\mathbf{r})$ can be written as  
 
 $$
 \begin{eqnarray}
 \int_{\Omega} g(\mathbf{r}) \, d\Omega = 
 \sum_{\alpha=1}^{N_e}  \int_{P_{\alpha}} g(\mathbf{r}) \, d\Omega 
-& = & \sum_{\alpha,\beta=1}^{N_e}  \int_{P_{\alpha}} \int_{P_{\beta}} \frac{h(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, d\Omega \\ 
-& = & \sum_{\alpha,\beta=1}^{N_e}  \int_{\mathbb{R}^3} \int_{\mathbb{R}^3} \frac{h(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, \mathbb{1}_{P_{\beta}} \, d\Omega' \, \mathbb{1}_{P_{\alpha}} \, d\Omega
+& = & \sum_{\alpha,\beta=1}^{N_e}  \int_{P_{\alpha}} \int_{P_{\beta}} \frac{h(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, d\Omega \, . 
 \end{eqnarray}
-$$   
+$$  
+
+(Extend to weighted averaging of $g(\mathbf{r})$, Fourier analysius, expansion in sets of orthogonal functions.) 
 
 **Expansion of Magnetization Components** The numerical approximation of the magnetization components can be expanded in as 
 
@@ -319,8 +328,6 @@ $P_{\beta}$ with nodes ${\mathbf r}_1 = (0,0,0)$, ${\mathbf r}_2 = (1,0,0)$, ${\
 4. [Comsol Multiphysics Finite Element Method](https://www.comsol.com/multiphysics/finite-element-method): more information and illustrations; 
 5. [Comsol Multiphysics Brief Introduction to the Weak Form](https://www.comsol.com/blogs/brief-introduction-weak-form): good introduction to a theoretical concept that provides a basis for the finite element method; 
 6. [Ferrite Introduction to FEM](https://ferrite-fem.github.io/Ferrite.jl/stable/topics/fe_intro/)
-
-
 
 **Reference Tetrahedron** Assume the reference tetrahedron to have the nodes ${\mathbf x}_1 = (0,0,0)$, ${\mathbf x}_2 = (1,0,0)$, ${\mathbf x}_3 = (0,1,0)$ and ${\mathbf x}_4 = (0,0,1)$. Then the shape function are defined as 
 
