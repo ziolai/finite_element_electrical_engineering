@@ -36,18 +36,14 @@ Describe post-processing using VTK files and Paraview.
 <b>To do</b>:
 1. introduce [PhysicalConstants.jl](https://github.com/JuliaPhysics/PhysicalConstants.jl) 
 
+wish to obtain single expression for the stiffness matrix per element  
 
-<b>Problem Description</b> To describe the problem, we introduce three [magnetic fields](https://en.wikipedia.org/wiki/Magnetic_field) in units Ampere per meter. 
-
-The external magnetic field will be denoted by ${\mathbf H}_{ext}$ (assumed constant in space). Then $\mathbf{H}_{ext}(\mathbf{r})$ is a vector field with three components (relative orientation of object in field matters). This can be expressed as $\mathbf{H}_{ext}(\mathbf{r}) = \left( H_{ext,x}(\mathbf{r}), H_{ext,y}(\mathbf{r}), H_{ext,z}(\mathbf{r})\right)$ or as $ \mathbf{H}_{ext}(\mathbf{r}) = H_{ext,x}(\mathbf{r}) \mathbf{i} + H_{ext,y}(\mathbf{r}) \mathbf{j} + H_{ext,z}(\mathbf{r}) \mathbf{k}$. In case that the external magnetic field is constant and aligned with the $x$-direction, we can write that $\mathbf{H}_{ext} = \left( H_{ext,x}, 0,0\right)$ where $H_{ext,x}$ is a constant. (Provide representative value for the strength of the magnetic field. The earth magnetic field for instance is on average $50,000$ nanoTesla). 
-
-The induced magnetic field will be denoted by ${\mathbf H}_{M}(\mathbf{r})$.  
-
-The total magnetic field (sum of external and induced field) will be denoted by ${\mathbf H}_{M}(\mathbf{r})$.
-
-The goal of the project is to compute the [magnetization vector](https://en.wikipedia.org/wiki/Magnetization) in the plate. This vector field is denoted by $\mathbf{M}(\mathbf{r})$ in units Ampere per meter. This is a vector field with three components. The vector field to be computed can thus be written as $\mathbf{M}(\mathbf{r}) = \left( M_x(\mathbf{r}), M_y(\mathbf{r}), M_z(\mathbf{r})\right)$. 
-
-The physical problem can thus be stated as: given the scalar $\chi_{mag}$ in $\Omega$ and given the vector field ${\mathbf H}_{ext}(\mathbf{r})$, compute the vector field ${\mathbf M}(\mathbf{r})$.
+$$
+\begin{eqnarray}
+A_{\alpha\beta}^{xx,11} & =  & - \int_{P_{\alpha}} \frac{\partial \phi_1({\mathbf r})}{\partial x} \, \frac{\partial}{\partial x} \int_{P_{\beta}} \frac{\phi_1({\mathbf r})}{\|\mathbf{r}' - \mathbf{r} \|} \, d\,P_{\beta} \, d\,P_{\alpha}  \\
+& =  & - a_1 \, a_1 \int_{P_{\alpha}} \left[ \int_{P_{\beta}} \frac{\phi_1({\mathbf r})}{\|\mathbf{r}' - \mathbf{r} \|} d\,P_{\beta} \right] d\,P_{\alpha}
+\end{eqnarray}
+$$ 
 
 ## Section 1: Introduction 
 
@@ -61,7 +57,7 @@ The objective of this project is to contribute to the development of a novel sim
 
 The approach we suggest here is expected to render the computation of the magnetization field in realistic applications feasible.    
 
-<b>Assembly of the linear system</b>: The focus of the project is placed on the assembly of the linear system. A computationally efficient procedure to treat the six-dimensional interaction integrals will have to be developed. We will use the Euler Integration Theorem (a generalization of the Green-Gauss divergence theorem) for lineaqr systems.  
+<b>Assembly of the linear system</b>: The focus of the project is placed on the assembly of the linear system. A computationally efficient procedure to treat the six-dimensional interaction integrals will have to be developed. We will use the Euler Integration Theorem (a generalization of the Green-Gauss divergence theorem) for homogeneous functions.  
 
 <b>Solve of the linear system</b>: Once the linear system is solved, it can be solved by a direct linear solveer for symmetric and positive definite linear system. Such solver are based on a Choleskly decomposition of the coefficient matrix.  
 
@@ -79,7 +75,7 @@ $$
 
 **Application of Euler Integration Theorem for Homogeneous Functions** 
 
-Assume $P_{\alpha}$ to be a tetrahedron bounded by 4 triangular facets $F_{\alpha} \in P_{\alpha}$. Then 
+Assume $P_{\alpha}$ to be a tetrahedron bounded by 4 triangular facets $F_{\alpha} \in P_{\alpha}$. Then (add references here)
 
 $$
 \int_{P_{\alpha}} \frac{1}{\| {\mathbf r} - {\mathbf r}' \|} \, d\Omega = \frac{1}{2} \sum \int_{F_{\alpha} \in P_{\alpha}} \left[ {\mathbf n}({\mathbf r}) \cdot ({\mathbf r} - {\mathbf r}') \right] \frac{1}{\| {\mathbf r} - {\mathbf r}' \|} \, dS
@@ -108,78 +104,93 @@ $$
 
 ### Section 1.3: Problem Formulation 
 
-<b>Computational Domain</b> Assume the computational domain $\Omega$ to denote a cube with lenght $L$, height $H$ and depth $D$ alligned with the coordinate axes. Then $0 \leq x \leq L$, $0 \leq y \leq H$ and $0 \leq z \leq D$ and $\Omega = [0,L] \times [0,H] \times [0,D]$. Typical values are $L = H = 1 \, \text{m}$ and $0.01 \, \text{m} \leq D \leq 0.1 \, \text{m}$. We will distinguish between the interior and the boundary of $\Omega$. We therefore assume that $\Omega$ is open (the boundary of $\Omega$ does not belong to $\Omega$) and the $\partial \Omega$ (the union of the four quadrilateral facets) denotes the boundary of $\Omega$. We assume that $\mathbf{r} = (x,y,z)$ and $\mathbf{r}' = (x',y',z')$ denote two position vectors inside $\Omega$. 
+<b>Computational Domain</b> We assume that the computational domain $\Omega$ is a cube with lenght $L$, height $H$ and depth $D$ alligned with the coordinate axes. Then $0 \leq x \leq L$, $0 \leq y \leq H$ and $0 \leq z \leq D$ and $\Omega = [0,L] \times [0,H] \times [0,D]$. Typical values are $L = H = 1 \, \text{m}$ and $0.01 \, \text{m} \leq D \leq 0.1 \, \text{m}$. In thick plate, the magnetization will varry with the $z$-coordinates. In thin plates, this variation is expected to be small. 
+
+We will distinguish between the interior and the boundary of $\Omega$. We therefore assume that $\Omega$ is open (the boundary of $\Omega$ does not belong to $\Omega$). We assume that $\partial \Omega$ (the union of the four quadrilateral facets) denotes the boundary of $\Omega$. We assume that $\overline{\Omega} = \Omega \cup \partial \Omega$ (i.e. the union of the volume and its surface) denotes the closure of $\Omega$. We assume that the exterior to $\Omega$ is the volume ${\mathbb R}^3 \setminus \overline{\Omega}$. 
+
+We assume that $\mathbf{r} = (x,y,z)$ denotes the position vector of a observer (destination) inside of $\overline{\Omega}$ (thus possibly on the boundary). We assume that $\mathbf{r}' = (x',y',z')$ denotes the position vector of a source inside of $\overline{\Omega}$. Introduce notation for gradient and divergence wrt. $\mathbf{r}$ and 
+$\mathbf{r}'$. 
 
 <b>Material Properties</b> Assume that $\Omega$ has a [magnetic susceptibility](https://en.wikipedia.org/wiki/Magnetic_susceptibility) denoted by $\chi_{mag}$ and a relative [magnetic permeability](https://en.wikipedia.org/wiki/Permeability_(electromagnetism)) denoted by $\mu_r$. Then $\chi_{mag} = \mu_r -1$. When the volume $\Omega$ is placed inside an external magnetic field, it will magnetize. The volume $\Omega$ thus mimmics a metalic plate. Here it will be suffucient to assume that the plate is homogeneous and that therefore $\chi_{mag}$ is constant. Assume that $10 \leq \chi_{mag} \leq 1000$ (dimensionless, value for common steel types). Non-homogeneous plate can be modeled assuming that $\chi_{mag}$ is piecewise constant. Non-linear magnetization effects are excluded in this project.   
 
-<b>Problem Description</b> (pending edits)
+<b>Problem Description</b> To describe the problem, we introduce three [magnetic fields](https://en.wikipedia.org/wiki/Magnetic_field) (in units Ampere per meter). 
 
-<b>Mathematical Model</b> (pending inclusion of the boundary term).  
+The external magnetic field will be denoted by ${\mathbf H}_{ext}$. This field causes the magnetization to be generated in $\Omega$. This field is assumed to be constant and equal in the inside and outside of $\Omega$. Then $\mathbf{H}_{ext}$ is a vector with three components . This can be expressed as $\mathbf{H}_{ext} = \left( H_{ext,x}, H_{ext,y}, H_{ext,z}\right)$ or as $ \mathbf{H}_{ext} = H_{ext,x} \mathbf{i} + H_{ext,y} \mathbf{j} + H_{ext,z} \mathbf{k}$. The orientation of $\Omega$ with respect to $\mathbf{H}_{ext}$ matters. We distinguish an in-plane and a perpendicular plane configuration. In an in-plane configuration, the plate $\Omega$ is alligned with the external field, e.g., with the $x$-axis. We can then write that $\mathbf{H}_{ext} = \left( H_{ext,x}, 0,0\right)$ with $H_{ext,x}$ a constant. In a perpendicular plane configuration, the plate $\Omega$ is oriented perpendicular to $\mathbf{H}_{ext}$. We can then write that $\mathbf{H}_{ext} = \left( 0, 0, H_{ext,z} \right)$ with $H_{ext,z}$ a constant. (Provide a representative value for the strength of the magnetic field. The earth magnetic field for instance is on average $50,000$ nanoTesla). 
 
-The total magnetic field ${\mathbf H}_{tot}$ in the volome $\Omega$ is sum of two components. The first term is external field ${\mathbf H}_{ext}$. The second term is the induced field ${\mathbf H}_{M}$. We thus have that ${\mathbf H}_{ext} + {\mathbf H}_{M} = {\mathbf H}_{tot}$ where the induced field ${\mathbf H}_{M}$ can be exprssed in terms of the scalar potential $\phi_M$ as ${\mathbf H}_{M} =  \text{grad}_{\mathbf{r}} \phi_M = \nabla_{\mathbf{r}} \phi_M$. Relate $\phi_M$ to $\mathbf{M}$ using Biot-Savart type equation. Use constitutive equation to express the total field in terms of the magnetization as ${\mathbf H} = {\mathbf M}/\chi_{mag}$.  
-
-Point out the alternative derivation of using the magnetic flux ${\mathbf B}$ as in e.g. Morandi. (For an expression of $\phi_M$, see also [Biot-Savart Law](https://en.wikipedia.org/wiki/Biot–Savart_law).)  
-
-We wish to compute $\mathbf{M}(\mathbf{r})$ by solving a partial differential equation in which the external field ${\mathbf H}_{ext}(\mathbf{r})$ acts as a source term (i.e., ${\mathbf H}_{ext}(\mathbf{r})$ appears in the right-hand side of the equation). This differential equation can be written as  
+The induced magnetic field will be denoted by ${\mathbf H}_{M}(\mathbf{r})$. This field is caused by the presence of a non-zero magnetization ${\mathbf M}(\mathbf{r})$ inside of $\Omega$. The relation between ${\mathbf M}(\mathbf{r})$ and ${\mathbf H}_{M}(\mathbf{r})$ can be expressed through the magnetic scalar potential $\phi_M(\mathbf{r})$ as 
 
 $$
-{\cal D} \left[ \mathbf{M}(\mathbf{r}) \right] = {\mathbf H}_{ext}(\mathbf{r}) \text{ on } \Omega 
+{\mathbf H}_{M}(\mathbf{r}) = - \text{grad}_{\mathbf{r}} \phi_M(\mathbf{r}) = - \nabla_{\mathbf{r}} \phi_M(\mathbf{r}) 
+$$
+
+(minus sign by convention). The scalar potential for ${\mathbf M}(\mathbf{r})$ inside of $\Omega$ (volumetric density $\rho_M = - \nabla_{\mathbf{r'}} \cdot \mathbf{M}(\mathbf{r}')$) and ${\mathbf M_{\partial}}(\mathbf{r})$ on $\partial \Omega$ (surface density $\rho_S = \mathbf{M}_{\partial}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'})$) is given by 
+
+$$
+\phi_M(\mathbf{r}) = \frac{1}{4 \pi}
+\int_{\Omega} \frac{- \nabla_{\mathbf{r'}} \cdot \mathbf{M}(\mathbf{r}')}{ \|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + \frac{1}{4 \pi} \int_{\partial \Omega} \frac{ \mathbf{M}_{\partial}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' \, . 
+$$
+
+(Who is $\mathbf{M}_{\partial}(\mathbf{r})$)? The total magnetic field will be denoted by ${\mathbf H}_{tot}(\mathbf{r})$. This field is the sum of the external and the induced magnetic field. We thus have that ${\mathbf H}_{ext} + {\mathbf H}_{M} = {\mathbf H}_{tot}$. The total field is equal to the external field in the exterior of $\overline{\Omega}$. The total field on $\overline{\Omega}$ is related to the magnetization via the constitutive equation ${\mathbf H}_{tot} = {\mathbf M}/\chi_{mag}$.
+
+<b>Mathematical Model</b> We wish to compute $\mathbf{M}(\mathbf{r})$ by solving a partial differential equation in which the external field ${\mathbf H}_{ext}$ acts as a source term (i.e., ${\mathbf H}_{ext}$ appears in the right-hand side of the equation). This differential equation can be written as  
+
+$$
+{\cal D} \left[ \mathbf{M}(\mathbf{r}) \right] = {\mathbf H}_{ext} \text{ on } \overline{\Omega}  
 $$
 
 where ${\cal D}$ is the [differential operator](https://en.wikipedia.org/wiki/Differential_operator) acting on $\mathbf{M}(\mathbf{r})$ as 
 
 $$
-{\cal D}\left[ \mathbf{M}(\mathbf{r}) \right] = \frac{1}{\chi_{mag}} \mathbf{M}(\mathbf{r}) - 
-\text{grad}_{\mathbf{r}} \, \text{div}_{\mathbf{r}} 
-\frac{1}{4 \pi}  \int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' = 
-\frac{1}{\chi_{mag}} \mathbf{M}(\mathbf{r}) - 
-\nabla_{\mathbf{r}} \, \nabla_{\mathbf{r}} \cdot \frac{1}{4 \pi}
-\int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, . 
+\begin{eqnarray}
+{\cal D}\left[ \mathbf{M}(\mathbf{r}) \right] & = & {\mathbf H}_{tot}(\mathbf{r}) - {\mathbf H}_{M}(\mathbf{r}) \nonumber \\ 
+& = & \frac{1}{\chi_{mag}} \mathbf{M}(\mathbf{r}) +
+\text{grad}_{\mathbf{r}} \left\{  
+\frac{1}{4 \pi}  \int_{\Omega} \frac{- \text{div}_{\mathbf{r}} \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + \frac{1}{4 \pi}  \int_{\partial \Omega} \frac{ \mathbf{M}_{\partial}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' \right\} \nonumber \\
+& = & \frac{1}{\chi_{mag}} \mathbf{M}(\mathbf{r}) + 
+\nabla_{\mathbf{r}} \left\{ 
+\frac{1}{4 \pi} \int_{\Omega} \frac{- \nabla_{\mathbf{r}} \cdot \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + \frac{1}{4 \pi}  \int_{\partial \Omega} \frac{ \mathbf{M}_{\partial}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' \right\} \, . \nonumber 
+\end{eqnarray}
 $$
 
-The differential operator ${\cal D}$ contains an integral term. The differential equation that determines $\mathbf{M}(\mathbf{r})$ is therefore an [integro-differential equation](https://en.wikipedia.org/wiki/Integro-differential_equation). The above integro-differential equation is a system of three coupled equations for the three components of the magnetization $\mathbf{M}(\mathbf{r})$. This equation is solved on $\Omega$ only. The magnetization $\mathbf{M}(\mathbf{r})$ remains zero outside $\Omega$. The kernel in the second term of ${\cal D}$ can be written as 
+The differential operator ${\cal D}$ contains a volume integral term and a surface integral term. The differential equation that determines $\mathbf{M}(\mathbf{r})$ is therefore an [integro-differential equation](https://en.wikipedia.org/wiki/Integro-differential_equation). The above integro-differential equation is a system of three coupled equations for the three components of the magnetization $\mathbf{M}(\mathbf{r})$. This equation is solved on $\overline{\Omega}$ only. The magnetization $\mathbf{M}(\mathbf{r})$ remains zero outside of $\overline{\Omega}$. The kernel in the second term of ${\cal D}$ can be written as 
 
 $$
 {\cal K}(\mathbf{r},\mathbf{r}') = \frac{1}{4 \pi}  \frac{1}{\|\mathbf{r}' - \mathbf{r} \|} \, . 
 $$
 
-This kernel depends on the distance $\|\mathbf{r}' - \mathbf{r} \|$ only. It is singular for $\mathbf{r}' = \mathbf{r}$. The convolution of $\mathbf{M}(\mathbf{r})$ and ${\cal K}(\mathbf{r},\mathbf{r}')$ can be written as 
+This kernel depends on the distance $\|\mathbf{r}' - \mathbf{r} \|$ only. Small values of this distance matter most. It is singular for $\mathbf{r}' = \mathbf{r}$. The convolution of $\mathbf{M}(\mathbf{r})$ and ${\cal K}(\mathbf{r},\mathbf{r}')$ can be written as 
 
 $$
-{\cal K}(\mathbf{r},\mathbf{r}') * \mathbf{M}(\mathbf{r}) = \frac{1}{4 \pi} \int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, . 
+{\cal K}(\mathbf{r},\mathbf{r}') * \mathbf{M}(\mathbf{r}) = \frac{1}{4 \pi} \int_{\Omega} \frac{- \nabla_{\mathbf{r}} \cdot \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, . 
 $$
 
-For future reference, we will split ${\cal D}\left[ \mathbf{M}(\mathbf{r}) \right]$ in two terms as ${\cal D}\left[ \mathbf{M}(\mathbf{r}) \right] = {\cal D}_1\left[ \mathbf{M}(\mathbf{r}) \right] + {\cal D}_2 \left[ \mathbf{M}(\mathbf{r}) \right]$, where ${\cal D}_1$ is merely a scaling  
+For future reference, we will split ${\cal D}\left[ \mathbf{M}(\mathbf{r}) \right]$ in three terms as ${\cal D}\left[ \mathbf{M}(\mathbf{r}) \right] = {\cal D}_1\left[ \mathbf{M}(\mathbf{r}) \right] + {\cal D}_2 \left[ \mathbf{M}(\mathbf{r}) \right] + {\cal B} \left[ \mathbf{M}(\mathbf{r}) \right]$, where ${\cal D}_1$ is merely a scaling  
 
 $$
 {\cal D}_1\left[ \mathbf{M}(\mathbf{r}) \right] = \frac{1}{\chi_{mag}} \mathbf{M}(\mathbf{r})
 $$
 
-and where ${\cal D}_2$ is the integro-differential part of the equation
+where ${\cal D}_2$ is the integro-differential part of the equation
 
 $$
 {\cal D}_2\left[ \mathbf{M}(\mathbf{r}) \right] = - 
-\nabla_{\mathbf{r}} \, \nabla_{\mathbf{r}} \cdot {\cal K}(\mathbf{r},\mathbf{r}') * \mathbf{M}(\mathbf{r}) \, .
+\nabla_{\mathbf{r}} \, {\cal K}(\mathbf{r},\mathbf{r}') * \mathbf{M}(\mathbf{r}) \, .
 $$
 
-We also write the integro-differential equation for $\mathbf{M}(\mathbf{r})$ in explicit form. The first of the three scalae equations is 
+and where ${\cal B}$ is the boundary integral term
 
 $$
-\frac{1}{\chi_{mag}} M_x(\mathbf{r}) - 
-\frac{\partial}{\partial x} \, \nabla_{\mathbf{r}} \cdot \frac{1}{4 \pi}
-\int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' = H_{ext,x}(\mathbf{r}) \, , 
+{\cal B} \left[ \mathbf{M}(\mathbf{r}) \right] = \nabla_{\mathbf{r}} \, \frac{1}{4 \pi}  \int_{\partial \Omega} \frac{ \mathbf{M}_{\partial}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' \, . 
 $$
 
-where 
+We also write the integro-differential equation for $\mathbf{M}(\mathbf{r})$ in explicit form. The first of the three scalar equations is 
 
 $$
-\nabla_{\mathbf{r}} \cdot 
-\int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' = 
-\frac{\partial}{\partial x} \frac{1}{4 \pi} \int_{\Omega} \frac{M_x(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + 
-\frac{\partial}{\partial y} \frac{1}{4 \pi} \int_{\Omega} \frac{M_y(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' 
-+
-\frac{\partial}{\partial z} \frac{1}{4 \pi} \int_{\Omega} \frac{M_z(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, ,  
-$$ 
+\frac{1}{\chi_{mag}} M_x(\mathbf{r}) +  
+\frac{\partial}{\partial x} \, \frac{1}{4 \pi}
+\int_{\Omega} \frac{- \nabla_{\mathbf{r}} \cdot \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + 
+\frac{\partial}{\partial x} \frac{1}{4 \pi}  \int_{\partial \Omega} \frac{ \mathbf{M}_{\partial}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' = H_{ext,x} \, , 
+$$
 
 and simarly for $M_y(\mathbf{r})$ and $M_z(\mathbf{r})$.   
 
@@ -191,9 +202,9 @@ We wish to compute the magnetization vector $\mathbf{M}(\mathbf{r})$ inside the 
 
 We assume that the information to decompose an element $P_{\alpha}$ into a set of facets, a facet into a set of edges and an edge into a set of points to be available (representation of the mesh $\Omega^h$ as a directed a-cyclic graph (DAG) with corresponding operations to find parent nodes and child nodes. See e.g. [wikipedia entry on polygon mesh](https://en.wikipedia.org/wiki/Polygon_mesh).
 
-<b>Shape Functions</b> The mesh $\Omega^h$ allows to define a set of nodal P1 linear Lagrange basis functions $\{ \phi_i(\mathbf{r}) | 1 \leq i \leq N _n \}$ (see classical finite elements method). The functions $\phi_i(\mathbf{r})$ are scalar functions. To be able to cast a vector-valued partial differential equation in weak or variational form, we define $3 \, N_n$ vector-valued shape functions $\boldsymbol{\phi}_{3\,i-2} = \left( \phi_i, 0,0\right)$, 
-$\boldsymbol{\phi}_{3i-1} = \left( 0, \phi_i, 0\right)$ and 
-$\boldsymbol{\phi}_{3i} = \left( 0, 0, \phi_i \right)$ for $1 \leq i \leq N_n$.  
+<b>Shape Functions</b> The mesh $\Omega^h$ allows to define a set of nodal P1 linear Lagrange basis functions $\{ \phi_i(\mathbf{r}) | 1 \leq i \leq N _n \}$ (see classical finite elements method). The functions $\phi_i(\mathbf{r})$ are scalar functions. To be able to cast a vector-valued partial differential equation in weak or variational form, we define $3 \, N_n$ vector-valued shape functions $\boldsymbol{\phi}_{3\,i-2} = \left( \phi_i, 0,0\right)$ (weighting function for the PDE for $M_x({\mathbf r})$), 
+$\boldsymbol{\phi}_{3i-1} = \left( 0, \phi_i, 0\right)$ (weighting function for $M_y({\mathbf r})$) and 
+$\boldsymbol{\phi}_{3i} = \left( 0, 0, \phi_i \right)$ (weighting function for $M_z({\mathbf r})$ for $1 \leq i \leq N_n$.  
 
 More information on the mesh generation is provided in the [notebook](./mom_3d_plate_gmsh.ipynb). 
 
