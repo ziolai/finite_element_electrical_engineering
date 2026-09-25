@@ -1,10 +1,57 @@
 # Magnetized Metalic Objects - Readme 
 
-See [MFEM weak gradient example](https://mfem.org/fem_weak_form/). 
+### How to further extend these notes 
+
+**Grad-Div Equation**
+
+1. See [MFEM weak gradient example](https://mfem.org/fem_weak_form/). 
+2. See [Moose grad-div example](https://mooseframework.inl.gov/syntax/MFEM/Grad-Div.html). Not sure whether FENICS or dealII provides similar examples.  
+3. Using search term <i>weak gradient form equation</i> and grad-div problem. 
+
+**Singular Reisz Kernel**
+1. extend notes on the singularity of the kernel; 
+
+**Mesh Data Structure**
+1. struct edge with field node holding global node index (extend what currently exists);
+2. struct face with first field holding global node index and second field holding global edge index (extend what currently exists);
+3. struct element with first field holding global node index, second field holding global edge index and third field holding global face index; 
+4. the mesh has a field Points that holds an array of length npoints of type Point3D, similar for edges, faces and elements; 
+
+**Two Triangular Facets Test Case** 
+
+Adapt mesh structure (assignment for students) to 
+1. remove node duplication;  
+2. add element - face connectivity, add face - node connectivity, add face normal extracted from GMSH;  
+
+
+**Extend double loop over elements to 4-fold loop over faces belonging to element or elementp (avoid nested constructions!)** 
+1. extend mesh structure with list of structs that define the faces. Use information from GMSH to find global nodes for each face. For each face, compute and store relevant information; 
+2. extend mesh structure with list of structs that define the edges; 
+3. extend element structure with 4-vector with global index of faces. The loop <i>for fi in element.faces</i> should results the **global** index of the face; 
+4. extend double for-loop over elements by four-fold for-loop over faces belonging to elements (using the functions cols maybe?); 
+
+**Post-processing** 
+Describe post-processing using VTK files and Paraview. 
+
+<b>To do</b>:
+1. introduce [PhysicalConstants.jl](https://github.com/JuliaPhysics/PhysicalConstants.jl) 
+
+
+<b>Problem Description</b> To describe the problem, we introduce three [magnetic fields](https://en.wikipedia.org/wiki/Magnetic_field) in units Ampere per meter. 
+
+The external magnetic field will be denoted by ${\mathbf H}_{ext}$ (assumed constant in space). Then $\mathbf{H}_{ext}(\mathbf{r})$ is a vector field with three components (relative orientation of object in field matters). This can be expressed as $\mathbf{H}_{ext}(\mathbf{r}) = \left( H_{ext,x}(\mathbf{r}), H_{ext,y}(\mathbf{r}), H_{ext,z}(\mathbf{r})\right)$ or as $ \mathbf{H}_{ext}(\mathbf{r}) = H_{ext,x}(\mathbf{r}) \mathbf{i} + H_{ext,y}(\mathbf{r}) \mathbf{j} + H_{ext,z}(\mathbf{r}) \mathbf{k}$. In case that the external magnetic field is constant and aligned with the $x$-direction, we can write that $\mathbf{H}_{ext} = \left( H_{ext,x}, 0,0\right)$ where $H_{ext,x}$ is a constant. (Provide representative value for the strength of the magnetic field. The earth magnetic field for instance is on average $50,000$ nanoTesla). 
+
+The induced magnetic field will be denoted by ${\mathbf H}_{M}(\mathbf{r})$.  
+
+The total magnetic field (sum of external and induced field) will be denoted by ${\mathbf H}_{M}(\mathbf{r})$.
+
+The goal of the project is to compute the [magnetization vector](https://en.wikipedia.org/wiki/Magnetization) in the plate. This vector field is denoted by $\mathbf{M}(\mathbf{r})$ in units Ampere per meter. This is a vector field with three components. The vector field to be computed can thus be written as $\mathbf{M}(\mathbf{r}) = \left( M_x(\mathbf{r}), M_y(\mathbf{r}), M_z(\mathbf{r})\right)$. 
+
+The physical problem can thus be stated as: given the scalar $\chi_{mag}$ in $\Omega$ and given the vector field ${\mathbf H}_{ext}(\mathbf{r})$, compute the vector field ${\mathbf M}(\mathbf{r})$.
 
 ## Section 1: Introduction 
 
-When a metalic object is placed inside a magnetic field, eddy currents are generated in the object. These eddy currents tend to oppose the external field. The object is said to be magnetized. The objective of this project is to compute the spatial distribution of the magnetization field inside the object. A coupled system of three partial differential equations for the components of the magnetization vector therefore needs to be solved numerically. These equations contains an integral term that renders this tasks challenging.     
+When a metalic object is placed inside a magnetic field, a magnetization field is generated in the object. This magnetization opposes the external field. The object is said to be magnetized. The objective of this project is to compute the spatial distribution of the magnetization field inside the object. A coupled system of three partial differential equations for the components of the magnetization vector therefore needs to be solved numerically. These equations contains an integral term that renders this tasks challenging.     
 
 The computation of the magnitization field has numerous practical applications. In the non-destructive testing of metallic object for instance, anomalies in the magnetic field distribution signal cracks or other defects. Other applications can be found in medical imaging, geophysical prospecting and magnetic field sensoring. 
 
@@ -14,23 +61,64 @@ The objective of this project is to contribute to the development of a novel sim
 
 The approach we suggest here is expected to render the computation of the magnetization field in realistic applications feasible.    
 
-(Insert figures here). 
+<b>Assembly of the linear system</b>: The focus of the project is placed on the assembly of the linear system. A computationally efficient procedure to treat the six-dimensional interaction integrals will have to be developed. We will use the Euler Integration Theorem (a generalization of the Green-Gauss divergence theorem) for lineaqr systems.  
 
-## Section 2: Project Description 
+<b>Solve of the linear system</b>: Once the linear system is solved, it can be solved by a direct linear solveer for symmetric and positive definite linear system. Such solver are based on a Choleskly decomposition of the coefficient matrix.  
 
-### Section 1.2: Problem Formulation 
+(Insert figures here).
 
-<b>Computational Domain</b> Assume the computational domain $\Omega$ to denote a cube with lenght $L$, height $H$ and depth $D$ alligned with the coordinate axes. Then $0 \leq x \leq L$, $0 \leq y \leq H$ and $0 \leq z \leq D$ and $\Omega = [0,L] \times [0,H] \times [0,D]$. Typical values are $L = H = 1 \, \text{m}$ and $0.01 \, \text{m} \leq D \leq 0.1 \, \text{m}$. Assume $\mathbf{r} = (x,y,z)$ to denote the position vector inside $\Omega$. 
+## Section 2: Mathematical Preliminaries 
 
-<b>Material Properties</b> Assume that $\Omega$ has a [magnetic susceptibility](https://en.wikipedia.org/wiki/Magnetic_susceptibility) denoted by $\chi_{mag}$. Then $\Omega$ will magnetize in an external field and thus mimmic a metalic plate. Here it will be suffucient to assume that the plate is homogeneous and that therefore $\chi_{mag}$ is constant. Assume that $10 \leq \chi_{mag} \leq 1000$ (dimensionless). Non-homogeneous plate can be modeled assuming that $\chi_{mag}$ is piecewise constant. Non-linear magnetization effects are excluded in this project.   
+**Identities** We have that 
 
-<b>Problem Description</b> Assume $\Omega$ to be placed in external (assumed known or given) [magnetic field](https://en.wikipedia.org/wiki/Magnetic_field). Let the external magnetic field be denoted by $\mathbf{H}_{ext}(\mathbf{r})$ in units Ampere per meter. Then $\mathbf{H}_{ext}(\mathbf{r})$ is a vector field with three components. This can be expressed as $\mathbf{H}_{ext}(\mathbf{r}) = \left( H_{ext,x}(\mathbf{r}), H_{ext,y}(\mathbf{r}), H_{ext,z}(\mathbf{r})\right)$ or as $ \mathbf{H}_{ext}(\mathbf{r}) = H_{ext,x}(\mathbf{r}) \mathbf{i} + H_{ext,y}(\mathbf{r}) \mathbf{j} + H_{ext,z}(\mathbf{r}) \mathbf{k}$. In case that the external magnetic field is constant and aligned with the $x$-direction, we can write that $\mathbf{H}_{ext} = \left( H_{0,ext}, 0,0\right)$ where $H_{0,ext}$ is a constant. (Provide representative value for the strength of the magnetic field. Neglect non-linear material effects.)
+$$
+\nabla' \cdot \frac{\mathbf{r} - \mathbf{r}'}{\| \mathbf{r} - \mathbf{r}' \|} = \frac{-2}{\| \mathbf{r} - \mathbf{r}' \|}
+\text{ and }
+\nabla \cdot \frac{\mathbf{r} - \mathbf{r}'}{\| \mathbf{r} - \mathbf{r}' \|} = \frac{2}{\| \mathbf{r} - \mathbf{r}' \|} \, . 
+$$
 
-The goal of the project is to compute the [magnetization vector](https://en.wikipedia.org/wiki/Magnetization) in the plate. This vector field is denoted by $\mathbf{M}(\mathbf{r})$ in units Ampere per meter. This is a vector field with three components. The vector field to be computed can thus be written as $\mathbf{M}(\mathbf{r}) = \left( M_x(\mathbf{r}), M_y(\mathbf{r}), M_z(\mathbf{r})\right)$. 
+**Application of Euler Integration Theorem for Homogeneous Functions** 
 
-The physical problem can thus be stated as: given the scalar $\chi_{mag}$ in $\Omega$ and given the vector field ${\mathbf H}_{ext}(\mathbf{r})$, compute the vector field ${\mathbf M}(\mathbf{r})$.
+Assume $P_{\alpha}$ to be a tetrahedron bounded by 4 triangular facets $F_{\alpha} \in P_{\alpha}$. Then 
 
-<b>Mathematical Model</b> (Provide a more detailed derivation on the coupled system of integro-differential eqiuations for the magnetization field $\mathbf{M}(\mathbf{r})$. State that total magnetic field ${\mathbf H}_{tot}$ in $\Omega$ is sum of two components. The external field ${\mathbf H}_{ext}$ and the induced field ${\mathbf H}_{M}$. We thus have that ${\mathbf H}_{ext} + {\mathbf H}_{M} = {\mathbf H}_{tot}$ where ${\mathbf H}_{M} =  \text{grad}_{\mathbf{r}} \phi_M = \nabla_{\mathbf{r}} \phi_M$ and where $\phi_M$ can be related to $\mathbf{M}$. Point out the alternative derivation of using the magnetic flux ${\mathbf B}$ as in Morandi e.g.  
+$$
+\int_{P_{\alpha}} \frac{1}{\| {\mathbf r} - {\mathbf r}' \|} \, d\Omega = \frac{1}{2} \sum \int_{F_{\alpha} \in P_{\alpha}} \left[ {\mathbf n}({\mathbf r}) \cdot ({\mathbf r} - {\mathbf r}') \right] \frac{1}{\| {\mathbf r} - {\mathbf r}' \|} \, dS
+$$
+
+and 
+
+$$
+\int_{P_{\alpha}} \frac{{\mathbf r} - {\mathbf r}'}{\| {\mathbf r} - {\mathbf r}' \|} \, d\Omega = \frac{1}{3} \sum \int_{F_{\alpha} \in P_{\alpha}} \left[ {\mathbf n}({\mathbf r}) \cdot ({\mathbf r} - {\mathbf r}') \right] \frac{{\mathbf r} - {\mathbf r}'}{\| {\mathbf r} - {\mathbf r}' \|} \, dS 
+$$
+
+**Integration by parts** for grad-div equations. Assume $\mathbf{V}(\mathbf{r})$ and $\mathbf{W}(\mathbf{r})$ to be two vector fields on $\Omega \subset \mathbb{R}^3$ bounded by a surface $\partial \Omega$ with outward normal ${\mathbf n}$. Then 
+
+$$
+\text{div} \left[ \mathbf{V} \,  \text{div} \mathbf{W} \right] = 
+\text{div} \mathbf{V} \, \text{div} \mathbf{W} + \mathbf{V} \cdot \text{grad} \left( \text{div} \mathbf{W} \right) \, . 
+$$
+
+Then by integration over $\Omega$ and applying the Green-Gauss divergence theorem, we obtain that 
+
+$$
+\int_{\Omega} \text{grad} \left( \text{div} \mathbf{W} \right) \cdot \mathbf{V} \, d\Omega = \int_{\partial \Omega} \left[ \mathbf{V} \,  \text{div} \mathbf{W} \right] \cdot \mathbf{n} \, dS - \int_{\Omega} \text{div} \mathbf{V} \, \text{div} \mathbf{W} \, d\Omega \, .  
+$$
+
+## Section 3: Project Description 
+
+### Section 1.3: Problem Formulation 
+
+<b>Computational Domain</b> Assume the computational domain $\Omega$ to denote a cube with lenght $L$, height $H$ and depth $D$ alligned with the coordinate axes. Then $0 \leq x \leq L$, $0 \leq y \leq H$ and $0 \leq z \leq D$ and $\Omega = [0,L] \times [0,H] \times [0,D]$. Typical values are $L = H = 1 \, \text{m}$ and $0.01 \, \text{m} \leq D \leq 0.1 \, \text{m}$. We will distinguish between the interior and the boundary of $\Omega$. We therefore assume that $\Omega$ is open (the boundary of $\Omega$ does not belong to $\Omega$) and the $\partial \Omega$ (the union of the four quadrilateral facets) denotes the boundary of $\Omega$. We assume that $\mathbf{r} = (x,y,z)$ and $\mathbf{r}' = (x',y',z')$ denote two position vectors inside $\Omega$. 
+
+<b>Material Properties</b> Assume that $\Omega$ has a [magnetic susceptibility](https://en.wikipedia.org/wiki/Magnetic_susceptibility) denoted by $\chi_{mag}$ and a relative [magnetic permeability](https://en.wikipedia.org/wiki/Permeability_(electromagnetism)) denoted by $\mu_r$. Then $\chi_{mag} = \mu_r -1$. When the volume $\Omega$ is placed inside an external magnetic field, it will magnetize. The volume $\Omega$ thus mimmics a metalic plate. Here it will be suffucient to assume that the plate is homogeneous and that therefore $\chi_{mag}$ is constant. Assume that $10 \leq \chi_{mag} \leq 1000$ (dimensionless, value for common steel types). Non-homogeneous plate can be modeled assuming that $\chi_{mag}$ is piecewise constant. Non-linear magnetization effects are excluded in this project.   
+
+<b>Problem Description</b> (pending edits)
+
+<b>Mathematical Model</b> (pending inclusion of the boundary term).  
+
+The total magnetic field ${\mathbf H}_{tot}$ in the volome $\Omega$ is sum of two components. The first term is external field ${\mathbf H}_{ext}$. The second term is the induced field ${\mathbf H}_{M}$. We thus have that ${\mathbf H}_{ext} + {\mathbf H}_{M} = {\mathbf H}_{tot}$ where the induced field ${\mathbf H}_{M}$ can be exprssed in terms of the scalar potential $\phi_M$ as ${\mathbf H}_{M} =  \text{grad}_{\mathbf{r}} \phi_M = \nabla_{\mathbf{r}} \phi_M$. Relate $\phi_M$ to $\mathbf{M}$ using Biot-Savart type equation. Use constitutive equation to express the total field in terms of the magnetization as ${\mathbf H} = {\mathbf M}/\chi_{mag}$.  
+
+Point out the alternative derivation of using the magnetic flux ${\mathbf B}$ as in e.g. Morandi. (For an expression of $\phi_M$, see also [Biot-Savart Law](https://en.wikipedia.org/wiki/Biot–Savart_law).)  
 
 We wish to compute $\mathbf{M}(\mathbf{r})$ by solving a partial differential equation in which the external field ${\mathbf H}_{ext}(\mathbf{r})$ acts as a source term (i.e., ${\mathbf H}_{ext}(\mathbf{r})$ appears in the right-hand side of the equation). This differential equation can be written as  
 
@@ -49,7 +137,7 @@ $$
 \int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, . 
 $$
 
-This differential equation can be derived from [Biot-Savart Law](https://en.wikipedia.org/wiki/Biot–Savart_law). The differential operator ${\cal D}$ contains an integral term. The differential equation that determines $\mathbf{M}(\mathbf{r})$ is therefore an [integro-differential equation](https://en.wikipedia.org/wiki/Integro-differential_equation). The above integro-differential equation is a system of three coupled equations for the three components of the magnetization $\mathbf{M}(\mathbf{r})$. This equation is solved on $\Omega$ only. The magnetization $\mathbf{M}(\mathbf{r})$ remains zero outside $\Omega$. The kernel in the second term of ${\cal D}$ can be written as 
+The differential operator ${\cal D}$ contains an integral term. The differential equation that determines $\mathbf{M}(\mathbf{r})$ is therefore an [integro-differential equation](https://en.wikipedia.org/wiki/Integro-differential_equation). The above integro-differential equation is a system of three coupled equations for the three components of the magnetization $\mathbf{M}(\mathbf{r})$. This equation is solved on $\Omega$ only. The magnetization $\mathbf{M}(\mathbf{r})$ remains zero outside $\Omega$. The kernel in the second term of ${\cal D}$ can be written as 
 
 $$
 {\cal K}(\mathbf{r},\mathbf{r}') = \frac{1}{4 \pi}  \frac{1}{\|\mathbf{r}' - \mathbf{r} \|} \, . 
@@ -95,7 +183,7 @@ $$
 
 and simarly for $M_y(\mathbf{r})$ and $M_z(\mathbf{r})$.   
 
-### Section 2.2: Mesh Generation and Shape Functions 
+### Section 2.3: Mesh Generation and Shape Functions 
 
 We wish to compute the magnetization vector $\mathbf{M}(\mathbf{r})$ inside the metallic plate $\Omega$. We therefore generate a mesh on $\Omega$. 
 
@@ -109,7 +197,7 @@ $\boldsymbol{\phi}_{3i} = \left( 0, 0, \phi_i \right)$ for $1 \leq i \leq N_n$.
 
 More information on the mesh generation is provided in the [notebook](./mom_3d_plate_gmsh.ipynb). 
 
-### Section 3.2: Galerkin Method    
+### Section 3.3: Galerkin Method    
 
 Here we describe the [Galerkin method](https://en.wikipedia.org/wiki/Galerkin_method) that allows to convert the system of integral partial differential-equations for $\mathbf{M}(\mathbf{r})$ into a weak or variational formulation. This variational formulation will allow a spatial discretization. See also example of the weak formulation of the Poisson equation as [wiki on weak formulation](https://en.wikipedia.org/wiki/Weak_formulation)). (Requires example of weak form of a c oupled system of differential equations.) 
 
@@ -179,9 +267,9 @@ $$
 \int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \right] d\Omega = \int_{\Omega} \mathbf{H}_{ext} \cdot \boldsymbol{\phi}_k \, d\Omega
 $$
 
-resulting in $3 \, N_e$ equations for the $3 \, N_e$ components of the vector of expansion coefficients $\mathbf{u}$. The mass matrix and load vector can be assembled by a loop over elements as in classical Galerlin FEM. The stiffness matrix requires dedicated attention due to the integral term.
+resulting in $3 \, N_n$ equations for the $3 \, N_n$ components of the vector of expansion coefficients $\mathbf{u}$. The mass matrix and load vector can be assembled by a loop over elements as in classical Galerlin FEM. The stiffness matrix requires dedicated attention due to the integral term.
 
-### Section 4.2: Element-by-element Assembly of Stiffness Matrix
+### Section 4.3: Element-by-element Assembly of Stiffness Matrix
 
 **Definition of Shape Functions on a Single Tetrahedral Element** The tetrahedral mesh element $P_{\alpha}$ has $4$ nodes. Assume these nodes to be denote ${\mathbf x}_1$, ${\mathbf x}_2$, ${\mathbf x}_3$ and ${\mathbf x}_4$ (in local numbering on this single element). The linear Lagrange shape functions on this element can be expressed as $\phi_k({\mathbf r}) = a_k x + b_k y + c_k y + d_k$ for $1 \leq k \leq 4$, where $a_k$, $b_k$, $c_k$ and $d_k$ are coefficients. These coefficients are choosen such that the shape functions satisfy the constraint that $\phi_k({\mathbf x}_{\ell}) = \delta_{k\ell}$ for $1 \leq k,\ell \leq 4$. Linear system for these coefficients. 
 
@@ -263,25 +351,25 @@ Use of hcubature (or alternative) to compute the matrix elements. Possibly regul
 \int_a^b f(x) \, dx = F(x) |_{x=a}^{x=b} = F(b) - F(a)
 \end{equation}
 
-## Section 3: Possible Project Roadmaps  
+## Section 4: Possible Project Roadmaps  
 
-### Section 1.3: Problem Formulation 
+### Section 1.4: Problem Formulation 
 
 <b>Physical Problem</b> Study problem formulation. Study how the magnetization vector $\mathbf{M}(\mathbf{r})$ change with  of the plate, dimensions of the plate, and the direction of the external magnetic field. Use to this end literature or a reference code.
 
-### Section 2.3: Solution Method  
+### Section 2.4: Solution Method  
 
 Explore weak formulation, weighted residual method, Galerkin approximation and linear system formulation for a sequence of problems of increasing complexity.  
 
 1. Poisson equation;
-2. one-dimensional Fredholm integro-differential equation;
+2. one-dimensional Fredholm integro-differential equation. A model problem can be constructed using Sympy;
 3. see grad-div equation without kernel;
 
-### Section 3.3: Assembly of the Mass Matrix and Load Vector 
+### Section 3.4: Assembly of the Mass Matrix and Load Vector 
 
 1. loop over elements in the mesh to assemble the mass matrix and the lopad vector. See notebook [mom_hcubature](./mom_hcubature.ipynb); 
 
-### Section 4.3: Numerical Assembly of the Stiffness Matrix 
+### Section 4.4: Numerical Assembly of the Stiffness Matrix 
 
 1. use of quadrature implemented in [hcubature.jl](https://github.com/JuliaMath/HCubature.jl) for integration in 1D (possibly singular, look into number of function evaluatiohs), 2D (reference triangle, coordinate transformation, general triangle), 3D (reference tetrahedra, coordinate transformation, general tetrahedra), 4D (by calling hcubature for 2D twice) and 6D (by calling hcubature for 2D twice). See notebook [mom_hcubature](./mom_hcubature.ipynb);
 2. formulate and compute 6D integrals for tetra/tetra interaction assuming no parallel facets. $P_{\alpha}$ with nodes ${\mathbf r}_1 = (0,0,0)$, ${\mathbf r}_2 = (1,0,0)$, ${\mathbf r}_3 = (0,1,0)$ and ${\mathbf r}_4 = (0,0,1)$. 
@@ -292,13 +380,13 @@ $P_{\beta}$ with nodes ${\mathbf r}_1 = (0,0,0)$, ${\mathbf r}_2 = (1,0,0)$, ${\
 6. loop over elements over the mesh to compute the mass matrix. Provide more details (expression of the local matrix per element) here;
 7. use of hcubature to compute the stiffness matrix elements. Possibly regularization in the kernel;
 
-### Section 5.3: Analytical Assembly of the Stiffness Matrix 
+### Section 5.4: Analytical Assembly of the Stiffness Matrix 
 
 1. implement point-edge interactions (cfr. seperate notebook); 
 2. implement edge-edge interactions  (cfr. seperate notebook); 
 2. implement point-facet interactions  (cfr. seperate notebook);
 
-## Section 4: The Julia Programming Language
+## Section 5: The Julia Programming Language
 
 ### Introductory Material
 - Elementary introduction: [Thinking Julia](https://benlauwens.github.io/ThinkJulia.jl/latest/book.html);
@@ -366,7 +454,46 @@ $$
 $$
 
 
+To solve a Fredholm integral equation in SymPy, you cannot use a single "built-in" solver function. Instead, you represent the equation symbolically and use techniques like the Method of Undetermined Coefficients to solve for the unknown function.A classic Fredholm equation of the second kind looks like this:
+$$
+y(x)=f(x)+\lambda \int _{a}^{b}K(x,t)y(t)\,dt
+$$
+Here is a complete example solving the Fredholm integral equation:
+$$
+y(x)=x+\int _{0}^{1}x\cdot t\cdot y(t)\,dt
+$$
+Step-by-Step Python Code
+
+Since the kernel $K(x, t) = x \cdot t$ is separable, the integral $\int_{0}^{1} t \cdot y(t) \, dt$ evaluates to a constant, let's call it \(C\). This allows us to solve it algebraically.
+
+When you run this script below, SymPy performs the following calculations: It evaluates the definite integral $\int_{0}^{1} t(t + C t) \, dt = \int_{0}^{1} (1+C)t^2 \, dt = \frac{1+C}{3}$ It sets up the linear equation $C = \frac{1+C}{3}$ and solves for $C$, yielding $C = \frac{1}{2}$. It substitutes $C$ back into $y(x) = x + Cx$ to yield the exact analytical solution:$\mathbf{y(x)=}\frac{\mathbf{3x}}{\mathbf{2}}$. 
+
 
 ```julia
+from sympy import symbols, Integral, solve, Eq
+
+# 1. Define symbols
+x, t, C = symbols('x t C')
+
+# 2. Assume the form of y(x) based on the structure of the equation
+# Since y(x) = x + x * Integral(t * y(t)), y(x) must be of the form: x + C * x
+y_x = x + C * x
+
+# 3. Substitute this assumed form into the integral part to find C
+# The constant C is defined as the integral of t * y(t) from 0 to 1
+y_t = y_x.subs(x, t)  # Replace x with t for the integration variable
+integral_expr = Integral(t * y_t, (t, 0, 1))
+
+# 4. Set up the compatibility equation: C = Integral(t * y(t))
+compat_eq = Eq(C, integral_expr.doit())
+
+# 5. Solve for the unknown constant C
+C_value = solve(compat_eq, C)[0]
+
+# 6. Substitute C back into our assumed y(x) to get the final solution
+final_solution = y_x.subs(C, C_value)
+
+print(f"The constant C is: {C_value}")
+print(f"The solution y(x) is: {final_solution}")
 
 ```
