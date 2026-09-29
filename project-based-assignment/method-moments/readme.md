@@ -152,7 +152,7 @@ $$
 $$
 
 where ${\cal D}$ is the 
-[differential operator](https://en.wikipedia.org/wiki/Differential_operator) acting on $\mathbf{M}(\mathbf{r})$ as 
+[differential operator](https://en.wikipedia.org/wiki/Differential_operator) acting on ${\mathbf M}(\mathbf{r})$ as 
 
 $$
 \begin{eqnarray}
