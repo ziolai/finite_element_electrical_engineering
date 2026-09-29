@@ -151,11 +151,12 @@ $$
 {\cal D} \left[ \mathbf{M}(\mathbf{r}) \right] = {\mathbf H}_{ext} \text{ on } \overline{\Omega}  
 $$
 
-where ${\cal D}$ is the [differential operator](https://en.wikipedia.org/wiki/Differential_operator) acting on $\mathbf{M}(\mathbf{r})$ as 
+where ${\cal D}$ is the 
+[differential operator](https://en.wikipedia.org/wiki/Differential_operator) acting on $\mathbf{M}(\mathbf{r})$ as 
 
 $$
 \begin{eqnarray}
-{\cal D}\left[ \mathbf{M}(\mathbf{r}) \right] & = & {\mathbf H}_{tot}(\mathbf{r}) - {\mathbf H}_{M}(\mathbf{r}) \nonumber \\ 
+{\cal D}\left\[ \mathbf{M}(\mathbf{r}) \right\] & = & {\mathbf H}_{tot}(\mathbf{r}) - {\mathbf H}_{M}(\mathbf{r}) \nonumber \\ 
 & = & \frac{1}{\chi_{mag}} \mathbf{M}(\mathbf{r}) +
 \text{grad}_{\mathbf{r}} \left\{  
 \frac{1}{4 \pi}  \int_{\Omega} \frac{- \text{div}_{\mathbf{r}} \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + \frac{1}{4 \pi}  \int_{\partial \Omega} \frac{ \mathbf{M}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' \right\} \nonumber \\
@@ -175,13 +176,13 @@ $$
 where ${\cal D}_2$ is the  volume-integro-differential part of the equation (Note that after integration wrt. ${\mathbf r}'$ over $\Omega$, a function in ${\mathbf r}$ is obtained. This function can be differentiated wrt. ${\mathbf r}$.) (the ${\cal D}_2$ requires secoond order derivatives of $\mathbf{M}(\mathbf{r}$, thus requiring stringent smoothness requirements on $\mathbf{M}(\mathbf{r}$. Hence the term strong form.) (leading to a stiffness matrix. Unlike in classical FEM, this stiffness matrix will be dense due to integral term in the equations) 
 
 $$
-{\cal D}_2\left[ \mathbf{M}(\mathbf{r}) \right] = \text{grad}_{\mathbf{r}} \, \phi_M^{\Omega} = \frac{1}{4 \pi} \nabla_{\mathbf{r}} \, \int_{\Omega} \frac{ - \nabla' \cdot \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, , 
+{\cal D}_2\left\[ \mathbf{M}(\mathbf{r}) \right\] = \text{grad}_{\mathbf{r}} \, \phi_M^{\Omega} = \frac{1}{4 \pi} \nabla_{\mathbf{r}} \, \int_{\Omega} \frac{ - \nabla' \cdot \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, , 
 $$
 
 and where ${\cal B}$ is the boundary-integro-differential part of the equation (Same observation as for ${\cal D}_2$, this time integrating over $\partial \Omega$.)
 
 $$
-{\cal B} \left[ \mathbf{M}(\mathbf{r}) \right] = \text{grad}_{\mathbf{r}} \, \phi_M^{\partial \Omega} = \, \frac{1}{4 \pi} \nabla_{\mathbf{r}} \int_{\partial \Omega} \frac{ \mathbf{M}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' \, . 
+{\cal B} \left\[ \mathbf{M}(\mathbf{r}) \right\] = \text{grad}_{\mathbf{r}} \, \phi_M^{\partial \Omega} = \, \frac{1}{4 \pi} \nabla_{\mathbf{r}} \int_{\partial \Omega} \frac{ \mathbf{M}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' \, . 
 $$
 
 The differential equation that determines $\mathbf{M}(\mathbf{r})$ is an [integro-differential equation](https://en.wikipedia.org/wiki/Integro-differential_equation). The above integro-differential equation is a system of three coupled equations for the three components of the magnetization $\mathbf{M}(\mathbf{r})$. This equation is a vector-valued grad-div equation. See e.g [MFEM weak gradient example](https://mfem.org/fem_weak_form/) and 
