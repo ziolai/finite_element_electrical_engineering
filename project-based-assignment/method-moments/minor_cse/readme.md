@@ -1,23 +1,19 @@
 # Magnetized Metalic Objects - Readme 
 
-### How to further extend these notes 
+### How Domenico intends to further extend these notes 
 
-**Grad-Div Equation**
+**Mesh generation using Ferrite in-build functions**
+1. avoid mesh IO that GMSH requires;
+2. see notebook [mom_ferrite.ipynb](./mom_ferrite.ipynb); 
+3. have loop over cells and faces immediately available; 
 
-1. See [MFEM weak gradient example](https://mfem.org/fem_weak_form/). 
-2. See [Moose grad-div example](https://mooseframework.inl.gov/syntax/MFEM/Grad-Div.html). Not sure whether FENICS or dealII provides similar examples.  
-3. Using search term <i>weak gradient form equation</i> and grad-div problem. 
-
-**Singular Reisz Kernel**
-1. extend notes on the singularity of the kernel; 
-
-**Mesh Data Structure**
+**Mesh Data Structure in case of generating the mesh using GMSH**
 1. struct edge with field node holding global node index (extend what currently exists);
 2. struct face with first field holding global node index and second field holding global edge index (extend what currently exists);
 3. struct element with first field holding global node index, second field holding global edge index and third field holding global face index; 
 4. the mesh has a field Points that holds an array of length npoints of type Point3D, similar for edges, faces and elements; 
 
-**Two Triangular Facets Test Case** 
+**Two Triangular Facets Test Case intended as a test case to compute the integral $I_{24}$ by reduction to lower dimension** 
 
 Adapt mesh structure (assignment for students) to 
 1. remove node duplication;  
@@ -36,14 +32,7 @@ Describe post-processing using VTK files and Paraview.
 <b>To do</b>:
 1. introduce [PhysicalConstants.jl](https://github.com/JuliaPhysics/PhysicalConstants.jl) 
 
-wish to obtain single expression for the stiffness matrix per element  
 
-$$
-\begin{eqnarray}
-A_{\alpha\beta}^{xx,11} & =  & - \int_{P_{\alpha}} \frac{\partial \phi_1({\mathbf r})}{\partial x} \, \frac{\partial}{\partial x} \int_{P_{\beta}} \frac{\phi_1({\mathbf r})}{\|\mathbf{r}' - \mathbf{r} \|} \, d\,P_{\beta} \, d\,P_{\alpha}  \\
-& =  & - a_1 \, a_1 \int_{P_{\alpha}} \left[ \int_{P_{\beta}} \frac{\phi_1({\mathbf r})}{\|\mathbf{r}' - \mathbf{r} \|} d\,P_{\beta} \right] d\,P_{\alpha}
-\end{eqnarray}
-$$ 
 
 ## Section 1: Introduction 
 
@@ -57,13 +46,21 @@ The objective of this project is to contribute to the development of a novel sim
 
 The approach we suggest here is expected to render the computation of the magnetization field in realistic applications feasible.    
 
-<b>Assembly of the linear system</b>: The focus of the project is placed on the assembly of the linear system. A computationally efficient procedure to treat the six-dimensional interaction integrals will have to be developed. We will use the Euler Integration Theorem (a generalization of the Green-Gauss divergence theorem) for homogeneous functions.  
+<b>Assembly of the linear system</b>: The focus of the project is placed on the assembly of the linear system. A computationally efficient procedure to treat the six-dimensional volume(3D)-volume(3D) interaction integrals will have to be developed. We will use the Euler Integration Theorem (a generalization of the Green-Gauss divergence theorem) for homogeneous functions.  
 
 <b>Solve of the linear system</b>: Once the linear system is solved, it can be solved by a direct linear solveer for symmetric and positive definite linear system. Such solver are based on a Choleskly decomposition of the coefficient matrix.  
 
 (Insert figures here).
 
-## Section 2: Mathematical Preliminaries 
+## Section 2: Notation, Concepts and Mathematical Preliminaries 
+
+**Notation** Assume $P_{\alpha}$ and $P_{\beta}$ to be two disjoint tetrahedra, i.e., two elements in a conformal mesh of a 3D volume $\Omega$. The we will denote the six-dimensional (3D)volume-(3D)volume interaction integral $P_{\alpha\beta}$ as 
+
+$$
+P_{\alpha\beta} = \int_{P_{\alpha}} \int_{P_{\beta}} \frac{1}{\|\mathbf{r}' - \mathbf{r} \|} dP_{\beta} \, dP_{\alpha} \, . 
+$$
+
+Note that the integral is singular in case that $\alpha = \beta$. This singularity causes the numerical evaluation of this integral to be non-trivial. See [Singular_integral](https://en.wikipedia.org/wiki/Singular_integral) for concepts. Later, we will introduce similar interaction integrals between facets, edges and points.  
 
 **Identities** We have that 
 
@@ -87,29 +84,40 @@ $$
 \int_{P_{\alpha}} \frac{{\mathbf r} - {\mathbf r}'}{\| {\mathbf r} - {\mathbf r}' \|} \, d\Omega = \frac{1}{3} \sum \int_{F_{\alpha} \in P_{\alpha}} \left[ {\mathbf n}({\mathbf r}) \cdot ({\mathbf r} - {\mathbf r}') \right] \frac{{\mathbf r} - {\mathbf r}'}{\| {\mathbf r} - {\mathbf r}' \|} \, dS 
 $$
 
-**Integration by parts** for grad-div equations. Assume $\mathbf{V}(\mathbf{r})$ and $\mathbf{W}(\mathbf{r})$ to be two vector fields on $\Omega \subset \mathbb{R}^3$ bounded by a surface $\partial \Omega$ with outward normal ${\mathbf n}$. Then 
+**Integration by parts** Assume $\Omega \subset \mathbb{R}^3$ to be a volume in ${\mathbb R}^3$ bounded by a surface $\partial \Omega$ with outward normal ${\mathbf n}$. Assume $f(\mathbf{r})$ to be a scalar field on $\Omega$. Assume $\mathbf{V}(\mathbf{r})$ to be a vector field on $\Omega$ with normal component $V_n(\mathbf{n}) = \mathbf{V}(\mathbf{r}) \cdot \mathbf{n}$ on $\partial \Omega$. Then 
 
 $$
-\text{div} \left[ \mathbf{V} \,  \text{div} \mathbf{W} \right] = 
-\text{div} \mathbf{V} \, \text{div} \mathbf{W} + \mathbf{V} \cdot \text{grad} \left( \text{div} \mathbf{W} \right) \, . 
+\text{div} \left[ f \, \mathbf{V}  \right] = 
+\text{grad}(f) \cdot \mathbf{V} + f \, \text{div} \mathbf{V} \, . 
 $$
 
-Then by integration over $\Omega$ and applying the Green-Gauss divergence theorem, we obtain that 
+On the other hand, by integration over $\Omega$ and applying the Green-Gauss divergence theorem, we obtain that 
 
 $$
-\int_{\Omega} \text{grad} \left( \text{div} \mathbf{W} \right) \cdot \mathbf{V} \, d\Omega = \int_{\partial \Omega} \left[ \mathbf{V} \,  \text{div} \mathbf{W} \right] \cdot \mathbf{n} \, dS - \int_{\Omega} \text{div} \mathbf{V} \, \text{div} \mathbf{W} \, d\Omega \, .  
+\int_{\Omega} \text{div} \left[ f \, \mathbf{V} \right] \, d\Omega = \int_{\partial \Omega} \left[ f \, \mathbf{V} \right] \cdot \mathbf{n} \, dS = \int_{\partial \Omega} f \, \left[ \mathbf{V} \cdot \mathbf{n} \right] \, dS = \int_{\partial \Omega} f \, V_n \, dS 
+$$
+
+By combining the two above results, we arrive at 
+
+$$
+\int_{\partial \Omega} f \, V_n \, dS = \int_{\Omega} \text{div} \left[ f \, \mathbf{V} \right] \, d\Omega = \int_{\Omega} \left[ \text{grad}(f) \cdot \mathbf{V} \right] \, d\Omega + \int_{\Omega} \left[ f \, \text{div} \mathbf{V} \right] \, d\Omega \, .  
+$$
+
+or 
+
+$$
+\int_{\Omega} \left[ \text{grad}(f) \cdot \mathbf{V} \right] \, d\Omega = \int_{\partial \Omega} f \, V_n \, dS - \int_{\Omega} \left[ f \, \text{div} \mathbf{V} \right] \, d\Omega \, . 
 $$
 
 ## Section 3: Project Description 
 
 ### Section 1.3: Problem Formulation 
 
-<b>Computational Domain</b> We assume that the computational domain $\Omega$ is a cube with lenght $L$, height $H$ and depth $D$ alligned with the coordinate axes. Then $0 \leq x \leq L$, $0 \leq y \leq H$ and $0 \leq z \leq D$ and $\Omega = [0,L] \times [0,H] \times [0,D]$. Typical values are $L = H = 1 \, \text{m}$ and $0.01 \, \text{m} \leq D \leq 0.1 \, \text{m}$. In thick plate, the magnetization will varry with the $z$-coordinates. In thin plates, this variation is expected to be small. 
+<b>Computational Domain</b> We assume that the computational domain $\Omega$ is a cube with lenght $L$, height $H$ and depth $D$ alligned with the coordinate axes. Then $0 \leq x \leq L$, $0 \leq y \leq H$ and $0 \leq z \leq D$ and $\Omega = [0,L] \times [0,H] \times [0,D]$. Typical values are $L = H = 1 \, \text{m}$ and $0.01 \, \text{m} \leq D \leq 0.1 \, \text{m}$. In thick plate, the magnetization will varry with the $z$-coordinates. In thin plates instead, this variation is expected to be small. 
 
-We will distinguish between the interior and the boundary of $\Omega$. We therefore assume that $\Omega$ is open (the boundary of $\Omega$ does not belong to $\Omega$). We assume that $\partial \Omega$ (the union of the four quadrilateral facets) denotes the boundary of $\Omega$. We assume that $\overline{\Omega} = \Omega \cup \partial \Omega$ (i.e. the union of the volume and its surface) denotes the closure of $\Omega$. We assume that the exterior to $\Omega$ is the volume ${\mathbb R}^3 \setminus \overline{\Omega}$. 
+We will distinguish between the interior and the boundary of $\Omega$. We therefore assume that $\Omega$ is open (the boundary of $\Omega$ does not belong to $\Omega$). We assume that $\partial \Omega$ (the union of the six (front, back, top, bottom, left and right) quadrilateral facets) denotes the boundary of $\Omega$. We assume that $\overline{\Omega} = \Omega \cup \partial \Omega$ (i.e. the union of the volume and its surface) denotes the closure of $\Omega$. We assume that the exterior to $\Omega$ is the volume ${\mathbb R}^3 \setminus \overline{\Omega}$. 
 
-We assume that $\mathbf{r} = (x,y,z)$ denotes the position vector of a observer (destination) inside of $\overline{\Omega}$ (thus possibly on the boundary). We assume that $\mathbf{r}' = (x',y',z')$ denotes the position vector of a source inside of $\overline{\Omega}$. Introduce notation for gradient and divergence wrt. $\mathbf{r}$ and 
-$\mathbf{r}'$. 
+We assume that $\mathbf{r} = (x,y,z)$ denotes the position vector of a observer (destination) inside of $\overline{\Omega}$ (thus possibly on the boundary). We assume that $\mathbf{r}' = (x',y',z')$ denotes the position vector of a source inside of $\overline{\Omega}$. We will denote by $\nabla$ and $\nabla'$ the gradient operator wrt. $\mathbf{r}$ and $\mathbf{r}'$, respectively. We will use a similar notation for the divergence.   
 
 <b>Material Properties</b> Assume that $\Omega$ has a [magnetic susceptibility](https://en.wikipedia.org/wiki/Magnetic_susceptibility) denoted by $\chi_{mag}$ and a relative [magnetic permeability](https://en.wikipedia.org/wiki/Permeability_(electromagnetism)) denoted by $\mu_r$. Then $\chi_{mag} = \mu_r -1$. When the volume $\Omega$ is placed inside an external magnetic field, it will magnetize. The volume $\Omega$ thus mimmics a metalic plate. Here it will be suffucient to assume that the plate is homogeneous and that therefore $\chi_{mag}$ is constant. Assume that $10 \leq \chi_{mag} \leq 1000$ (dimensionless, value for common steel types). Non-homogeneous plate can be modeled assuming that $\chi_{mag}$ is piecewise constant. Non-linear magnetization effects are excluded in this project.   
 
@@ -120,19 +128,24 @@ The external magnetic field will be denoted by ${\mathbf H}_{ext}$. This field c
 The induced magnetic field will be denoted by ${\mathbf H}_{M}(\mathbf{r})$. This field is caused by the presence of a non-zero magnetization ${\mathbf M}(\mathbf{r})$ inside of $\Omega$. The relation between ${\mathbf M}(\mathbf{r})$ and ${\mathbf H}_{M}(\mathbf{r})$ can be expressed through the magnetic scalar potential $\phi_M(\mathbf{r})$ as 
 
 $$
-{\mathbf H}_{M}(\mathbf{r}) = - \text{grad}_{\mathbf{r}} \phi_M(\mathbf{r}) = - \nabla_{\mathbf{r}} \phi_M(\mathbf{r}) 
+{\mathbf H}_{M}(\mathbf{r}) = - \text{grad}_{\mathbf{r}} \, \phi_M(\mathbf{r}) = - \nabla_{\mathbf{r}} \, \phi_M(\mathbf{r}) 
 $$
 
-(minus sign by convention). The scalar potential for ${\mathbf M}(\mathbf{r})$ inside of $\Omega$ (volumetric density $\rho_M = - \nabla_{\mathbf{r'}} \cdot \mathbf{M}(\mathbf{r}')$) and ${\mathbf M_{\partial}}(\mathbf{r})$ on $\partial \Omega$ (surface density $\rho_S = \mathbf{M}_{\partial}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'})$) is given by 
+(minus sign by convention). The scalar potential for ${\mathbf M}(\mathbf{r})$ inside of $\Omega$ (volumetric density $\rho_M = - \nabla_{\mathbf{r'}} \cdot \mathbf{M}(\mathbf{r}')$) and ${\mathbf M}(\mathbf{r})$ on $\partial \Omega$ (surface density $\rho_S = \mathbf{M}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'})$) is given by 
 
 $$
-\phi_M(\mathbf{r}) = \frac{1}{4 \pi}
-\int_{\Omega} \frac{- \nabla_{\mathbf{r'}} \cdot \mathbf{M}(\mathbf{r}')}{ \|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + \frac{1}{4 \pi} \int_{\partial \Omega} \frac{ \mathbf{M}_{\partial}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' \, . 
+\begin{eqnarray}
+\phi_M(\mathbf{r}) & = & \frac{1}{4 \pi}
+\int_{\Omega} \frac{- \nabla_{\mathbf{r'}} \cdot \mathbf{M}(\mathbf{r}')}{ \|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + \frac{1}{4 \pi} \int_{\partial \Omega} \frac{ \mathbf{M}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' \nonumber \\
+& = & \phi_M^{\Omega}(\mathbf{r}) + \phi_M^{\partial \Omega}(\mathbf{r}) \, . 
+\end{eqnarray}
 $$
 
-(Who is $\mathbf{M}_{\partial}(\mathbf{r})$)? The total magnetic field will be denoted by ${\mathbf H}_{tot}(\mathbf{r})$. This field is the sum of the external and the induced magnetic field. We thus have that ${\mathbf H}_{ext} + {\mathbf H}_{M} = {\mathbf H}_{tot}$. The total field is equal to the external field in the exterior of $\overline{\Omega}$. The total field on $\overline{\Omega}$ is related to the magnetization via the constitutive equation ${\mathbf H}_{tot} = {\mathbf M}/\chi_{mag}$.
+(Note: unlike Eugene, we do not attach an index to $\mathbf{M}(\mathbf{r}')$. For us, the field to solve for is one and the same.) The total magnetic field will be denoted by ${\mathbf H}_{tot}(\mathbf{r})$. This field is the sum of the external and the induced magnetic field. We thus have that ${\mathbf H}_{ext} + {\mathbf H}_{M} = {\mathbf H}_{tot}$. The total field is equal to the external field in the exterior of $\overline{\Omega}$. The total field on $\overline{\Omega}$ is related to the magnetization via the constitutive equation ${\mathbf H}_{tot} = {\mathbf M}/\chi_{mag}$.
 
-<b>Mathematical Model</b> We wish to compute $\mathbf{M}(\mathbf{r})$ by solving a partial differential equation in which the external field ${\mathbf H}_{ext}$ acts as a source term (i.e., ${\mathbf H}_{ext}$ appears in the right-hand side of the equation). This differential equation can be written as  
+### Section 2.3: Vector Integro-Differential Equation for $\mathbf{M}(\mathbf{r})$ - Problem in Strong Form 
+
+We wish to compute ${\mathbf M}(\mathbf{r})$ by solving a partial differential equation in which the external field ${\mathbf H}_{ext}$ acts as a source term (i.e., ${\mathbf H}_{ext}$ appears in the right-hand side of the equation). This differential equation can be written as  
 
 $$
 {\cal D} \left[ \mathbf{M}(\mathbf{r}) \right] = {\mathbf H}_{ext} \text{ on } \overline{\Omega}  
@@ -145,60 +158,71 @@ $$
 {\cal D}\left[ \mathbf{M}(\mathbf{r}) \right] & = & {\mathbf H}_{tot}(\mathbf{r}) - {\mathbf H}_{M}(\mathbf{r}) \nonumber \\ 
 & = & \frac{1}{\chi_{mag}} \mathbf{M}(\mathbf{r}) +
 \text{grad}_{\mathbf{r}} \left\{  
-\frac{1}{4 \pi}  \int_{\Omega} \frac{- \text{div}_{\mathbf{r}} \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + \frac{1}{4 \pi}  \int_{\partial \Omega} \frac{ \mathbf{M}_{\partial}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' \right\} \nonumber \\
+\frac{1}{4 \pi}  \int_{\Omega} \frac{- \text{div}_{\mathbf{r}} \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + \frac{1}{4 \pi}  \int_{\partial \Omega} \frac{ \mathbf{M}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' \right\} \nonumber \\
 & = & \frac{1}{\chi_{mag}} \mathbf{M}(\mathbf{r}) + 
 \nabla_{\mathbf{r}} \left\{ 
-\frac{1}{4 \pi} \int_{\Omega} \frac{- \nabla_{\mathbf{r}} \cdot \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + \frac{1}{4 \pi}  \int_{\partial \Omega} \frac{ \mathbf{M}_{\partial}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' \right\} \, . \nonumber 
+\frac{1}{4 \pi} \int_{\Omega} \frac{- \nabla_{\mathbf{r}} \cdot \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + \frac{1}{4 \pi}  \int_{\partial \Omega} \frac{ \mathbf{M}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' \right\} \, . \nonumber \\ 
+& = & {\cal D}_1\left[ \mathbf{M}(\mathbf{r}) \right] + {\cal D}_2 \left[ \mathbf{M}(\mathbf{r}) \right] + {\cal B} \left[ \mathbf{M}(\mathbf{r}) \right] \nonumber 
 \end{eqnarray}
 $$
 
-The differential operator ${\cal D}$ contains a volume integral term and a surface integral term. The differential equation that determines $\mathbf{M}(\mathbf{r})$ is therefore an [integro-differential equation](https://en.wikipedia.org/wiki/Integro-differential_equation). The above integro-differential equation is a system of three coupled equations for the three components of the magnetization $\mathbf{M}(\mathbf{r})$. This equation is solved on $\overline{\Omega}$ only. The magnetization $\mathbf{M}(\mathbf{r})$ remains zero outside of $\overline{\Omega}$. The kernel in the second term of ${\cal D}$ can be written as 
+where ${\cal D}_1$ merely applies a scaling to $\mathbf{M}(\mathbf{r})$ (leading to a mass matrix for vector-valued problems as in classical FEM, see e.g. transient linear elasticity equations)
+
+$$
+{\cal D}_1\left[ \mathbf{M}(\mathbf{r}) \right] = \frac{1}{\chi_{mag}} \mathbf{M}(\mathbf{r}) \, , 
+$$
+
+where ${\cal D}_2$ is the  volume-integro-differential part of the equation (Note that after integration wrt. ${\mathbf r}'$ over $\Omega$, a function in ${\mathbf r}$ is obtained. This function can be differentiated wrt. ${\mathbf r}$.) (the ${\cal D}_2$ requires secoond order derivatives of $\mathbf{M}(\mathbf{r}$, thus requiring stringent smoothness requirements on $\mathbf{M}(\mathbf{r}$. Hence the term strong form.) (leading to a stiffness matrix. Unlike in classical FEM, this stiffness matrix will be dense due to integral term in the equations) 
+
+$$
+{\cal D}_2\left[ \mathbf{M}(\mathbf{r}) \right] = \text{grad}_{\mathbf{r}} \, \phi_M^{\Omega} = \frac{1}{4 \pi} \nabla_{\mathbf{r}} \, \int_{\Omega} \frac{ - \nabla' \cdot \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, , 
+$$
+
+and where ${\cal B}$ is the boundary-integro-differential part of the equation (Same observation as for ${\cal D}_2$, this time integrating over $\partial \Omega$.)
+
+$$
+{\cal B} \left[ \mathbf{M}(\mathbf{r}) \right] = \text{grad}_{\mathbf{r}} \, \phi_M^{\partial \Omega} = \, \frac{1}{4 \pi} \nabla_{\mathbf{r}} \int_{\partial \Omega} \frac{ \mathbf{M}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' \, . 
+$$
+
+The differential equation that determines $\mathbf{M}(\mathbf{r})$ is an [integro-differential equation](https://en.wikipedia.org/wiki/Integro-differential_equation). The above integro-differential equation is a system of three coupled equations for the three components of the magnetization $\mathbf{M}(\mathbf{r})$. This equation is a vector-valued grad-div equation. See e.g [MFEM weak gradient example](https://mfem.org/fem_weak_form/) and 
+[Moose grad-div example](https://mooseframework.inl.gov/syntax/MFEM/Grad-Div.html). (Not sure whether FENICS or dealII provides similar examples.) 
+
+This equation for $\mathbf{M}(\mathbf{r})$ is solved on $\overline{\Omega}$ only. The magnetization $\mathbf{M}(\mathbf{r})$ remains zero outside of $\overline{\Omega}$. 
+
+The kernel in ${\cal D}_2$ can be written as 
 
 $$
 {\cal K}(\mathbf{r},\mathbf{r}') = \frac{1}{4 \pi}  \frac{1}{\|\mathbf{r}' - \mathbf{r} \|} \, . 
 $$
 
-This kernel depends on the distance $\|\mathbf{r}' - \mathbf{r} \|$ only. Small values of this distance matter most. It is singular for $\mathbf{r}' = \mathbf{r}$. The convolution of $\mathbf{M}(\mathbf{r})$ and ${\cal K}(\mathbf{r},\mathbf{r}')$ can be written as 
+This kernel depends on the distance $\|\mathbf{r}' - \mathbf{r} \|$ only. Small values of this distance matter most. It is singular for $\mathbf{r}' = \mathbf{r}$. Add note on how to regularize the kernel. The convolution of $\mathbf{M}(\mathbf{r})$ and ${\cal K}(\mathbf{r},\mathbf{r}')$ can be written as 
 
 $$
-{\cal K}(\mathbf{r},\mathbf{r}') * \mathbf{M}(\mathbf{r}) = \frac{1}{4 \pi} \int_{\Omega} \frac{- \nabla_{\mathbf{r}} \cdot \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, . 
+{\cal K}(\mathbf{r},\mathbf{r}') * \mathbf{M}(\mathbf{r}') = \frac{1}{4 \pi} \int_{\Omega} \frac{- \nabla_{\mathbf{r}'} \cdot \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, . 
 $$
 
-For future reference, we will split ${\cal D}\left[ \mathbf{M}(\mathbf{r}) \right]$ in three terms as ${\cal D}\left[ \mathbf{M}(\mathbf{r}) \right] = {\cal D}_1\left[ \mathbf{M}(\mathbf{r}) \right] + {\cal D}_2 \left[ \mathbf{M}(\mathbf{r}) \right] + {\cal B} \left[ \mathbf{M}(\mathbf{r}) \right]$, where ${\cal D}_1$ is merely a scaling  
-
-$$
-{\cal D}_1\left[ \mathbf{M}(\mathbf{r}) \right] = \frac{1}{\chi_{mag}} \mathbf{M}(\mathbf{r})
-$$
-
-where ${\cal D}_2$ is the integro-differential part of the equation
-
-$$
-{\cal D}_2\left[ \mathbf{M}(\mathbf{r}) \right] = - 
-\nabla_{\mathbf{r}} \, {\cal K}(\mathbf{r},\mathbf{r}') * \mathbf{M}(\mathbf{r}) \, .
-$$
-
-and where ${\cal B}$ is the boundary integral term
-
-$$
-{\cal B} \left[ \mathbf{M}(\mathbf{r}) \right] = \nabla_{\mathbf{r}} \, \frac{1}{4 \pi}  \int_{\partial \Omega} \frac{ \mathbf{M}_{\partial}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' \, . 
-$$
+Link here to [Riesz_transform](https://en.wikipedia.org/wiki/Riesz_transform). 
 
 We also write the integro-differential equation for $\mathbf{M}(\mathbf{r})$ in explicit form. The first of the three scalar equations is 
 
 $$
 \frac{1}{\chi_{mag}} M_x(\mathbf{r}) +  
 \frac{\partial}{\partial x} \, \frac{1}{4 \pi}
-\int_{\Omega} \frac{- \nabla_{\mathbf{r}} \cdot \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + 
-\frac{\partial}{\partial x} \frac{1}{4 \pi}  \int_{\partial \Omega} \frac{ \mathbf{M}_{\partial}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' = H_{ext,x} \, , 
+\int_{\Omega} \frac{- \nabla_{\mathbf{r}'} \cdot \mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' + 
+\frac{\partial}{\partial x} \frac{1}{4 \pi}  \int_{\partial \Omega} \frac{ \mathbf{M}(\mathbf{r}') \cdot \mathbf{n}(\mathbf{r'}) }{\|\mathbf{r}' - \mathbf{r} \|} \, dS' = H_{ext,x} \, , 
 $$
 
 and simarly for $M_y(\mathbf{r})$ and $M_z(\mathbf{r})$.   
 
-### Section 2.3: Mesh Generation and Shape Functions 
+**Reference Solutions** Find reference solutions for in-plane and perpendicular-plane external fields using AI tools, literature, alternative softwarfe tools with or without regularizing the singularity of the interaction kernel. 
+
+**Continuous Variational Formulation** Describe continuous variational formulation to arrive at estimates for a-posteriori error analysis that can be exploited in an h-adaptive or p-adaptive refinement strategy. Constant of continuity and coercivity.
+
+### Section 3.3: Mesh Generation and Definition of Shape Functions 
 
 We wish to compute the magnetization vector $\mathbf{M}(\mathbf{r})$ inside the metallic plate $\Omega$. We therefore generate a mesh on $\Omega$. 
 
-<b>Mesh Generation</b> We denote the mesh by $\Omega^h$. We assume that the mesh consists of tetrahedral elements only. We denote the number of nodes, edges, facets and elements of $\Omega^h$ by $N_n$, $N_{ed}$, $N_f$ and $N_e$, respectively. Assume the nodes and the elements to be denoted by ${\mathbf x}_i$ for $1 \leq i \leq N_n$ and by $P_{\alpha}$ for $1 \leq \alpha \leq N_e$, respectively. The union of all elements $P_{\alpha}$ forms the entire domain of computation. That is, we have that $\cup P_{\alpha} | 1 \leq \alpha \leq N_e = \Omega$. We will use this elementary fact in the computation of the matrix $\underline{\underline{A}}$ and the right-hand side vector $\mathbf{b}$.    
+<b>Mesh Generation</b> We denote the mesh by $\Omega^h$. Due to limitation currently faced in the analytical computation of the matrix elemdnts, we assume that the mesh consists of tetrahedral elements only. We denote the number of nodes, edges, facets and elements of $\Omega^h$ by $N_n$, $N_{ed}$, $N_f$ and $N_e$, respectively. Assume the nodes and the elements to be denoted by ${\mathbf x}_i$ for $1 \leq i \leq N_n$ and by $P_{\alpha}$ for $1 \leq \alpha \leq N_e$, respectively. The union of all elements $P_{\alpha}$ forms the entire domain of computation. That is, we have that $\cup P_{\alpha} | 1 \leq \alpha \leq N_e = \Omega$. We will use this elementary fact in the computation of the matrix $\underline{\underline{A}}$ and the right-hand side vector $\mathbf{b}$.    
 
 We assume that the information to decompose an element $P_{\alpha}$ into a set of facets, a facet into a set of edges and an edge into a set of points to be available (representation of the mesh $\Omega^h$ as a directed a-cyclic graph (DAG) with corresponding operations to find parent nodes and child nodes. See e.g. [wikipedia entry on polygon mesh](https://en.wikipedia.org/wiki/Polygon_mesh).
 
@@ -208,9 +232,74 @@ $\boldsymbol{\phi}_{3i} = \left( 0, 0, \phi_i \right)$ (weighting function for $
 
 More information on the mesh generation is provided in the [notebook](./mom_3d_plate_gmsh.ipynb). 
 
-### Section 3.3: Galerkin Method    
+**Definition of Shape Functions on a Single Tetrahedral Element** The tetrahedral mesh element $P_{\alpha}$ has $4$ nodes. Assume these nodes to be denote ${\mathbf x}_1$, ${\mathbf x}_2$, ${\mathbf x}_3$ and ${\mathbf x}_4$ (in local numbering on this single element). The linear Lagrange shape functions on this element can be expressed as $\phi_k({\mathbf r}) = a_k x + b_k y + c_k y + d_k$ for $1 \leq k \leq 4$, where $a_k$, $b_k$, $c_k$ and $d_k$ are coefficients. These coefficients are choosen such that the shape functions satisfy the constraint that $\phi_k({\mathbf x}_{\ell}) = \delta_{k\ell}$ for $1 \leq k,\ell \leq 4$. Linear system for these coefficients. 
 
-Here we describe the [Galerkin method](https://en.wikipedia.org/wiki/Galerkin_method) that allows to convert the system of integral partial differential-equations for $\mathbf{M}(\mathbf{r})$ into a weak or variational formulation. This variational formulation will allow a spatial discretization. See also example of the weak formulation of the Poisson equation as [wiki on weak formulation](https://en.wikipedia.org/wiki/Weak_formulation)). (Requires example of weak form of a c oupled system of differential equations.) 
+**Divergence of Vector Shape Function** The divergence of the vector-valued shape functions can be expressed as 
+
+$$
+\nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = \frac{\partial}{\partial x} (a_k x + b_k y + c_k y + d_k) = a_k \text{ if } \mod(k,3) = 1 \\
+\nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = \frac{\partial}{\partial y} (a_k x + b_k y + c_k y + d_k)= b_k \text{ if } \mod(k,3) = 2 \\
+\nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = \frac{\partial}{\partial z} (a_k x + b_k y + c_k y + d_k)= c_k \text{ if } \mod(k,3) = 0
+$$     
+
+Observe that these computations are specific to linear shape functions on tetrahedral elements.    
+
+### Section 4.3: Galerkin Method    
+ 
+**Discrete Weak Form** The discrete weak form is obtained in two steps. First the integro-differential equation for $\mathbf{M}(\mathbf{r})$ in multiplied by a vector test function $\boldsymbol{\phi}_k$ with normal component $\boldsymbol{\phi}_k \cdot {\mathbf n} = \phi_{k,n}$. Next, integration over $\Omega$ is performed. (note: to be expanded with the continuous discrete weak form and to be expanded with the weak form for vector-valued equations using inner product with a vector-valued test function) 
+
+$$
+\int_{\Omega} {\cal D} \left[ \mathbf{M}(\mathbf{r}) \right] \cdot \boldsymbol{\phi}_k \, d\Omega = 
+\int_{\Omega} \mathbf{H}_{ext} \cdot \boldsymbol{\phi}_k \, d\Omega 
+\text{ for } \forall 1 \leq k \leq N_n 
+$$ 
+
+or after expanding ${\cal D} \left[ \mathbf{M}(\mathbf{r}) \right]$ in three terms we obtain $\forall 1 \leq k \leq N_n$
+
+$$
+\int_{\Omega} {\cal D}_1 \left[ \mathbf{M}(\mathbf{r}) \right] \cdot \boldsymbol{\phi}_k \, d\Omega + \int_{\Omega} {\cal D}_2 \left[ \mathbf{M}(\mathbf{r}) \right] \cdot \boldsymbol{\phi}_k \, d\Omega + \int_{\Omega} {\cal B} \left[ \mathbf{M}(\mathbf{r}) \right] \cdot \boldsymbol{\phi}_k \, d\Omega = 
+\int_{\Omega} \mathbf{H}_{ext} \cdot \boldsymbol{\phi}_k \, d\Omega 
+\hspace{1cm}  
+$$ 
+
+or after expanding ${\cal D}_1 \left[ \mathbf{M}(\mathbf{r}) \right]$, ${\cal D}_2 \left[ \mathbf{M}(\mathbf{r}) \right]$ and ${\cal B} \left[ \mathbf{M}(\mathbf{r}) \right]$ using their definitions we obtain $\forall 1 \leq k \leq N_n$
+
+$$
+\frac{1}{\chi_{mag}} \int_{\Omega} \mathbf{M}(\mathbf{r}) \cdot \boldsymbol{\phi}_k \, d\Omega + 
+\int_{\Omega} \left[ \text{grad}_{\mathbf{r}} \, \phi_M^{\Omega} \right] \cdot \boldsymbol{\phi}_k \, d\Omega + \int_{\Omega} \left[ \text{grad}_{\mathbf{r}} \, \phi_M^{\partial \Omega}  \right] \cdot \boldsymbol{\phi}_k \, d\Omega = \int_{\Omega} \mathbf{H}_{ext} \cdot \boldsymbol{\phi}_k \, d\Omega
+$$ 
+
+and thus after applying integration by parts to the second and third term in the right-hand side of the equation   
+
+$$
+\frac{1}{\chi_{mag}} \int_{\Omega} \mathbf{M}(\mathbf{r}) \cdot \boldsymbol{\phi}_k \, d\Omega 
++ \int_{\partial \Omega} \phi_M^{\Omega} \, \phi_{k,n} \, dS
+- \int_{\Omega} \phi_M^{\Omega} \left[ \text{div}_{\mathbf{r}} \, \boldsymbol{\phi}_k \right] \, d\Omega 
++ \int_{\partial \Omega} \phi_M^{\partial \Omega} \, \phi_{k,n} \, dS
+- \int_{\Omega} \phi_M^{\partial \Omega} \left[ \text{div}_{\mathbf{r}} \,  \boldsymbol{\phi}_k \right] \, d\Omega 
+= \int_{\Omega} \mathbf{H}_{ext} \cdot \boldsymbol{\phi}_k \, d\Omega \, . 
+$$
+
+This results in $3 \, N_n$ equations for the $3 \, N_n$ components of the vector of expansion coefficients $\mathbf{u}$. The mass matrix and load vector can be assembled by a loop over elements as in classical Galerlin FEM for vector-valued equations. The assembly of the stiffness matrix requires due care asc the integral term renders the stiffness matrix to be dense (as opposed to sparse in classical FEM).
+
+**Expansion of Magnetization Components** The numerical approximation of the magnetization components can be expanded in as 
+
+\begin{eqnarray}
+M_x(\mathbf{r}) = \sum_{i=1}^{N_n} c_i \, \phi_i(\mathbf{r}) \\ 
+M_y(\mathbf{r}) = \sum_{i=1}^{N_n} d_i \, \phi_i(\mathbf{r}) \\
+M_z(\mathbf{r}) = \sum_{i=1}^{N_n} e_i \, \phi_i(\mathbf{r}) 
+\end{eqnarray}
+
+Note that components $M_x(\mathbf{r})$, $M_y(\mathbf{r})$ and $M_z(\mathbf{r})$ are expanded in the same basis with proper expansion coefficients. In case of linear Lagrange shape functions on tetrahedra, the element $P_{\alpha}$ has 4 local degrees of freediom per components, thus in total $3*4=12$ local degrees of freedom. Mapping from local to global degrees of freedom. The expansion coefficients $c_i$, $d_i$ and $e_i$ can stacked into a global vector $\mathbf{u}$ of dimension $3 \, N_n$ where $\mathbf{u}^T = \begin{pmatrix} \mathbf{c}^T \mathbf{d}^T \mathbf{e}^T \end{pmatrix}$. This global vector is the solution of the Galerkin-MoM linear system 
+
+$$
+\underline{\underline{A}} \, \mathbf{u} = \mathbf{b}
+$$
+
+where the matrix $\underline{\underline{A}} = \underline{\underline{A}}^{(1)} + \underline{\underline{A}}^{(2)}$ is a dense $3 \, N_n$-by-$3 \, N_n$ matrix consisting of 
+mass matrix part $\underline{\underline{A}}^{(1)}$ and a stiffness part $\underline{\underline{A}}^{(2)}$. The mass matrix is the spatial discretization of the differential operator ${\cal D}_1 [\mathbf{M}(\mathbf{r})]$ and is very similar to a mass matrix in a classical finite element formulation. The stiffness matrix is the spatial discretization of the differential operator ${\cal D}_2 [\mathbf{M}(\mathbf{r})]$. Assembling this matrix is the main challenge of this project. 
+
+**Elememt by Element Assembly** Here we describe the [Galerkin method](https://en.wikipedia.org/wiki/Galerkin_method) that allows to convert the system of integral partial differential-equations for $\mathbf{M}(\mathbf{r})$ into a weak or variational formulation. This variational formulation will allow a spatial discretization. See also example of the weak formulation of the Poisson equation as [wiki on weak formulation](https://en.wikipedia.org/wiki/Weak_formulation)). (Requires example of weak form of a c oupled system of differential equations.) 
 
 Assume $g(\mathbf{r})$ and $h(\mathbf{r})$ to be scalar functions on $\Omega$ such that 
 
@@ -234,74 +323,18 @@ $$
 \end{eqnarray}
 $$  
 
-(Extend to weighted averaging of $g(\mathbf{r})$, Fourier analysius, expansion in sets of orthogonal functions.) 
+(Extend to weighted averaging of $g(\mathbf{r})$, Fourier analysius, expansion in sets of orthogonal functions.)
 
-**Expansion of Magnetization Components** The numerical approximation of the magnetization components can be expanded in as 
-
-\begin{eqnarray}
-M_x(\mathbf{r}) = \sum_{i=1}^{N_n} c_i \, \phi_i(\mathbf{r}) \\ 
-M_y(\mathbf{r}) = \sum_{i=1}^{N_n} d_i \, \phi_i(\mathbf{r}) \\
-M_z(\mathbf{r}) = \sum_{i=1}^{N_n} e_i \, \phi_i(\mathbf{r}) 
-\end{eqnarray}
-
-Note that components $M_x(\mathbf{r})$, $M_y(\mathbf{r})$ and $M_z(\mathbf{r})$ are expanded in the same basis with proper expansion coefficients. In case of linear Lagrange shape functions on tetrahedra, the element $P_{\alpha}$ has 4 local degrees of freediom per components, thus in total $3*4=12$ local degrees of freedom. Mapping from local to global degrees of freedom. The expansion coefficients $c_i$, $d_i$ and $e_i$ can stacked into a global vector $\mathbf{u}$ of dimension $3 \, N_n$ where $\mathbf{u}^T = \begin{pmatrix} \mathbf{c}^T \mathbf{d}^T \mathbf{e}^T \end{pmatrix}$. This global vector is the solution of the Galerkin-MoM linear system 
-
-$$
-\underline{\underline{A}} \, \mathbf{u} = \mathbf{b}
-$$
-
-where the matrix $\underline{\underline{A}} = \underline{\underline{A}}^{(1)} + \underline{\underline{A}}^{(2)}$ is a dense $3 \, N_n$-by-$3 \, N_n$ matrix consisting of 
-mass matrix part $\underline{\underline{A}}^{(1)}$ and a stiffness part $\underline{\underline{A}}^{(2)}$. The mass matrix is the spatial discretization of the differential operator ${\cal D}_1 [\mathbf{M}(\mathbf{r})]$ and is very similar to a mass matrix in a classical finite element formulation. The stiffness matrix is the spatial discretization of the differential operator ${\cal D}_2 [\mathbf{M}(\mathbf{r})]$. Assembling this matrix is the main challenge of this project. 
-
-**Discrete Weak Form**
-
-$$
-\int_{\Omega} {\cal D} \left[ \mathbf{M}(\mathbf{r}) \right] \cdot \boldsymbol{\phi}_k \, d\Omega = 
-\int_{\Omega} \mathbf{H}_{ext} \cdot \boldsymbol{\phi}_k \, d\Omega 
-\hspace{1cm} \forall 1 \leq k \leq N_n 
-$$ 
-
-or more explicitly 
-
-$$
-\frac{1}{\chi_{mag}} \int_{\Omega} \mathbf{M}(\mathbf{r}) \cdot \boldsymbol{\phi}_k \, d\Omega + 
-\int_{\Omega} \left[ \nabla_{\mathbf{r}} \, \nabla_{\mathbf{r}} \cdot 
-\int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \right] \cdot \boldsymbol{\phi}_k \, d\Omega = \int_{\Omega} \mathbf{H}_{ext} \cdot \boldsymbol{\phi}_k \, d\Omega
-$$ 
-
-and thus after integration by parts on the second term 
-
-$$
-\frac{1}{\chi_{mag}} \int_{\Omega} \mathbf{M}(\mathbf{r}) \cdot \boldsymbol{\phi}_k \, d\Omega - 
-\int_{\Omega} \left[ \nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k \right]
-\left[\nabla_{\mathbf{r}} \cdot 
-\int_{\Omega} \frac{\mathbf{M}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \right] d\Omega = \int_{\Omega} \mathbf{H}_{ext} \cdot \boldsymbol{\phi}_k \, d\Omega
-$$
-
-resulting in $3 \, N_n$ equations for the $3 \, N_n$ components of the vector of expansion coefficients $\mathbf{u}$. The mass matrix and load vector can be assembled by a loop over elements as in classical Galerlin FEM. The stiffness matrix requires dedicated attention due to the integral term.
-
-### Section 4.3: Element-by-element Assembly of Stiffness Matrix
-
-**Definition of Shape Functions on a Single Tetrahedral Element** The tetrahedral mesh element $P_{\alpha}$ has $4$ nodes. Assume these nodes to be denote ${\mathbf x}_1$, ${\mathbf x}_2$, ${\mathbf x}_3$ and ${\mathbf x}_4$ (in local numbering on this single element). The linear Lagrange shape functions on this element can be expressed as $\phi_k({\mathbf r}) = a_k x + b_k y + c_k y + d_k$ for $1 \leq k \leq 4$, where $a_k$, $b_k$, $c_k$ and $d_k$ are coefficients. These coefficients are choosen such that the shape functions satisfy the constraint that $\phi_k({\mathbf x}_{\ell}) = \delta_{k\ell}$ for $1 \leq k,\ell \leq 4$. Linear system for these coefficients. 
-
-**Divergence of Vector Shape Function** The divergence of the vector-valued shape functions can be expressed as 
-
-$$
-\nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = \frac{\partial}{\partial x} (a_k x + b_k y + c_k y + d_k) = a_k \text{ if } \mod(k,3) = 1 \\
-\nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = \frac{\partial}{\partial y} (a_k x + b_k y + c_k y + d_k)= b_k \text{ if } \mod(k,3) = 2 \\
-\nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = \frac{\partial}{\partial z} (a_k x + b_k y + c_k y + d_k)= c_k \text{ if } \mod(k,3) = 0
-$$
-
-**Bilinear Form** By writing $d\Omega = \sum_{\alpha} dP_{\alpha}$ and $d\Omega' = \sum_{\beta} dP_{\beta}$, we arrive at 
+**Volume-volume interactions contributing to the stiffness matrix** Computing 6D integrals in a double loop over all tetrahedra. By writing $d\Omega = \sum_{\alpha} dP_{\alpha}$ and $d\Omega' = \sum_{\beta} dP_{\beta}$, we arrive at 
 
 $$
 \underline{\underline{A}}^{(2)} = \sum_{\alpha} \underline{\underline{A}}_{\alpha}^{(2)} = \sum_{\alpha\beta} \underline{\underline{A}}_{\alpha\beta}^{(2)} \text{ of size } 3 \, N_n \text{ by } 3 \, N_n 
 $$
 
-where the sum over $\alpha$ (destination) and $\beta$ (source) discretize the integral over $\mathbf{r}$ and $\mathbf{r}'$, respectively. In case that $\alpha = \beta$, self-interaction terms are considered. 
+where the sum over $\alpha$ (destination) and $\beta$ (source) discretize the integral over $\mathbf{r}$ and $\mathbf{r}'$, respectively. In case that $\alpha = \beta$, self-interaction terms are considered. We have that 
 
 $$
-\underline{\underline{A}}_{loc,\alpha\beta}^{(2)} = 
+\underline{\underline{A}}_{\alpha\beta}^{(2)} = 
 \begin{pmatrix} 
 A_{\alpha\beta}^{xx} & A_{\alpha\beta}^{xy} &  A_{\alpha\beta}^{xz} \\
 A_{\alpha\beta}^{yx} & A_{\alpha\beta}^{yy} &  A_{\alpha\beta}^{yz} \\ 
@@ -310,18 +343,9 @@ A_{\alpha\beta}^{zx} & A_{\alpha\beta}^{zy} &  A_{\alpha\beta}^{zz}
 \text{ of size } 12 \text{ by } 12
 $$
 
-where (row determined by the expansion of the magnetization, columns determined by the test function) (assuming tetrahedra and $N_e^{\alpha}=4$). 
+where (row determined by the expansion of the magnetization, columns determined by the test function). 
 
-$$
-\underline{\underline{A}}_{loc,\alpha\beta}^{(2)} = 
-\begin{pmatrix} 
-{\mathbf a}^{\alpha} ({\mathbf a}^{\alpha\beta})^T & {\mathbf a}^{\alpha} ({\mathbf b}^{\alpha\beta})^T & {\mathbf a}^{\alpha} ({\mathbf c}^{\alpha\beta})^T \\ 
-{\mathbf b}^{\alpha} ({\mathbf a}^{\alpha\beta})^T & {\mathbf b}^{\alpha} ({\mathbf b}^{\alpha\beta})^T & {\mathbf b}^{\alpha} ({\mathbf c}^{\alpha\beta})^T \\
-{\mathbf c}^{\alpha} ({\mathbf a}^{\alpha\beta})^T & {\mathbf c}^{\alpha} ({\mathbf b}^{\alpha\beta})^T & {\mathbf c}^{\alpha} ({\mathbf c}^{\alpha\beta})^T 
-\end{pmatrix}
-$$
-
-More explicitly we have that 
+More explicitly we have for e.g. the $(1,1)$-block of $\underline{\underline{A}}_{\alpha\beta}^{(2)}$ that 
 
 $$
 A_{\alpha\beta}^{xx} = 
@@ -338,16 +362,66 @@ where
 
 $$
 \begin{eqnarray}
-A_{\alpha\beta}^{xx,11} & =  & - \int_{P_{\alpha}} \frac{\partial \phi_1({\mathbf r})}{\partial x} \, \frac{\partial}{\partial x} \int_{P_{\beta}} \frac{\phi_1({\mathbf r})}{\|\mathbf{r}' - \mathbf{r} \|} \, d\Omega' \, d\Omega \\
-& =  & - \int_{\mathbb{R}^3} \frac{\partial}{\partial x} \left[ \phi_1({\mathbf r}) \mathbb{1}_{P_{\alpha}} \right] \frac{\partial}{\partial x} \left[ \int_{\mathbb{R}^3} \frac{\phi_1({\mathbf r})}{\|\mathbf{r}' - \mathbf{r} \|} \, \mathbb{1}_{P_{\beta}} \, d\Omega' \right] \,d\Omega
+A_{\alpha\beta}^{xx,11} & =  & - \int_{P_{\alpha}} \frac{\partial \phi^{\alpha}_1({\mathbf r})}{\partial x} \int_{P_{\beta}} \frac{\partial \phi^{\beta}_1({\mathbf r}')}{\partial x'} \frac{1}{\|\mathbf{r}' - \mathbf{r} \|} \, dP_{\beta} \, dP_{\alpha}  \nonumber \\
+& =  & - a^{\alpha}_1 \, a^{\beta}_1 \int_{P_{\alpha}} \int_{P_{\beta}} \frac{1}{\|\mathbf{r}' - \mathbf{r} \|} dP_{\beta} \, dP_{\alpha} \nonumber \\ 
+& =  & - a^{\alpha}_1 \, a^{\beta}_1 \, P_{\alpha\beta} \nonumber
 \end{eqnarray}
 $$ 
 
-and similar for other components. Introduce indicator functions on $P_{\alpha}$ and $P_{\beta}$ and integrate over entire $\mathbb{R}^3$. This will allow to use the divergence theorem and the fact that the basis functions centered on $P_{\alpha}$ and $P_{\beta}$ are zero sufficiently far away from $P_{\alpha}$ and $P_{\beta}$.     
+Here we took advantage of the fact that the shape functions are linear to reduce the complexity of the computation. The factor $a_1^2$ take information on the shape functions into account. The factor $P_{\alpha\beta}$ takes information on the geometry of the tetrahedra $P_{\alpha}$ and $P_{\beta}$ into account. More generally, by varying the nodal index $i$ on $P_{\alpha}$ and $j$ on $P_{\beta}$, we have that 
+
+$$
+A_{\alpha\beta}^{xx,ij} = - a^{\alpha}_i \, a^{\alpha}_j \, P_{\alpha\beta} \text{ for } 1 \leq i,j \leq 4 \, . 
+$$
+
+The 4-by-4 matrix $A_{\alpha\beta}^{xx}$ can therefore be formed as the product of the scalar $P_{\alpha\beta}$ and the outer product of the two 4-by-1 vectors  
+
+$$
+{\mathbf a}^{\alpha} = \begin{pmatrix} a^{\alpha}_1 \\ a^{\alpha}_2 \\ a^{\alpha}_3 \\ a^{\alpha}_4 \end{pmatrix}
+\text{ and }
+{\mathbf a}^{\beta} = \begin{pmatrix} a^{\beta}_1 \\ a^{\beta}_2 \\ a^{\beta}_3 \\ a^{\beta}_4 \end{pmatrix} 
+$$
+
+as 
+
+$$
+A_{\alpha\beta}^{xx} = P_{\alpha\beta} \, {\mathbf a}^{\alpha} \, ({\mathbf a}^{\beta})^T \text{ of size } 4 \text{ by } 4 \, . 
+$$
+
+To generalize the above computations to the entire $\underline{\underline{A}}_{\alpha\beta}^{(2)}$ matrix (instead of merely the (1,1)-block), we define similarly to before 
+
+$$
+{\mathbf b}^{\alpha} = \begin{pmatrix} b^{\alpha}_1 \\ b^{\alpha}_2 \\ b^{\alpha}_3 \\ b^{\alpha}_4 \end{pmatrix}
+\text{ and }
+{\mathbf b}^{\beta} = \begin{pmatrix} b^{\beta}_1 \\ b^{\beta}_2 \\ b^{\beta}_3 \\ b^{\beta}_4 \end{pmatrix} 
+$$
+
+as well as 
+
+$$
+{\mathbf c}^{\alpha} = \begin{pmatrix} c^{\alpha}_1 \\ c^{\alpha}_2 \\ c^{\alpha}_3 \\ c^{\alpha}_4 \end{pmatrix}
+\text{ and }
+{\mathbf c}^{\beta} = \begin{pmatrix} c^{\beta}_1 \\ c^{\beta}_2 \\ c^{\beta}_3 \\ c^{\beta}_4 \end{pmatrix} \, . 
+$$
+
+We then have that 
+
+$$
+\underline{\underline{A}}_{\alpha\beta}^{(2)} = P_{\alpha\beta} \begin{pmatrix} {\mathbf a}^{\alpha} \\ {\mathbf b}^{\alpha} \\ {\mathbf c}^{\alpha} \end{pmatrix} \begin{pmatrix} {\mathbf a}^{\beta} \\ {\mathbf b}^{\beta} \\ {\mathbf c}^{\beta} \end{pmatrix}^T  \text{ of size } 12 \text{ by } 12 \, . 
+$$
+
+This computation is implemented in the notebook in the [notebook](./mom_gmsh_iterate.ipynb).
+
+**Surface-surface interactions contributing to the stiffness matrix** Computing 4D integrals in a double loop over all facets on the boundary of $\Omega$.
+
+**Surface-volume and volume-surface interactions contributing to the stiffness matrix** Computing 5D integrals in a nested loop over all tetrahedra and all boundary facets.
+
+### Section 5.3: Element-by-element Assembly of Stiffness Matrix
+
 
 **Numerical Computation of Matrix Elements**
 
-Use of hcubature (or alternative) to compute the matrix elements. Possibly regularization in the kernel;  
+Use of adaptive quadrature (cubature) implemented in [hcubature.jl](https://github.com/JuliaMath/HCubature.jl) or alternative) to compute the matrix elements. An example showing the increase of number of evaluations of the integrand is given at [quadgk-examples](https://juliamath.github.io/QuadGK.jl/stable/quadgk-examples/#Integrands-with-singularities-and-discontinuities). An example of Possibly regularization in the kernel;  
 
 **Analytical Method of Matrix Elements**
 
@@ -358,9 +432,9 @@ Use of hcubature (or alternative) to compute the matrix elements. Possibly regul
 5. reduction of inner integral from 3D to 2D: interchange order of differentiation and integration, obtain two terms, apply Euler on one term;
 6. reduction of outer integral from 3D to 2D: derivate of linear shape function is a constant. Apply Green-Gauss divergence theorem; 
 
-\begin{equation}
+$$
 \int_a^b f(x) \, dx = F(x) |_{x=a}^{x=b} = F(b) - F(a)
-\end{equation}
+$$
 
 ## Section 4: Possible Project Roadmaps  
 
@@ -387,7 +461,7 @@ Explore weak formulation, weighted residual method, Galerkin approximation and l
 $P_{\beta}$ with nodes ${\mathbf r}_1 = (0,0,0)$, ${\mathbf r}_2 = (1,0,0)$, ${\mathbf r}_3 = (0.5,1,0)$ and ${\mathbf r}_4 = (0.5,0.5,1)$. Verify that no two faces are parallel to each other;
 3. extend previous case to parallel faces. $P_{\alpha}$ reference triangle. $P_{\beta}$ shift of $P_{\alpha}$;
 4. apply Euler theorem for homogeneous function and compute resulting 4D integrals numerically; 
-5. loop over elements over the mesh to compute the load vector. Assume constant external field. Provide more details (expression of the local vector per element) here. See notebook [mom_3d_plate_gmsh](./mom_3d_plate_gmsh.ipynb); 
+5. loop over elements over the mesh to compute the load vector. Assume constant external field. Provide more details (expression of the local vector per element) here. See notebook [mom_gmsh_iterate](./mom_gmsh_iterate.ipynb); 
 6. loop over elements over the mesh to compute the mass matrix. Provide more details (expression of the local matrix per element) here;
 7. use of hcubature to compute the stiffness matrix elements. Possibly regularization in the kernel;
 
