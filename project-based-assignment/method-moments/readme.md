@@ -1,33 +1,71 @@
 # Magnetized Metalic Objects - Readme 
 
-### How Domenico intends to further extend these notes 
+### How Domenico intends to extend these notes further
 
-**Mesh generation using Ferrite in-build functions**
-1. avoid mesh IO that GMSH requires;
-2. see notebook [mom_ferrite.ipynb](./mom_ferrite.ipynb); 
-3. have loop over cells and faces immediately available; 
+**Define first milestone in top-down approach** 
+1. Arrive at 3D Galerkin MoM code with numerical evaluation on the interaction integrals. Add surface-surface and surface-volume interactions to existing 3D implemention; 
 
-**Mesh Data Structure in case of generating the mesh using GMSH**
-1. struct edge with field node holding global node index (extend what currently exists);
-2. struct face with first field holding global node index and second field holding global edge index (extend what currently exists);
-3. struct element with first field holding global node index, second field holding global edge index and third field holding global face index; 
-4. the mesh has a field Points that holds an array of length npoints of type Point3D, similar for edges, faces and elements; 
+**Define second milestone in top-down approach**
+1. implement dimension reduction for $P_{\alpha\beta}$ for $\alpha \approx \beta$ for a test case consisting of two tetrahedra only; 
 
-**Two Triangular Facets Test Case intended as a test case to compute the integral $I_{24}$ by reduction to lower dimension** 
+**Define first milestone in bottom-up approach**
+1. Arrive at 1D code with mass-matrix and convolution kernel (first regular, then singular) contribution. Add mass matrix. Replace sparse stiffness matrix by dense stiffness matrix. Can computed solution be verified symbolically (using e.g. sympy) or using a shooting method (using e.g. solve_bvp)? 
 
-Adapt mesh structure (assignment for students) to 
-1. remove node duplication;  
-2. add element - face connectivity, add face - node connectivity, add face normal extracted from GMSH;  
+**Define second milestone in bottom-up approach**
+1. Speculate on how to extend 1D code to 3D. 
 
+**Criteria influencing the design of the data-structure holding the mesh**
+
+1. we wish to iterate over cells in the volume and facets on the surface seperately. We thus require access to surface triangles.  
+2. we wish to perform dimension reduction to evaluate the singular part of the interactio n integrals. We thus need to store facets and edges; 
+
+We foresee two options to construct the mesh. 
+
+1. using GMSH: using <i>gmsh.model.mesh.getElements(dim, tag)</i> with dim=3 for cells (tetrahedra) and with dim=2 for facets (triangles). Need to mark the surface elements in the mesh. Still requires functionality to extract facet-edge-node connectivity from the mesh. Relying on GMSH avoids introducing additional packages;      
+2. using Ferrite.jl: using the cell iterator and the facet iterator that Ferrite provides. Ferrite.jl provides built-in mesh generator for uniform meshes. This allows to avoid the mesh IO that GMSH requires. Ferrite.jl also provides quadrature over the elements that we can take advantage of for elements at a large distance from each other. See notebook [mom_ferrite.ipynb](./mom_ferrite.ipynb); 
+
+**The mesh data structure**
+
+The mesh is a struct with the following five fields: 
+1. a field <i>Elements</i>: holds an nnodes-array of type <i>Element</i>. The struct <i>Element</i> has a field nodes (4-array of integers), a field edges (6-array of integers), a field facets (4-array of integers), a field volume (Float64) and a 4-by-4  matrix of coefficients of the shape functions. Not sure whether using structs-as-functions to define the basis functions has a penalty; 
+2. a field <i>Faces</i>: holds an nfaces-array of type <i>Face</i>. The struct <i>Face</i> has a field nodes (3-array of integers), a field edges (3-array of integers), a field surface (Float64), 3-by-3  matrix of coefficients of the shape functions (recomputed from scratch), tangential vectors, normal vector. Same question as before. Not sure how to extract relevant information from GMSH;  
+3. a field <i>SurfaceFaces</i>: holds an nsurfaces-integer-array of global face indices lying on the surface. 
+4. a field <i>Edges</i>: holds an nedges-array of type <i>Edge</i>. The struct <i>Edges</i> has a field nodes (2-array of integers), a field length (Float64) and a 2-by-2  matrix of coefficients of the shape functions (recompute from scratch). Same questions  as before. 
+5. a field <i>Points</i>: holds an npoints-array of type <i>Point</i> (holds the memory). The struct <i>Point</i> is a static array of 3 Float64; 
+
+The mesh data structure currently in place duplicates notes. This has to be removed. 
+
+**Compute SurfaceFacet - SurfaceFacet interaction**
+
+For 3 components of the magnetization, compute ($k$ here denotes the test function and therefore appears as column index) 
+
+$$
+S_{\alpha\beta}[\ell,k] = \int_{S_{\alpha}} \phi_M^{\partial \Omega} \, \phi_{k,n} \, dS_{\alpha} =  \frac{1}{4 \pi} \int_{S_{\alpha}} \int_{S_{\beta}} \frac{\phi_{\ell,n} \, \phi_{k,n}}{\|\mathbf{r}' - \mathbf{r} \|}  \, dS_{\beta} \, dS_{\alpha} \text{ for } 1 \leq \ell, k \leq 3  
+$$
+
+Zero contribution on facets where magnetization has a zero normal component. Numerator is polynomial of degree 2. Explicit for loop is required. 
+
+1. for SurfaceFacet - SurfaceFacet we have 3 (number of Facet basis functions) * 3 (number of components of the magnetization vector) = 9 degrees of freedom. We thus need to compute a 9-by-9 matrix. 
+2. the 4D integral can be computed numerically by calling the function <i>integrate_tri</i> twice; 
+3. the computed contribution can be added to the already preallocated matrix; 
+
+**Compute Tetrahedron - SurfaceFacet interaction**
+
+$$
+PS_{\alpha\beta}[\ell,k] =  - \int_{P_{\alpha}} \phi_M^{\partial \Omega} \left[ \text{div}_{\mathbf{r}} \,  \boldsymbol{\phi}_k \right] \, dP_{\alpha} \text{  for } 1 \leq \ell \leq 3 \text{ for } 1 \leq k \leq 4 
+$$
+
+**Excercise: Requires more information: Do later: Two Triangular Facets Test Case intended as a test case to compute the integral $I_{24}$ by reduction to lower dimension** 
+
+More text here; 
 
 **Extend double loop over elements to 4-fold loop over faces belonging to element or elementp (avoid nested constructions!)** 
-1. extend mesh structure with list of structs that define the faces. Use information from GMSH to find global nodes for each face. For each face, compute and store relevant information; 
-2. extend mesh structure with list of structs that define the edges; 
-3. extend element structure with 4-vector with global index of faces. The loop <i>for fi in element.faces</i> should results the **global** index of the face; 
-4. extend double for-loop over elements by four-fold for-loop over faces belonging to elements (using the functions cols maybe?); 
+
+More text here; 
 
 **Post-processing** 
-Describe post-processing using VTK files and Paraview. 
+1. write output file as a VTKFile for unstructured tetrahedral grids using [WriteVTK.jl](https://juliavtk.github.io/WriteVTK.jl/dev/) . Use VTK_TETRA = 10. Include volumetric and surface contribution of the scalar potential in the post-processing; 
+2. view output file using paraview; 
 
 <b>To do</b>:
 1. introduce [PhysicalConstants.jl](https://github.com/JuliaPhysics/PhysicalConstants.jl) 
@@ -118,6 +156,8 @@ $$
 We will distinguish between the interior and the boundary of $\Omega$. We therefore assume that $\Omega$ is open (the boundary of $\Omega$ does not belong to $\Omega$). We assume that $\partial \Omega$ (the union of the six (front, back, top, bottom, left and right) quadrilateral facets) denotes the boundary of $\Omega$. We assume that $\overline{\Omega} = \Omega \cup \partial \Omega$ (i.e. the union of the volume and its surface) denotes the closure of $\Omega$. We assume that the exterior to $\Omega$ is the volume ${\mathbb R}^3 \setminus \overline{\Omega}$. 
 
 We assume that $\mathbf{r} = (x,y,z)$ denotes the position vector of a observer (destination) inside of $\overline{\Omega}$ (thus possibly on the boundary). We assume that $\mathbf{r}' = (x',y',z')$ denotes the position vector of a source inside of $\overline{\Omega}$. We will denote by $\nabla$ and $\nabla'$ the gradient operator wrt. $\mathbf{r}$ and $\mathbf{r}'$, respectively. We will use a similar notation for the divergence.   
+
+<b>Alternative Computational Domain</b> Massive sphere. Analytical solution in spherical coordinates is available. 
 
 <b>Material Properties</b> Assume that $\Omega$ has a [magnetic susceptibility](https://en.wikipedia.org/wiki/Magnetic_susceptibility) denoted by $\chi_{mag}$ and a relative [magnetic permeability](https://en.wikipedia.org/wiki/Permeability_(electromagnetism)) denoted by $\mu_r$. Then $\chi_{mag} = \mu_r -1$. When the volume $\Omega$ is placed inside an external magnetic field, it will magnetize. The volume $\Omega$ thus mimmics a metalic plate. Here it will be suffucient to assume that the plate is homogeneous and that therefore $\chi_{mag}$ is constant. Assume that $10 \leq \chi_{mag} \leq 1000$ (dimensionless, value for common steel types). Non-homogeneous plate can be modeled assuming that $\chi_{mag}$ is piecewise constant. Non-linear magnetization effects are excluded in this project.   
 
@@ -413,9 +453,9 @@ $$
 
 This computation is implemented in the notebook in the [notebook](./mom_gmsh_iterate.ipynb).
 
-**Surface-surface interactions contributing to the stiffness matrix** Computing 4D integrals in a double loop over all facets on the boundary of $\Omega$.
+**Surface-surface interactions contributing to the stiffness matrix** Computing 4D integrals in a double loop over all facets on the boundary of $\Omega$ (double facet iterator in Ferrite.jl). Evaluate 4D integral as double iterated 2D integral. Apply integrals $I_{22}$ for reduction in dimension. 
 
-**Surface-volume and volume-surface interactions contributing to the stiffness matrix** Computing 5D integrals in a nested loop over all tetrahedra and all boundary facets.
+**Surface-volume and volume-surface interactions contributing to the stiffness matrix** Computing 5D integrals in a nested loop over all tetrahedra and all boundary facets. Evaluate 5D integral as iterated 3D/2D integral. Apply integrals $I_{23}$ for reduction in dimension.
 
 ### Section 5.3: Element-by-element Assembly of Stiffness Matrix
 
@@ -505,6 +545,8 @@ $P_{\beta}$ with nodes ${\mathbf r}_1 = (0,0,0)$, ${\mathbf r}_2 = (1,0,0)$, ${\
 5. [Comsol Multiphysics Brief Introduction to the Weak Form](https://www.comsol.com/blogs/brief-introduction-weak-form): good introduction to a theoretical concept that provides a basis for the finite element method; 
 6. [Ferrite Introduction to FEM](https://ferrite-fem.github.io/Ferrite.jl/stable/topics/fe_intro/)
 
+### Reference Computations 
+
 **Reference Tetrahedron** Assume the reference tetrahedron to have the nodes ${\mathbf x}_1 = (0,0,0)$, ${\mathbf x}_2 = (1,0,0)$, ${\mathbf x}_3 = (0,1,0)$ and ${\mathbf x}_4 = (0,0,1)$. Then the shape function are defined as 
 
 $$
@@ -539,6 +581,8 @@ $$
 {\mathbf c}^{\alpha} = \begin{pmatrix} -1 \\ 0 \\ 0 \\ 1 \end{pmatrix}
 $$
 
+
+### Reference solution for Fredholdm integral equation 
 
 To solve a Fredholm integral equation in SymPy, you cannot use a single "built-in" solver function. Instead, you represent the equation symbolically and use techniques like the Method of Undetermined Coefficients to solve for the unknown function.A classic Fredholm equation of the second kind looks like this:
 $$
@@ -581,5 +625,71 @@ final_solution = y_x.subs(C, C_value)
 
 print(f"The constant C is: {C_value}")
 print(f"The solution y(x) is: {final_solution}")
+
+```
+
+
+    syntax: extra token "sympy" after end of expression
+
+    
+
+    Stacktrace:
+
+     [1] top-level scope
+
+       @ In[1]:1
+
+
+### Reference Solution for Fredholm integral equation with convolution kernel - Ask singular kernel - Ask code in Ferrite.jl 
+
+To find an analytical solution to a second-order Fredholm integro-differential equation with a convolution kernel, the most reliable algebraic method on a closed interval \([0, 1]\) involves expanding the convolution kernel into a degenerate (separable) form.
+Let's walk through the general analytical solution step-by-step using a classic example where the kernel is \(k(x-y) = \sinh(x-y)\) or \(\sin(x-y)\), which can be separated using standard trigonometric or hyperbolic identities.
+Step-by-Step Analytical Framework
+Consider the constant-coefficient equation on \([0, 1]\):
+\(u^{\prime \prime }(x)-u(x)+\int _{0}^{1}\sinh (x-y)u(y)\,dy=f(x)\)
+With the boundary conditions: \(u(0) = 0, \quad u(1) = 0\)
+Step 1: Separate the Convolution Kernel
+Using the hyperbolic identity \(\sinh(x-y) = \sinh(x)\cosh(y) - \cosh(x)\sinh(y)\), we can factor out the variables dependent on \(x\) from the integral:
+\(\int _{0}^{1}\sinh (x-y)u(y)\,dy=\sinh (x)\int _{0}^{1}\cosh (y)u(y)\,dy-\cosh (x)\int _{0}^{1}\sinh (y)u(y)\,dy\)
+Step 2: Introduce Unknown Constants
+Since the integration limits are fixed constants (\(0\) and \(1\)), the definite integrals evaluate to constant values. We define two unknown constants, \(C_{1}\) and \(C_{2}\):
+\(C_{1}=\int _{0}^{1}\cosh (y)u(y)\,dy\)
+\(C_{2}=\int _{0}^{1}\sinh (y)u(y)\,dy\)
+Substituting these back into the original equation converts the integro-differential equation into a standard Ordinary Differential Equation (ODE):
+\(u^{\prime \prime }(x)-u(x)+C_{1}\sinh (x)-C_{2}\cosh (x)=f(x)\)
+Step 3: Solve the Non-Homogeneous ODE
+Rearrange the equation to isolate the differential operator:
+\(u^{\prime \prime }(x)-u(x)=f(x)-C_{1}\sinh (x)+C_{2}\cosh (x)\)
+The complete solution \(u(x)\) consists of a complementary solution \(u_c(x)\) and a particular solution \(u_p(x)\):
+1. Complementary: The characteristic equation \(r^2 - 1 = 0\) gives \(r = \pm 1\), so \(u_c(x) = A \cosh(x) + B \sinh(x)\).
+2. Particular: Find \(u_p(x)\) based on the specific form of \(f(x)\) using the method of undetermined coefficients or variation of parameters. Note that since \(\sinh(x)\) and \(\cosh(x)\) are already part of the homogeneous solution, terms multiplying them will require a factor of \(x\) (e.g., \(x \sinh(x)\)).
+Apply your boundary conditions (\(u(0)=0, u(1)=0\)) at this stage to express the constants \(A\) and \(B\) in terms of \(C_{1}\), \(C_{2}\), and \(f(x)\). This gives you an expression for \(u(x)\) that depends solely on the numerical values of \(C_{1}\) and \(C_{2}\).
+Step 4: Resolve the Constants Matrix
+To find the exact values of \(C_{1}\) and \(C_{2}\), substitute your newly found formula for \(u(x)\) back into the definitions of \(C_{1}\) and \(C_{2}\) from Step 2:
+\(C_{1}=\int _{0}^{1}\cosh (y)u(y,C_{1},C_{2})\,dy\)
+\(C_{2}=\int _{0}^{1}\sinh (y)u(y,C_{1},C_{2})\,dy\)
+Evaluating these integrals yields a system of two linear algebraic equations with two variables:
+\(\left(\begin{matrix}a_{11}&a_{12}\\ a_{21}&a_{22}\end{matrix}\right)\left(\begin{matrix}C_{1}\\ C_{2}\end{matrix}\right)=\left(\begin{matrix}d_{1}\\ d_{2}\end{matrix}\right)\)
+Solving this system gives the precise values for \(C_{1}\) and \(C_{2}\). Substituting them back into your ODE solution yields the exact analytical solution.
+Other Analytical Scenarios
+• Infinite Domain \((-\infty, \infty)\): If the boundary limits are infinite, the equation is solved using the Fourier Transform, mapping the convolution directly into multiplication: \(-\omega^2 U(\omega) - U(\omega) + \sqrt{2\pi} K(\omega)U(\omega) = F(\omega)\).
+• Non-Separable Kernels: If \(k(x-y)\) cannot be separated cleanly (e.g., \(\ln\vert{}x-y\vert{}\)), an exact closed-form analytical solution is rarely possible, and resolvent kernel methods or series expansions (like Taylor or Frobenius series) must be used.
+To write out the precise, finalized analytical solution for your problem, could you provide:
+• The specific forcing function \(f(x)\) (e.g., \(x^{2}\), \(e^{x}\), \(0\))?
+• The exact convolution kernel \(k(x-y)\) you are working with?
+• Your boundary/initial values?
+
+
+```julia
+
+```
+
+
+```julia
+
+```
+
+
+```julia
 
 ```
