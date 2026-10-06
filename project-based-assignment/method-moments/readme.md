@@ -4,6 +4,16 @@
 
 **Define first milestone in top-down approach** 
 1. Arrive at 3D Galerkin MoM code with numerical evaluation on the interaction integrals. Add surface-surface and surface-volume interactions to existing 3D implemention; 
+2. edit the definition of <i>Elem3DLin</i> to replace node coordinates by node global indices;  
+3. edit the definition of <i>Mesh</i> to add an array of nodes (using <i>gmsh.model.mesh.getElements(dim, tag)</i> with dim=0), an array of all faces (using <i>gmsh.model.mesh.getElements(dim, tag)</i> with dim=2) and an array of surfaceFaces (using <i>gmsh.model.mesh.getElements(dim, tag)</i> with dim=2 and tag for the surfaces); 
+4. edit the function <i>getMeshFromFile</i> to properly set-up the mesh structure; 
+5. edit the function that assembles the vector to conform to the new mesh structure;
+6. edit the function that assembles the mass matrix to conform to the new mesh structure;
+7. edit the function that assembles the stiffness matrix to conform to add the surface-surface contributions;
+8. edit the function that assembles the stiffness matrix to conform to add the surface-volume and volume-surface contributions;
+9. add a function that solves the lineasr system;
+10. add a function that writes the conmputed solution to file.; 
+11. visualize the computed solution using paraview; 
 
 **Define second milestone in top-down approach**
 1. implement dimension reduction for $P_{\alpha\beta}$ for $\alpha \approx \beta$ for a test case consisting of two tetrahedra only; 
@@ -14,61 +24,10 @@
 **Define second milestone in bottom-up approach**
 1. Speculate on how to extend 1D code to 3D. 
 
-**Criteria influencing the design of the data-structure holding the mesh**
-
-1. we wish to iterate over cells in the volume and facets on the surface seperately. We thus require access to surface triangles.  
-2. we wish to perform dimension reduction to evaluate the singular part of the interactio n integrals. We thus need to store facets and edges; 
-
-We foresee two options to construct the mesh. 
-
-1. using GMSH: using <i>gmsh.model.mesh.getElements(dim, tag)</i> with dim=3 for cells (tetrahedra) and with dim=2 for facets (triangles). Need to mark the surface elements in the mesh. Still requires functionality to extract facet-edge-node connectivity from the mesh. Relying on GMSH avoids introducing additional packages;      
-2. using Ferrite.jl: using the cell iterator and the facet iterator that Ferrite provides. Ferrite.jl provides built-in mesh generator for uniform meshes. This allows to avoid the mesh IO that GMSH requires. Ferrite.jl also provides quadrature over the elements that we can take advantage of for elements at a large distance from each other. See notebook [mom_ferrite.ipynb](./mom_ferrite.ipynb); 
-
-**The mesh data structure**
-
-The mesh is a struct with the following five fields: 
-1. a field <i>Elements</i>: holds an nnodes-array of type <i>Element</i>. The struct <i>Element</i> has a field nodes (4-array of integers), a field edges (6-array of integers), a field facets (4-array of integers), a field volume (Float64) and a 4-by-4  matrix of coefficients of the shape functions. Not sure whether using structs-as-functions to define the basis functions has a penalty; 
-2. a field <i>Faces</i>: holds an nfaces-array of type <i>Face</i>. The struct <i>Face</i> has a field nodes (3-array of integers), a field edges (3-array of integers), a field surface (Float64), 3-by-3  matrix of coefficients of the shape functions (recomputed from scratch), tangential vectors, normal vector. Same question as before. Not sure how to extract relevant information from GMSH;  
-3. a field <i>SurfaceFaces</i>: holds an nsurfaces-integer-array of global face indices lying on the surface. 
-4. a field <i>Edges</i>: holds an nedges-array of type <i>Edge</i>. The struct <i>Edges</i> has a field nodes (2-array of integers), a field length (Float64) and a 2-by-2  matrix of coefficients of the shape functions (recompute from scratch). Same questions  as before. 
-5. a field <i>Points</i>: holds an npoints-array of type <i>Point</i> (holds the memory). The struct <i>Point</i> is a static array of 3 Float64; 
-
-The mesh data structure currently in place duplicates notes. This has to be removed. 
-
-**Compute SurfaceFacet - SurfaceFacet interaction**
-
-For 3 components of the magnetization, compute ($k$ here denotes the test function and therefore appears as column index) 
-
-$$
-S_{\alpha\beta}[\ell,k] = \int_{S_{\alpha}} \phi_M^{\partial \Omega} \, \phi_{k,n} \, dS_{\alpha} =  \frac{1}{4 \pi} \int_{S_{\alpha}} \int_{S_{\beta}} \frac{\phi_{\ell,n} \, \phi_{k,n}}{\|\mathbf{r}' - \mathbf{r} \|}  \, dS_{\beta} \, dS_{\alpha} \text{ for } 1 \leq \ell, k \leq 3  
-$$
-
-Zero contribution on facets where magnetization has a zero normal component. Numerator is polynomial of degree 2. Explicit for loop is required. 
-
-1. for SurfaceFacet - SurfaceFacet we have 3 (number of Facet basis functions) * 3 (number of components of the magnetization vector) = 9 degrees of freedom. We thus need to compute a 9-by-9 matrix. 
-2. the 4D integral can be computed numerically by calling the function <i>integrate_tri</i> twice; 
-3. the computed contribution can be added to the already preallocated matrix; 
-
-**Compute Tetrahedron - SurfaceFacet interaction**
-
-$$
-PS_{\alpha\beta}[\ell,k] =  - \int_{P_{\alpha}} \phi_M^{\partial \Omega} \left[ \text{div}_{\mathbf{r}} \,  \boldsymbol{\phi}_k \right] \, dP_{\alpha} \text{  for } 1 \leq \ell \leq 3 \text{ for } 1 \leq k \leq 4 
-$$
-
-**Excercise: Requires more information: Do later: Two Triangular Facets Test Case intended as a test case to compute the integral $I_{24}$ by reduction to lower dimension** 
-
-More text here; 
-
-**Extend double loop over elements to 4-fold loop over faces belonging to element or elementp (avoid nested constructions!)** 
-
-More text here; 
-
-**Post-processing** 
-1. write output file as a VTKFile for unstructured tetrahedral grids using [WriteVTK.jl](https://juliavtk.github.io/WriteVTK.jl/dev/) . Use VTK_TETRA = 10. Include volumetric and surface contribution of the scalar potential in the post-processing; 
-2. view output file using paraview; 
+**Exercise: Requires more information: Do later: Two Triangular Facets Test Case intended as a test case to compute the integral $I_{24}$ by reduction to lower dimension** More text here; 
 
 <b>To do</b>:
-1. introduce [PhysicalConstants.jl](https://github.com/JuliaPhysics/PhysicalConstants.jl) 
+1. introduce [PhysicalConstants.jl](https://github.com/JuliaPhysics/PhysicalConstants.jl) to define e.g. $\mu_0$;
 
 
 
@@ -92,7 +51,7 @@ The approach we suggest here is expected to render the computation of the magnet
 
 ## Section 2: Notation, Concepts and Mathematical Preliminaries 
 
-**Notation** Assume $P_{\alpha}$ and $P_{\beta}$ to be two disjoint tetrahedra, i.e., two elements in a conformal mesh of a 3D volume $\Omega$. The we will denote the six-dimensional (3D)volume-(3D)volume interaction integral $P_{\alpha\beta}$ as 
+**Notation (The reduction of this intregral to surface-surface integrals is integral $I_{24}$)** Assume $P_{\alpha}$ and $P_{\beta}$ to be two disjoint tetrahedra, i.e., two elements in a conformal mesh of a 3D volume $\Omega$. The we will denote the six-dimensional (3D)volume-(3D)volume interaction integral $P_{\alpha\beta}$ as 
 
 $$
 P_{\alpha\beta} = \int_{P_{\alpha}} \int_{P_{\beta}} \frac{1}{\|\mathbf{r}' - \mathbf{r} \|} dP_{\beta} \, dP_{\alpha} \, . 
@@ -116,7 +75,7 @@ $$
 \int_{P_{\alpha}} \frac{1}{\| {\mathbf r} - {\mathbf r}' \|} \, d\Omega = \frac{1}{2} \sum \int_{F_{\alpha} \in P_{\alpha}} \left[ {\mathbf n}({\mathbf r}) \cdot ({\mathbf r} - {\mathbf r}') \right] \frac{1}{\| {\mathbf r} - {\mathbf r}' \|} \, dS
 $$
 
-and 
+(follows from Green - Gauss divergence theorem) and 
 
 $$
 \int_{P_{\alpha}} \frac{{\mathbf r} - {\mathbf r}'}{\| {\mathbf r} - {\mathbf r}' \|} \, d\Omega = \frac{1}{3} \sum \int_{F_{\alpha} \in P_{\alpha}} \left[ {\mathbf n}({\mathbf r}) \cdot ({\mathbf r} - {\mathbf r}') \right] \frac{{\mathbf r} - {\mathbf r}'}{\| {\mathbf r} - {\mathbf r}' \|} \, dS 
@@ -283,7 +242,36 @@ $$
 \nabla_{\mathbf{r}} \cdot \boldsymbol{\phi}_k = \frac{\partial}{\partial z} (a_k x + b_k y + c_k y + d_k)= c_k \text{ if } \mod(k,3) = 0
 $$     
 
-Observe that these computations are specific to linear shape functions on tetrahedral elements.    
+The result thus depends on whether the testing (index $k$) is performed in the $x$, $y$ or $z$-direction. Observe that these computations are specific to linear shape functions on tetrahedral elements.
+
+**Inner Product of Normal Vector and Vector Shape Function** Assume $\mathbf{n}$ to be a normal vector with component $\mathbf{n} = (n_x,n_y,n_z)$. Then (by a reasoning similar to above) the inner product of $\mathbf{n}$ and $\boldsymbol{\phi}_k$ is given by 
+
+$$
+\mathbf{n} \cdot \boldsymbol{\phi}_k = n_x \, \phi_{3*k-2} = n_x \, (a_k x + b_k y + c_k y + d_k)  \text{ if } \mod(k,3) = 1 \\
+\mathbf{n} \cdot \boldsymbol{\phi}_k = n_y \, \phi_{3*k-1} = n_y \, (a_k x + b_k y + c_k y + d_k)  \text{ if } \mod(k,3) = 2 \\
+\mathbf{n} \cdot \boldsymbol{\phi}_k = n_z \, \phi_{3*k} = n_z \, (a_k x + b_k y + c_k y + d_k)\text{ if } \mod(k,3) = 0 \, .
+$$
+
+**Criteria influencing the design of the data-structure holding the mesh**
+
+1. we wish to iterate over cells in the volume and facets on the surface seperately. We thus require access to surface triangles.  
+2. we wish to perform dimension reduction to evaluate the singular part of the interactio n integrals. We thus need to store facets and edges; 
+
+We foresee two options to construct the mesh. 
+
+1. using GMSH: using <i>gmsh.model.mesh.getElements(dim, tag)</i> with dim=3 for cells (tetrahedra) and with dim=2 for facets (triangles). Need to mark the surface elements in the mesh. Still requires functionality to extract facet-edge-node connectivity from the mesh. Relying on GMSH avoids introducing additional packages;      
+2. using Ferrite.jl: using the cell iterator and the facet iterator that Ferrite provides. Ferrite.jl provides built-in mesh generator for uniform meshes. This allows to avoid the mesh IO that GMSH requires. Ferrite.jl also provides quadrature over the elements that we can take advantage of for elements at a large distance from each other. See notebook [mom_ferrite.ipynb](./mom_ferrite.ipynb); 
+
+**The mesh data structure**
+
+The mesh is a struct with the following five fields: 
+1. a field <i>Elements</i>: holds an nnodes-array of type <i>Element</i>. The struct <i>Element</i> has a field nodes (4-array of integers), a field edges (6-array of integers), a field facets (4-array of integers), a field volume (Float64) and a 4-by-4  matrix of coefficients of the shape functions. Not sure whether using structs-as-functions to define the basis functions has a penalty; 
+2. a field <i>Faces</i>: holds an nfaces-array of type <i>Face</i>. The struct <i>Face</i> has a field nodes (3-array of integers), a field edges (3-array of integers), a field surface (Float64), 3-by-3  matrix of coefficients of the shape functions (recomputed from scratch), tangential vectors, normal vector. Same question as before. Not sure how to extract relevant information from GMSH;  
+3. a field <i>SurfaceFaces</i>: holds an nsurfaces-integer-array of global face indices lying on the surface. 
+4. a field <i>Edges</i>: holds an nedges-array of type <i>Edge</i>. The struct <i>Edges</i> has a field nodes (2-array of integers), a field length (Float64) and a 2-by-2  matrix of coefficients of the shape functions (recompute from scratch). Same questions  as before. 
+5. a field <i>Points</i>: holds an npoints-array of type <i>Point</i> (holds the memory). The struct <i>Point</i> is a static array of 3 Float64; 
+
+The mesh data structure currently in place duplicates notes. This has to be removed.
 
 ### Section 4.3: Galerkin Method    
  
@@ -366,7 +354,7 @@ $$
 
 (Extend to weighted averaging of $g(\mathbf{r})$, Fourier analysius, expansion in sets of orthogonal functions.)
 
-**Volume-volume interactions contributing to the stiffness matrix** Computing 6D integrals in a double loop over all tetrahedra. By writing $d\Omega = \sum_{\alpha} dP_{\alpha}$ and $d\Omega' = \sum_{\beta} dP_{\beta}$, we arrive at 
+**Volume-volume interactions contributing to the stiffness matrix (this is integral $I_{24}$)** Computing 6D integrals in a double loop over all tetrahedra. By writing $d\Omega = \sum_{\alpha} dP_{\alpha}$ and $d\Omega' = \sum_{\beta} dP_{\beta}$, we arrive at 
 
 $$
 \underline{\underline{A}}^{(2)} = \sum_{\alpha} \underline{\underline{A}}_{\alpha}^{(2)} = \sum_{\alpha\beta} \underline{\underline{A}}_{\alpha\beta}^{(2)} \text{ of size } 3 \, N_n \text{ by } 3 \, N_n 
@@ -453,9 +441,39 @@ $$
 
 This computation is implemented in the notebook in the [notebook](./mom_gmsh_iterate.ipynb).
 
-**Surface-surface interactions contributing to the stiffness matrix** Computing 4D integrals in a double loop over all facets on the boundary of $\Omega$ (double facet iterator in Ferrite.jl). Evaluate 4D integral as double iterated 2D integral. Apply integrals $I_{22}$ for reduction in dimension. 
+**Surface-surface interactions contributing to the stiffness matrix (this is integral $I_{22}$ modulo a factor $1/4\pi$)** 
 
-**Surface-volume and volume-surface interactions contributing to the stiffness matrix** Computing 5D integrals in a nested loop over all tetrahedra and all boundary facets. Evaluate 5D integral as iterated 3D/2D integral. Apply integrals $I_{23}$ for reduction in dimension.
+For 3 components of the magnetization, compute ($k$ here denotes the test function and therefore appears as column index) 
+
+$$
+S_{\alpha\beta}[\ell,k] = \int_{S_{\alpha}} \phi_M^{\partial \Omega}(\mathbf{r}) \, \phi_{k,n}(\mathbf{r}) \, dS_{\alpha} =  \frac{1}{4 \pi} \int_{S_{\alpha}} \int_{S_{\beta}} \frac{\phi_{\ell,n}(\mathbf{r}') \, \phi_{k,n}(\mathbf{r})}{\|\mathbf{r}' - \mathbf{r} \|}  \, dS_{\beta} \, dS_{\alpha} \text{ for } 1 \leq \ell, k \leq 3  
+$$
+
+Zero contribution on facets where magnetization has a zero normal component. Numerator is polynomial of degree 2. Explicit for loop is required. 
+
+1. for SurfaceFacet - SurfaceFacet we have 3 (number of Facet basis functions) * 3 (number of components of the magnetization vector) = 9 degrees of freedom. We thus need to compute a 9-by-9 matrix. 
+2. the 4D integral can be computed numerically by calling the function <i>integrate_tri</i> twice; 
+3. the computed contribution can be added to the already preallocated matrix; 
+
+**Surface-volume and volume-surface interactions contributing to the stiffness matrix (this is integral $I_{23}$ modulo a factor $1/4\pi$)** 
+
+Again, for 3 components of the magnetization, compute ($k$ here denotes the test function and therefore appears as column index)
+
+$$
+PS_{\alpha\beta}[\ell,k] =  - \int_{P_{\alpha}} \phi_M^{\partial \Omega}(\mathbf{r}) \left[ \text{div}_{\mathbf{r}} \,  \boldsymbol{\phi}_k(\mathbf{r}) \right] \, dP_{\alpha} = - \frac{1}{4 \pi} \int_{P_{\alpha}} \int_{S_{\beta}} \frac{\phi_{\ell,n}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \left[ \text{div}_{\mathbf{r}} \,  \boldsymbol{\phi}_k(\mathbf{r}) \right] \, dS_{\beta} \, dP_{\alpha}  
+$$
+
+for $1 \leq \ell \leq 3$ and for $1 \leq k \leq 4$. Using that $\text{div}_{\mathbf{r}} \,  \boldsymbol{\phi}_k(\mathbf{r})$ is constant over $P_{\alpha}$ and by changing the order of integration, we obtain that 
+
+$$
+PS_{\alpha\beta}[\ell,k] = - \frac{1}{4 \pi} \left[ \text{div}_{\mathbf{r}} \,  \boldsymbol{\phi}_k(\mathbf{r}) \right] \int_{S_{\beta}} \phi_{\ell,n}(\mathbf{r}') \int_{P_{\alpha}} \frac{1}{\|\mathbf{r}' - \mathbf{r} \|}  \, dP_{\alpha}  \, dS_{\beta} 
+$$
+
+1. for SurfaceFacet - Volume we have 3 (number of Facet basis functions) * 4 (number of components of the magnetization vector). We thus need to compute a 9-by-12 matrix. 
+2. the 4D integral can be computed numerically by calling the function <i>integrate_tri</i> and the function <i>integrate_tet</i> in a loop; 
+3. the computed contribution can be added to the already preallocated matrix;
+
+This second integral can be reduced to a sum of integrals of lower dimension. 
 
 ### Section 5.3: Element-by-element Assembly of Stiffness Matrix
 
@@ -476,6 +494,11 @@ Use of adaptive quadrature (cubature) implemented in [hcubature.jl](https://gith
 $$
 \int_a^b f(x) \, dx = F(x) |_{x=a}^{x=b} = F(b) - F(a)
 $$
+
+### Section 6.3: Post-processing 
+
+1. write output file as a VTKFile for unstructured tetrahedral grids using [WriteVTK.jl](https://juliavtk.github.io/WriteVTK.jl/dev/) . Use VTK_TETRA = 10. Include volumetric and surface contribution of the scalar potential in the post-processing; 
+2. view output file using paraview; 
 
 ## Section 4: Possible Project Roadmaps  
 
