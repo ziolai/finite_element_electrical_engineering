@@ -29,6 +29,20 @@
 <b>To do</b>:
 1. introduce [PhysicalConstants.jl](https://github.com/JuliaPhysics/PhysicalConstants.jl) to define e.g. $\mu_0$;
 
+**Surface-volume and volume-surface interactions contributing to the stiffness matrix (this is integral $I_{23}$ modulo a factor $1/4\pi$)** 
+
+Again, for 3 components of the magnetization, compute ($k$ here denotes the test function and therefore appears as column index)
+
+$$
+PS_{\alpha\beta}[\ell,k] =  - \int_{P_{\alpha}} \phi_M^{\partial \Omega}(\mathbf{r}) \left[ \text{div}_{\mathbf{r}} \,  \boldsymbol{\phi}_k(\mathbf{r}) \right] \, dP_{\alpha} = - \frac{1}{4 \pi} \int_{P_{\alpha}} \int_{S_{\beta}} \frac{\phi_{\ell,n}(\mathbf{r}')}{\|\mathbf{r}' - \mathbf{r} \|} \left[ \text{div}_{\mathbf{r}} \,  \boldsymbol{\phi}_k(\mathbf{r}) \right] \, dS_{\beta} \, dP_{\alpha}  
+$$
+
+for $1 \leq \ell \leq 3$ and for $1 \leq k \leq 4$. Using that $\text{div}_{\mathbf{r}} \,  \boldsymbol{\phi}_k(\mathbf{r})$ is constant over $P_{\alpha}$ and by changing the order of integration, we obtain that 
+
+$$
+PS_{\alpha\beta}[\ell,k] = - \frac{1}{4 \pi} \left[ \text{div}_{\mathbf{r}} \,  \boldsymbol{\phi}_k(\mathbf{r}) \right] \int_{S_{\beta}} \phi_{\ell,n}(\mathbf{r}') \int_{P_{\alpha}} \frac{1}{\|\mathbf{r}' - \mathbf{r} \|}  \, dP_{\alpha}  \, dS_{\beta} 
+$$
+
 
 
 ## Section 1: Introduction 
@@ -45,19 +59,35 @@ The approach we suggest here is expected to render the computation of the magnet
 
 <b>Assembly of the linear system</b>: The focus of the project is placed on the assembly of the linear system. A computationally efficient procedure to treat the six-dimensional volume(3D)-volume(3D) interaction integrals will have to be developed. We will use the Euler Integration Theorem (a generalization of the Green-Gauss divergence theorem) for homogeneous functions.  
 
-<b>Solve of the linear system</b>: Once the linear system is solved, it can be solved by a direct linear solveer for symmetric and positive definite linear system. Such solver are based on a Choleskly decomposition of the coefficient matrix.  
+<b>Solve of the linear system</b>: Once the linear system is solved, it can be solved by a direct linear solver for symmetric and positive definite linear system. Such solver are based on a Choleskly decomposition of the coefficient matrix.  
 
 (Insert figures here).
 
 ## Section 2: Notation, Concepts and Mathematical Preliminaries 
 
-**Notation (The reduction of this intregral to surface-surface integrals is integral $I_{24}$)** Assume $P_{\alpha}$ and $P_{\beta}$ to be two disjoint tetrahedra, i.e., two elements in a conformal mesh of a 3D volume $\Omega$. The we will denote the six-dimensional (3D)volume-(3D)volume interaction integral $P_{\alpha\beta}$ as 
+**Notation for volume-volume interaction (The reduction of this integral to surface-surface integrals is integral $I_{24}$)** Assume $P_{\alpha}$ and $P_{\beta}$ to be two (coinciding or disjoint) tetrahedra, i.e., two elements (cells) in a conformal mesh of a 3D volume $\Omega$. Then we will denote the six-dimensional (3D)volume-(3D)volume interaction integral $P_{\alpha\beta}$ as 
 
 $$
 P_{\alpha\beta} = \int_{P_{\alpha}} \int_{P_{\beta}} \frac{1}{\|\mathbf{r}' - \mathbf{r} \|} dP_{\beta} \, dP_{\alpha} \, . 
 $$
 
-Note that the integral is singular in case that $\alpha = \beta$. This singularity causes the numerical evaluation of this integral to be non-trivial. See [Singular_integral](https://en.wikipedia.org/wiki/Singular_integral) for concepts. Later, we will introduce similar interaction integrals between facets, edges and points.  
+Note that the integral is singular in case that $\alpha = \beta$. This singularity causes the numerical evaluation of this integral to be non-trivial. See [Singular_integral](https://en.wikipedia.org/wiki/Singular_integral) for concepts. (scalar for each $\alpha\beta$ pair, remains scalar-matrix multiplication of shape function gradients.) Later, we will introduce similar interaction integrals between facets, edges and points. 
+
+**Notation for surface-surface interaction (This is integral is integral $I_{22}$)** Assume $S_{\alpha}$ and $S_{\beta}$ to be two (coinciding or disjoint) surface facets on boundary $\partial \Omega$ of the 3D volume $\Omega$. Assume $\phi_{\ell,n}$ and $\phi_{k,n}(\mathbf{r})$ to denote the normal component of the vector-valued shape function ${\mathbf \phi}_{\ell}$ and ${\mathbf \phi}_k$ on $S_{\beta}$ and $S_{\alpha}$, respectively. Then we will denote the four-dimensional (2D)surface-(2D)surface interaction integral $S_{\alpha\beta}$ as
+
+$$
+S_{\alpha\beta}[\ell,k] =  \frac{1}{4 \pi} \int_{S_{\alpha}} \int_{S_{\beta}} \frac{\phi_{\ell,n}(\mathbf{r}') \, \phi_{k,n}(\mathbf{r})}{\|\mathbf{r}' - \mathbf{r} \|}  \, dS_{\beta} \, dS_{\alpha} \text{ for } 1 \leq \ell, k \leq 3 \, .
+$$
+
+Note that as before the integral is singular in case that $\alpha = \beta$. (3-by-3 matrix  for each $\alpha\beta$ pair.)
+
+**Notation for volume-surface interaction (This is integral is integral $I_{23}$)** With same notation as before, we introduce the five-dimensional (3D)volume-(2D)surface interaction integral $PS_{\alpha\beta}$ as
+
+$$
+PS_{\alpha\beta}[\ell] = - \frac{1}{4 \pi} \int_{S_{\beta}} \phi_{\ell,n}(\mathbf{r}') \int_{P_{\alpha}} \frac{1}{\|\mathbf{r}' - \mathbf{r} \|}  \, dP_{\alpha}  \, dS_{\beta} \text{ for } 1 \leq \ell \leq 4 \, .
+$$
+
+Singular in case the facet $S_{\beta}$ belongs to the volume $P_{\alpha}$. (4-vector  for each $\alpha\beta$ pair, remains outer vector multiplication of shape function gradients.)
 
 **Identities** We have that 
 
@@ -67,19 +97,57 @@ $$
 \nabla \cdot \frac{\mathbf{r} - \mathbf{r}'}{\| \mathbf{r} - \mathbf{r}' \|} = \frac{2}{\| \mathbf{r} - \mathbf{r}' \|} \, . 
 $$
 
-**Application of Euler Integration Theorem for Homogeneous Functions** 
-
-Assume $P_{\alpha}$ to be a tetrahedron bounded by 4 triangular facets $F_{\alpha} \in P_{\alpha}$. Then (add references here)
+**First Application of Euler Integration Theorem for Homogeneous Functions** Assume $P_{\alpha}$ to be a tetrahedron bounded by 4 triangular facets $F_{\alpha} \in P_{\alpha}$. Then from the Green - Gauss integration theorem follows that 
 
 $$
-\int_{P_{\alpha}} \frac{1}{\| {\mathbf r} - {\mathbf r}' \|} \, d\Omega = \frac{1}{2} \sum \int_{F_{\alpha} \in P_{\alpha}} \left[ {\mathbf n}({\mathbf r}) \cdot ({\mathbf r} - {\mathbf r}') \right] \frac{1}{\| {\mathbf r} - {\mathbf r}' \|} \, dS
+\int_{P_{\alpha}} \frac{1}{\| {\mathbf r} - {\mathbf r}' \|} \, d\Omega' = \frac{1}{2} \sum \int_{F_{\alpha} \in P_{\alpha}} \left[ {\mathbf n}({\mathbf r}) \cdot ({\mathbf r} - {\mathbf r}') \right] \frac{1}{\| {\mathbf r} - {\mathbf r}' \|} \, dS' \, . 
 $$
 
-(follows from Green - Gauss divergence theorem) and 
+**Second Application of Euler Integration Theorem for Homogeneous Functions**  Note that the function $f({\mathbf r}) = \frac{{\mathbf r}}{\|{\mathbf r} \|}$ is a homogeneous function of order $1$. In ${\mathbb R}^3$ we thus obtain
 
 $$
-\int_{P_{\alpha}} \frac{{\mathbf r} - {\mathbf r}'}{\| {\mathbf r} - {\mathbf r}' \|} \, d\Omega = \frac{1}{3} \sum \int_{F_{\alpha} \in P_{\alpha}} \left[ {\mathbf n}({\mathbf r}) \cdot ({\mathbf r} - {\mathbf r}') \right] \frac{{\mathbf r} - {\mathbf r}'}{\| {\mathbf r} - {\mathbf r}' \|} \, dS 
+\int_{P_{\alpha}} \frac{{\mathbf r}}{\| {\mathbf r} \|} \, d\Omega = \frac{1}{3} \sum \int_{F_{\alpha} \in P_{\alpha}} \left[ {\mathbf n}({\mathbf r}) \cdot {\mathbf r} \right] \frac{{\mathbf r}}{\|{\mathbf r} \|} \, . 
 $$
+
+By placing the origin in ${\mathbf r}'$, we thus obtain 
+$$
+\int_{P_{\alpha}} \frac{{\mathbf r} - {\mathbf r}'}{\| {\mathbf r} - {\mathbf r}' \|} \, d\Omega = \frac{1}{3} \sum \int_{F_{\alpha} \in P_{\alpha}} \left[ {\mathbf n}({\mathbf r}) \cdot ({\mathbf r} - {\mathbf r}') \right] \frac{{\mathbf r} - {\mathbf r}'}{\| {\mathbf r} - {\mathbf r}' \|} \, dS \, .  
+$$
+
+**Dimension reduction applied to volume-volume interaction $P_{\alpha\beta}$** Given that 
+
+$$
+\nabla' \cdot \frac{\mathbf{r} - \mathbf{r}'}{\| \mathbf{r} - \mathbf{r}' \|} = \frac{-2}{\| \mathbf{r} - \mathbf{r}' \|}
+$$ 
+
+we obtain that the volume-volume interaction integral $P_{\alpha \beta}$ can be rewritten as  
+
+$$
+P_{\alpha \beta} = - \frac{1}{2} \int_{P_{\alpha}} \int_{P_{\beta}} \nabla' \cdot \frac{\mathbf{r} - \mathbf{r}'}{\| \mathbf{r} - \mathbf{r}' \|} d\Omega' \, d\Omega = - \frac{1}{2} \int_{P_{\alpha}} \int_{F_{\beta} \in P_{\beta}} \frac{(\mathbf{r} - \mathbf{r}') \cdot \mathbf{n}'}{\| \mathbf{r} - \mathbf{r}' \|} dS' \, d\Omega \, . 
+$$
+
+By interchanging the order of integration, we obtain 
+
+$$
+- \frac{1}{2} \int_{P_{\alpha}} \int_{F_{\beta} \in P_{\beta}} \frac{(\mathbf{r} - \mathbf{r}') \cdot \mathbf{n}'}{\| \mathbf{r} - \mathbf{r}' \|} \, dS' \, d\Omega = 
+- \frac{1}{2} \int_{F_{\beta} \in P_{\beta}} \mathbf{n}' \cdot \int_{P_{\alpha}} \frac{\mathbf{r} - \mathbf{r}'}{\| \mathbf{r} - \mathbf{r}' \|} \, d\Omega \, dS' \, . 
+$$
+
+We apply Euler Integration Theorem for homogeneous functions on the inner volume integral over $P_{\alpha}$ to obtain
+
+$$
+- \frac{1}{2} \int_{F_{\beta} \in P_{\beta}} \mathbf{n}' \cdot \int_{P_{\alpha}} \frac{\mathbf{r} - \mathbf{r}'}{\| \mathbf{r} - \mathbf{r}' \|} \, d\Omega \, dS' \, = 
+- \frac{1}{6} \int_{F_{\alpha} \in P_{\alpha}} \int_{F_{\beta} \in P_{\beta}} \frac{\left[(\mathbf{r} - \mathbf{r}') \cdot \mathbf{n} \right] \, \left[(\mathbf{r} - \mathbf{r}') \cdot \mathbf{n}'\right]}{\| \mathbf{r} - \mathbf{r}' \|} \, dS' \, dS
+$$
+
+We thus obtain that the 6D volume-volume interaction integral $P_{\alpha \beta}$ is given as the sum of $4*4 = 16$ 4D surface-surface interaction integral, or that 
+
+$$
+P_{\alpha \beta} = \int_{P_{\alpha}} \int_{P_{\beta}} \frac{1}{\| {\mathbf r} - {\mathbf r}' \|} \, 
+d\Omega' \, d\Omega = - \frac{1}{6} \int_{F_{\alpha} \in P_{\alpha}} \int_{F_{\beta} \in P_{\beta}} \frac{\left[(\mathbf{r} - \mathbf{r}') \cdot \mathbf{n} \right] \, \left[(\mathbf{r} - \mathbf{r}') \cdot \mathbf{n}'\right]}{\| \mathbf{r} - \mathbf{r}' \|} \, dS' \, dS \, .  
+$$
+
+**Dimension reduction applied to volume-surface interaction $PS_{\alpha\beta}$** To be completed. 
 
 **Integration by parts** Assume $\Omega \subset \mathbb{R}^3$ to be a volume in ${\mathbb R}^3$ bounded by a surface $\partial \Omega$ with outward normal ${\mathbf n}$. Assume $f(\mathbf{r})$ to be a scalar field on $\Omega$. Assume $\mathbf{V}(\mathbf{r})$ to be a vector field on $\Omega$ with normal component $V_n(\mathbf{n}) = \mathbf{V}(\mathbf{r}) \cdot \mathbf{n}$ on $\partial \Omega$. Then 
 
@@ -140,7 +208,7 @@ $$
 \end{eqnarray}
 $$
 
-(Note: unlike Eugene, we do not attach an index to $\mathbf{M}(\mathbf{r}')$. For us, the field to solve for is one and the same.) The total magnetic field will be denoted by ${\mathbf H}_{tot}(\mathbf{r})$. This field is the sum of the external and the induced magnetic field. We thus have that ${\mathbf H}_{ext} + {\mathbf H}_{M} = {\mathbf H}_{tot}$. The total field is equal to the external field in the exterior of $\overline{\Omega}$. The total field on $\overline{\Omega}$ is related to the magnetization via the constitutive equation ${\mathbf H}_{tot} = {\mathbf M}/\chi_{mag}$.
+(see e.g. [Section 4.4 A Second Approach to Magnetostatics](https://phys.libretexts.org/Bookshelves/Electricity_and_Magnetism/Book%3A_Applications_of_Maxwells_Equations_(Cochran_and_Heinrich)/04%3A_The_Magnetostatic_Field_I/4.04%3A_A_Second_Approach_to_Magnetostatics) of Cochran and Heinrich Libretext book [Applications_of_Maxwells_Equations](https://phys.libretexts.org/Bookshelves/Electricity_and_Magnetism/Book%3A_Applications_of_Maxwells_Equations_(Cochran_and_Heinrich))). (Note: unlike Eugene, we do not attach an index to $\mathbf{M}(\mathbf{r}')$. For us, the field to solve for is one and the same.) The total magnetic field will be denoted by ${\mathbf H}_{tot}(\mathbf{r})$. This field is the sum of the external and the induced magnetic field. We thus have that ${\mathbf H}_{ext} + {\mathbf H}_{M} = {\mathbf H}_{tot}$. The total field is equal to the external field in the exterior of $\overline{\Omega}$. The total field on $\overline{\Omega}$ is related to the magnetization via the constitutive equation ${\mathbf H}_{tot} = {\mathbf M}/\chi_{mag}$.
 
 ### Section 2.3: Vector Integro-Differential Equation for $\mathbf{M}(\mathbf{r})$ - Problem in Strong Form 
 
