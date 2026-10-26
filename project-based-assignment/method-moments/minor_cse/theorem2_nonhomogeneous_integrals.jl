@@ -266,3 +266,31 @@ function myI13delta(s1,s2,h,R0)
     val = hcubature(s -> (s[1]/h)*f3(h,sqrt(s[1]^2+R0^2)), (s1,), (s2,))[1]
     return val 
 end 
+
+function K1(a::Point3D,e::Edge3D) 
+    numer = norm(e.r2-a) + norm(e.r1-a) + norm(e.r2-e.r1)  
+    denom = norm(e.r2-a) + norm(e.r1-a) - norm(e.r2-e.r1)
+    if (denom==0.)
+        error("K1: division by zero")
+    else 
+        ans = log(numer/denom) 
+    end 
+    return ans    
+end; 
+
+function K1integrand(lmbd,a::Point3D,e::Edge3D) 
+    r  = e.r1+lmbd*e.len*e.tau
+    return e.len/norm(r-a)  
+end; 
+
+function K2(a::Point3D,e::Edge3D) 
+    s1 = dot(e1.r1-a,e1.tau)
+    numer = norm(e.r2-a) - norm(e.r1 - a) - s1*K1(a,e)   
+    denom = norm(e.r2-e.r1)
+    return numer/denom   
+end; 
+
+function K2integrand(lmbd,a::Point3D,e::Edge3D) 
+    r  = e.r1+lmbd*e.len*e.tau
+    return e.len*e(r)[2]/norm(r-a)   
+end;
